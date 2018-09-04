@@ -151,7 +151,8 @@ namespace TogglDesktop
             this.editPopup.EditView.SetTimer(this.timerEntryListView.Timer);
             this.timerEntryListView.Timer.RunningTimeEntrySecondPulse += this.updateTaskbarTooltip;
             this.timerEntryListView.Timer.StartStopClick += (sender, args) => this.closeEditPopup(true);
-            this.timerEntryListView.Entries.SetEditPopup(this.editPopup);
+            this.timerEntryListView.Timer.FocusDescriptionTextBox += (sender, args) => this.closeEditPopup(false);
+			this.timerEntryListView.Entries.SetEditPopup(this.editPopup);
             this.timerEntryListView.Entries.CloseEditPopup += (sender, args) => this.closeEditPopup(true);
 
             this.editPopup.IsVisibleChanged += this.editPopupVisibleChanged;
