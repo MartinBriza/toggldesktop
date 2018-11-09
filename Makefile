@@ -5,6 +5,13 @@ uname=$(shell uname)
 architecture=$(shell uname -m)
 timestamp=$(shell date "+%Y-%m-%d-%H-%M-%S")
 
+PREFIX=/usr/local
+BINDIR=${PREFIX}/bin
+LIBDIR=${PREFIX}/lib$(findstring 64, ${architecture})
+TOGGLLIBDIR=${LIBDIR}/toggldesktop
+DATADIR=${PREFIX}/share
+ICONDIR=${DATADIR}/icons
+
 pocodir=third_party/poco
 openssldir=third_party/openssl
 jsoncppdir=third_party/jsoncpp/dist
@@ -577,3 +584,26 @@ package:
 
 authors:
 	git log --all --format='%aN <%cE>' | sort -u > AUTHORS
+	
+
+install:
+	install -Dm755 src/ui/linux/TogglDesktop/build/release/TogglDesktop ${BINDIR}/TogglDesktop
+	chrpath -r ${LIBDIR}:${TOGGLLIBDIR} ${BINDIR}/TogglDesktop
+	install -Dm755 src/ui/linux/TogglDesktop.sh ${BINDIR}/TogglDesktop.sh
+	install -Dm644 src/lib/linux/TogglDesktopLibrary/build/release/libTogglDesktopLibrary.so.1 ${LIBDIR}/libTogglDesktopLibrary.so.1
+	install -d ${TOGGLLIBDIR}
+	install -Dm644 src/lib/linux/TogglDesktopLibrary/build/release/libPocoCrypto.so.50 ${TOGGLLIBDIR}/libPocoCrypto.so.50
+	install -Dm644 src/lib/linux/TogglDesktopLibrary/build/release/libPocoData.so.50 ${TOGGLLIBDIR}/libPocoData.so.50
+	install -Dm644 src/lib/linux/TogglDesktopLibrary/build/release/libPocoDataSQLite.so.50 ${TOGGLLIBDIR}/libPocoDataSQLite.so.50
+	install -Dm644 src/lib/linux/TogglDesktopLibrary/build/release/libPocoFoundation.so.50 ${TOGGLLIBDIR}/libPocoFoundation.so.50
+	install -Dm644 src/lib/linux/TogglDesktopLibrary/build/release/libPocoJSON.so.50 ${TOGGLLIBDIR}/libPocoJSON.so.50
+	install -Dm644 src/lib/linux/TogglDesktopLibrary/build/release/libPocoNet.so.50 ${TOGGLLIBDIR}/libPocoNet.so.50
+	install -Dm644 src/lib/linux/TogglDesktopLibrary/build/release/libPocoNetSSL.so.50 ${TOGGLLIBDIR}/libPocoNetSSL.so.50
+	install -Dm644 src/lib/linux/TogglDesktopLibrary/build/release/libPocoUtil.so.50 ${TOGGLLIBDIR}/libPocoUtil.so.50
+	install -Dm644 src/lib/linux/TogglDesktopLibrary/build/release/libPocoXML.so.50 ${TOGGLLIBDIR}/libPocoXML.so.50
+	install -Dm644 src/lib/linux/TogglDesktopLibrary/build/release/libcrypto.so.1.1 ${TOGGLLIBDIR}/libcrypto.so.1.1
+	install -Dm644 src/lib/linux/TogglDesktopLibrary/build/release/libssl.so.1.1 ${TOGGLLIBDIR}/libssl.so.1.1
+	install -Dm644 third_party/bugsnag-qt/build/release/libbugsnag-qt.so.1 ${TOGGLLIBDIR}/libbugsnag-qt.so.1
+	for res in 16 24 32 48 64 96 128 256 1024 ; do \
+		install -Dm644 src/ui/linux/TogglDesktop/icons/$${res}x$${res}/toggldesktop.png ${ICONDIR}/hicolor/$${res}x$${res}/toggldesktop.png ; \
+	done
