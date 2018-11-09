@@ -1,0 +1,47 @@
+{
+    "app-id": "com.toggl.Button",
+    "runtime": "org.kde.Platform",
+    "runtime-version": "5.11",
+    "sdk": "org.kde.Sdk",
+    "command": "TogglDesktop",
+    "rename-appdata-file": "toggldesktop.appdata.xml",
+    "rename-desktop-file": "toggldesktop.desktop",
+    "rename-icon": "toggldesktop",
+    "finish-args": [
+        "--socket=x11",
+        "--socket=wayland",
+        "--device=dri",
+        "--filesystem=host",
+        "--share=network",
+        "--share=ipc",
+        "--system-talk-name=org.freedesktop.UDisks2"
+    ],
+    "modules": [
+        {
+            "name": "TogglDesktop",
+            "buildsystem": "simple",
+            "build-commands": [
+                "mkdir -p /app/lib /app/bin /app/share/icons /app/share/appdata /app/share/applications",
+                "for i in src/ui/linux/TogglDesktop/icons/*; do install -d /app/share/icons/hicolor/$(basename $i)/apps; install -m644 $i/toggldesktop.png /app/share/icons/hicolor/$(basename $i)/apps/toggldesktop.png; done",
+                "make deps",
+                "make",
+                "cp src/ui/linux/TogglDesktop/build/release/TogglDesktop /app/bin",
+                "cp src/ui/linux/TogglDesktop.sh /app/bin/",
+                "cp src/ui/linux/toggldesktop.appdata.xml /app/share/appdata",
+                "cp src/ui/linux/toggldesktop.desktop /app/share/applications",
+                "cp third_party/poco/lib/Linux/x86_64/libPoco*.so* /app/lib/",
+                "cp third_party/bugsnag-qt/build/release/libbugsnag-qt.so.1 /app/lib/",
+                "cp src/lib/linux/TogglDesktopLibrary/build/release/libTogglDesktopLibrary.so.1 /app/lib/",
+                "cp third_party/openssl/*.so* /app/lib",
+                "cp src/ssl/cacert.pem /app/bin"
+            ],
+            "sources": [
+                {
+                    "type": "git",
+                    "url": "http://github.com/MartinBriza/toggldesktop",
+                    "tag": "flatpak"
+                }
+            ]
+        }
+    ]
+}
