@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Toggl Desktop
+Comment=Summary blurb
+Icon=toggldesktop
+Exec=TogglDesktop
+Terminal=false
+Categories=System;

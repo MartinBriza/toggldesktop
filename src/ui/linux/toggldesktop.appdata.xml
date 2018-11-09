@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<application>
+    <id type="desktop">toggldesktop.desktop</id>
+    <project_license>BSD-3-Clause</project_license>
+    <metadata_license>BSD-3_Clause</metadata_license>
+    <name>Toggl Desktop</name>
+    <summary>Summary blurb</summary>
+    <description>
+        <p>A longer text to describe what is this all about</p>
+    </description>
+    <keywords>
+        <keyword>toggl</keyword>
+        <keyword>time</keyword>
+        <keyword>tracking</keyword>
+        <keyword>productivity</keyword>
+        <keyword>some</keyword>
+        <keyword>other</keyword>
+        <keyword>tags</keyword>
+    </keywords>
+    <url type="homepage">https://toggl.com</url>
+    <!-- <screenshots> -->
+        <!-- <screenshot type="default">https://something.png</screenshot> --> 
+        <!-- <screenshot>https://somethingelse.png</screenshot> -->
+    <!-- </screenshots> -->
+    <update_contact>martin@toggl.com</update_contact>
+</application>
