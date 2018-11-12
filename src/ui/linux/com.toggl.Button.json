@@ -25,14 +25,9 @@
                 "for i in src/ui/linux/TogglDesktop/icons/*; do install -d /app/share/icons/hicolor/$(basename $i)/apps; install -m644 $i/toggldesktop.png /app/share/icons/hicolor/$(basename $i)/apps/toggldesktop.png; done",
                 "make deps",
                 "make",
-                "cp src/ui/linux/TogglDesktop/build/release/TogglDesktop /app/bin",
-                "cp src/ui/linux/TogglDesktop.sh /app/bin/",
+                "make install PREFIX=/app",
                 "cp src/ui/linux/toggldesktop.appdata.xml /app/share/appdata",
                 "cp src/ui/linux/toggldesktop.desktop /app/share/applications",
-                "cp third_party/poco/lib/Linux/x86_64/libPoco*.so* /app/lib/",
-                "cp third_party/bugsnag-qt/build/release/libbugsnag-qt.so.1 /app/lib/",
-                "cp src/lib/linux/TogglDesktopLibrary/build/release/libTogglDesktopLibrary.so.1 /app/lib/",
-                "cp third_party/openssl/*.so* /app/lib",
                 "cp src/ssl/cacert.pem /app/bin"
             ],
             "sources": [
