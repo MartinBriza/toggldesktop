@@ -13,6 +13,7 @@ class AutocompleteCombobox : public QComboBox
     public:
         AutocompleteCombobox(QWidget* parent);
         ~AutocompleteCombobox();
+        void setModel(QAbstractItemModel *model);
         void setView(QAbstractItemView *itemView);
         AutocompleteDropdownList *list;
 

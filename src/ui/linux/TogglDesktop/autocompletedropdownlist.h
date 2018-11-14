@@ -1,13 +1,14 @@
 #ifndef AUTOCOMPLETEDROPDOWN_H
 #define AUTOCOMPLETEDROPDOWN_H
 
+#include <QListView>
 #include <QListWidget>
 #include <QKeyEvent>
 #include <QMutex>
 
 #include "./autocompletecellwidget.h"
 
-class AutocompleteDropdownList : public QListWidget
+class AutocompleteDropdownList : public QListView
 {
     Q_OBJECT
 public:
@@ -27,7 +28,7 @@ signals:
     void fillData(AutocompleteView *view);
 
 public slots:
-    void onListItemClicked(QListWidgetItem* item);
+    //void onListItemClicked(QListWidgetItem* item);
 
 protected:
     void keyPressEvent(QKeyEvent *e);

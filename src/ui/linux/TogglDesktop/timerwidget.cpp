@@ -6,6 +6,7 @@
 #include <QApplication>  // NOLINT
 #include <QCompleter>  // NOLINT
 #include <QDebug>
+#include <QTimer>
 
 #include "./autocompleteview.h"
 #include "./timeentryview.h"
@@ -44,7 +45,8 @@ projectId(0) {
     connect(dropdown, SIGNAL(fillData(AutocompleteView*)),
             this, SLOT(fillInData(AutocompleteView*)));
 
-    ui->description->setModel(dropdown->model());
+    model = new AutoCompleteListModel(this);
+    ui->description->setModel(model);
     ui->description->setView(dropdown);
 
     ui->billable->setVisible(false);
@@ -63,6 +65,7 @@ TimerWidget::~TimerWidget() {
 }
 
 void TimerWidget::fillInData(AutocompleteView *view) {
+    model->setList( {view}, "");
     taskId = view->TaskID;
     projectId = view->ProjectID;
     ui->billable->setVisible(view->Billable);
@@ -79,12 +82,14 @@ void TimerWidget::fillInData(AutocompleteView *view) {
 }
 
 void TimerWidget::fillInAndStart() {
+    /*
     QListWidgetItem *it = dropdown->currentItem();
     AutocompleteCellWidget *cl = static_cast<AutocompleteCellWidget *>(
         dropdown->itemWidget(it));
     if (cl){
         fillInData(cl->view_item);
     }
+    */
     start();
 }
 

@@ -16,6 +16,12 @@ AutocompleteCombobox::~AutocompleteCombobox()
 {
 }
 
+void AutocompleteCombobox::setModel(QAbstractItemModel *model) {
+    if (view())
+        view()->setModel(model);
+    QComboBox::setModel(model);
+}
+
 void AutocompleteCombobox::setView(QAbstractItemView *itemView)
 {
     list = static_cast<AutocompleteDropdownList *>(itemView);
@@ -29,6 +35,7 @@ void AutocompleteCombobox::setView(QAbstractItemView *itemView)
 void AutocompleteCombobox::showPopup()
 {
     triggerFilter();
+    QComboBox::showPopup();
 }
 
 void AutocompleteCombobox::keyPress(QKeyEvent *e)
@@ -48,7 +55,7 @@ void AutocompleteCombobox::keyPressEvent(QKeyEvent *e)
         QComboBox::keyPressEvent(e);
         return;
     }
-
+/*
     if ((e->key() == Qt::Key_Enter
          || e->key() == Qt::Key_Return
          || e->key() == Qt::Key_Down)
@@ -56,7 +63,7 @@ void AutocompleteCombobox::keyPressEvent(QKeyEvent *e)
         showPopup();
         return;
     }
-
+*/
     QComboBox::keyPressEvent(e);
     //qDebug() << "FILTER: " << currentText();
 

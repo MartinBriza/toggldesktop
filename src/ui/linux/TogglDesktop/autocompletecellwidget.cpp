@@ -1,6 +1,8 @@
 #include "autocompletecellwidget.h"
 #include "ui_autocompletecellwidget.h"
 #include <QDebug>
+#include <QPainter>
+#include <QTextDocument>
 
 AutocompleteCellWidget::AutocompleteCellWidget(QWidget *parent) :
     QWidget(parent),
@@ -93,3 +95,28 @@ void AutocompleteCellWidget::display(AutocompleteView *view) {
     ui->label->setText(text);
 }
 
+
+AutoCompleteItemDelegate::AutoCompleteItemDelegate(QObject *parent)
+    : QStyledItemDelegate(parent)
+{
+
+}
+
+void AutoCompleteItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
+    painter->save();
+
+    QTextDocument doc;
+    doc.setHtml(index.data(Qt::UserRole).toString());
+
+    option.widget->style()->drawControl(QStyle::CE_ItemViewItem, &option, painter);
+
+    painter->translate(option.rect.left(), option.rect.top());
+    QRect clip(0, 0, option.rect.width(), option.rect.height());
+    doc.drawContents(painter, clip);
+
+    painter->restore();
+}
+
+QSize AutoCompleteItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const {
+    return QStyledItemDelegate::sizeHint(option, index);
+}

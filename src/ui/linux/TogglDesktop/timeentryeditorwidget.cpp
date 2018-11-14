@@ -27,11 +27,15 @@ timeEntryDropdown(new AutocompleteDropdownList(this)),
 projectDropdown(new AutocompleteDropdownList(this)) {
     ui->setupUi(this);
 
-    ui->description->setModel(timeEntryDropdown->model());
-    ui->description->setView(timeEntryDropdown);
+    model = new AutoCompleteListModel(this);
+    proxy = new AutoCompleteFilterModel(model);
+    //proxy->setFilter("aa");
 
-    ui->project->setModel(projectDropdown->model());
+    ui->description->setView(timeEntryDropdown);
+    ui->description->setModel(proxy);
+
     ui->project->setView(projectDropdown);
+    ui->project->setModel(proxy);
 
     ui->description->installEventFilter(this);
     ui->project->installEventFilter(this);
@@ -129,6 +133,7 @@ void TimeEntryEditorWidget::displayTimeEntryAutocomplete(
         return;
     }
     QString filter = ui->description->currentText();
+    model->setList(list, "");
     timeEntryDropdown->setList(list, "");
     ui->description->setEditText(filter);
 }
@@ -381,21 +386,25 @@ void TimeEntryEditorWidget::on_description_currentIndexChanged(int index) {
 }
 
 void TimeEntryEditorWidget::fillInDescriptionReturnData() {
+    /*
     QListWidgetItem *it = timeEntryDropdown->currentItem();
     AutocompleteCellWidget *cl = static_cast<AutocompleteCellWidget *>(
-    timeEntryDropdown->itemWidget(it));
-    if (cl){
+        timeEntryDropdown->itemWidget(it));
+    if (cl) {
         fillInData(cl->view_item);
     }
+    */
 }
 
 void TimeEntryEditorWidget::fillInProjectReturnData() {
+    /*
     QListWidgetItem *it = projectDropdown->currentItem();
     AutocompleteCellWidget *cl = static_cast<AutocompleteCellWidget *>(
-    projectDropdown->itemWidget(it));
-    if (cl){
+        projectDropdown->itemWidget(it));
+    if (cl) {
         fillInData(cl->view_item);
     }
+    */
 }
 
 void TimeEntryEditorWidget::fillInData(AutocompleteView *view) {
@@ -414,9 +423,9 @@ void TimeEntryEditorWidget::fillInData(AutocompleteView *view) {
     ui->description->hidePopup();
 
     TogglApi::instance->setTimeEntryProject(guid,
-                                                view->TaskID,
-                                                view->ProjectID,
-                                                "");
+                                            view->TaskID,
+                                            view->ProjectID,
+                                            "");
 
     if (view->Billable) {
         TogglApi::instance->setTimeEntryBillable(guid, view->Billable);
@@ -445,6 +454,7 @@ void TimeEntryEditorWidget::on_description_activated(const QString &arg1) {
 }
 
 void TimeEntryEditorWidget::on_project_activated(int index) {
+    /*
     QVariant data = ui->project->currentData();
     if (data.canConvert<AutocompleteView *>()) {
         AutocompleteView *view = data.value<AutocompleteView *>();
@@ -453,6 +463,7 @@ void TimeEntryEditorWidget::on_project_activated(int index) {
                                                 view->ProjectID,
                                                 "");
     }
+    */
 }
 
 void TimeEntryEditorWidget::on_duration_editingFinished() {

@@ -1,18 +1,22 @@
 #include "autocompletedropdownlist.h"
 #include <QDebug>
 
+#include "autocompletelistmodel.h"
+
 AutocompleteDropdownList::AutocompleteDropdownList(QWidget *parent) :
-    QListWidget(parent),
+    QListView(parent),
     types(QStringList()),
     loadedOnce(false)
 {
+    setViewMode(QListView::ListMode);
     types << "TIME ENTRIES" << "TASKS" << "PROJECTS" << "WORKSPACES";
     connect(this, SIGNAL(itemPressed(QListWidgetItem*)),
             this, SLOT(onListItemClicked(QListWidgetItem*)));
-    setUniformItemSizes(true);
+    //setUniformItemSizes(true);
     setStyleSheet("QListView::item:selected { background: #e8e8e8 }");
+    setItemDelegate(new AutoCompleteItemDelegate(this));
 }
-
+/*
 void AutocompleteDropdownList::onListItemClicked(QListWidgetItem* item)
 {
     AutocompleteCellWidget *cl = 0;
@@ -20,6 +24,7 @@ void AutocompleteDropdownList::onListItemClicked(QListWidgetItem* item)
             itemWidget(item));
     fillData(cl->view_item);
 }
+*/
 
 void AutocompleteDropdownList::keyPressEvent(QKeyEvent *e)
 {
@@ -39,7 +44,7 @@ void AutocompleteDropdownList::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Backtab:
     case Qt::Key_Down:
     case Qt::Key_Up:
-        QListWidget::keyPressEvent(e);
+        QListView::keyPressEvent(e);
         return;
     }
 
@@ -47,6 +52,7 @@ void AutocompleteDropdownList::keyPressEvent(QKeyEvent *e)
 }
 
 bool AutocompleteDropdownList::filterItems(QString filter) {
+    /*
     uint64_t lastWID = 0;
     int64_t lastCID = -1;
     int64_t lastPID = -1;
@@ -336,6 +342,8 @@ bool AutocompleteDropdownList::filterItems(QString filter) {
     }
 
     return (itemCount != 0);
+    */
+    return true;
 }
 
 void AutocompleteDropdownList::setList(QVector<AutocompleteView *> autocompletelist,
