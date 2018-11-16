@@ -67,11 +67,10 @@ QString AutoCompleteItemDelegate::format(const AutocompleteView *view) const {
             table.append("<span style='font-size:12px;color:" + view->ProjectColor + ";'> •" + view->ProjectLabel + "</span>");
         if (view->ClientID)
             table.append("<span style='font-size:8px;top-padding:1px;bottom-padding:1px'>" + view->ClientLabel + "</span>");
-        qCritical() << "Returning" << table;
         return table;
     }
     default:
         //ui->label->setStyleSheet(transparent + "padding-top:7px;padding-left:15px;font-size:9pt;");
-        return view->Description;
+        return view->ProjectLabel + view->TaskLabel + view->ClientLabel + view->Description;
     }
 }

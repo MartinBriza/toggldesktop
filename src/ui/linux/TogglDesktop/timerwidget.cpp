@@ -110,6 +110,7 @@ void TimerWidget::focusChanged(QWidget *old, QWidget *now) {
 
 void TimerWidget::displayRunningTimerState(
     TimeEntryView *te) {
+    return;
     ui->start->setText("Stop");
     ui->start->setStyleSheet(
         "background-color: #e20000; color:'white'; font-weight: bold;");

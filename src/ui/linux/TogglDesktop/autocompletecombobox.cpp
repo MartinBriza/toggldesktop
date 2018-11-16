@@ -7,10 +7,10 @@ AutocompleteCombobox::AutocompleteCombobox(QWidget* parent) :
 {
     QComboBox::setView(list);
     QComboBox::setModel(filter);
+    QComboBox::setLineEdit(new AutocompleteLineEdit(this));
     view()->setModel(filter);
     connect(list, SIGNAL(keyPress(QKeyEvent *)), this, SLOT(keyPress(QKeyEvent *)));
-    //connect(this, &AutocompleteCombobox::currentTextChanged, this, &AutocompleteCombobox::onCurrentTextChanged);
-    connect(this, SIGNAL(activated(int)), this, SLOT(onItemActivated(int)));
+    connect(lineEdit(), &QLineEdit::textChanged, this, &AutocompleteCombobox::onCurrentTextChanged);
 }
 
 AutocompleteCombobox::~AutocompleteCombobox()
@@ -21,7 +21,6 @@ void AutocompleteCombobox::setModel(QAbstractItemModel *model) {
     filter->setSourceModel(model);
 }
 
-/*
 void AutocompleteCombobox::keyPress(QKeyEvent *e)
 {
     keyPressEvent(e);
@@ -49,18 +48,37 @@ void AutocompleteCombobox::keyPressEvent(QKeyEvent *e)
     }
 */
 
-    //QComboBox::keyPressEvent(e);
-    //qDebug() << "FILTER: " << currentText();
-//}
+    if (filter->rowCount() > 0)
+        showPopup();
+    else
+        hidePopup();
 
-void AutocompleteCombobox::onCurrentTextChanged() {
-    //filter->setFilter(currentText());
+    qobject_cast<AutocompleteLineEdit*>(lineEdit())->keyPressEvent(e);
+
+
+    if (filter->rowCount() > 0)
+        showPopup();
+    //qDebug() << "FILTER: " << currentText();
 }
 
-void AutocompleteCombobox::onItemActivated(int index) {
-    qCritical() << "Index activated:" << index << "Current index:" << currentIndex();
-    if (index >= 0) {
-        qCritical() << "Data at index" << index << "is" << itemData(index, Qt::UserRole);
-        qCritical() << "Text at index" << index << "is" << itemData(index, Qt::DisplayRole);
-    }
+void AutocompleteCombobox::onCurrentTextChanged() {
+    static QString previous;
+    QString oldString = lineEdit()->text();
+    if (previous == oldString)
+        return;
+    filter->setFilter(lineEdit()->text());
+    lineEdit()->setText(oldString);
+    previous = oldString;
+
+    if (filter->rowCount() <= 0)
+        hidePopup();
+}
+AutocompleteLineEdit::AutocompleteLineEdit(QWidget *parent) :
+    QLineEdit(parent)
+{
+
+}
+
+void AutocompleteLineEdit::keyPressEvent(QKeyEvent *e) {
+    QLineEdit::keyPressEvent(e);
 }

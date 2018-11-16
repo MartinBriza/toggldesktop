@@ -2,6 +2,7 @@
 #define AUTOCOMPLETECOMBOBOX_H
 
 #include <QComboBox>
+#include <QLineEdit>
 #include <QKeyEvent>
 #include <QDebug>
 #include <QTimer>
@@ -21,12 +22,19 @@ class AutocompleteCombobox : public QComboBox
         AutocompleteFilterModel *filter;
 
     protected:
-        //void keyPressEvent(QKeyEvent *e);
+        void keyPressEvent(QKeyEvent *e);
 
     private slots:
-        //void keyPress(QKeyEvent *e);
+        void keyPress(QKeyEvent *e);
         void onCurrentTextChanged();
-        void onItemActivated(int index);
+};
+
+class AutocompleteLineEdit : public QLineEdit
+{
+    Q_OBJECT
+public:
+    AutocompleteLineEdit(QWidget *parent = nullptr);
+    void keyPressEvent(QKeyEvent *e);
 };
 
 #endif // AUTOCOMPLETECOMBOBOX_H

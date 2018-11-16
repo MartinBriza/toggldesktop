@@ -9,7 +9,6 @@ AutocompleteListModel::AutocompleteListModel(QObject *parent) :
 
 void AutocompleteListModel::setList(QVector<AutocompleteView *> autocompletelist)
 {
-    qCritical() << "MODEL RESET";
     beginResetModel();
     list = autocompletelist;
     endResetModel();
@@ -24,8 +23,12 @@ int AutocompleteListModel::rowCount(const QModelIndex &parent) const {
 }
 
 QVariant AutocompleteListModel::data(const QModelIndex &index, int role) const {
-    if (role == Qt::DisplayRole)
-        return list.at(index.row())->Description;
+    auto view = list.at(index.row());
+    if (!view)
+        return QVariant();
+    if (role == Qt::DisplayRole || role == Qt::EditRole) {
+        return view->Description;
+    }
     if (role == Qt::UserRole)
         return QVariant::fromValue(list.at(index.row()));
     return QVariant();
@@ -299,7 +302,7 @@ bool AutocompleteFilterModel::filterAcceptsRow(int source_row, const QModelIndex
 
     auto view = qvariant_cast<AutocompleteView*>(sourceModel()->index(source_row, 0, source_parent).data(Qt::UserRole));
     auto itemText = (view->Type == 1) ? view->ProjectAndTaskLabel.toLower(): view->Text.toLower();
-    for (auto currentFilter : filterRegExp().pattern().split(" ")) {
+    for (auto currentFilter : filterRegExp().pattern().toLower().split(" ")) {
         if (itemText.contains(currentFilter))
             return true;
     }

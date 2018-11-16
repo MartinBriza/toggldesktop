@@ -32,7 +32,7 @@ void AutocompleteDropdownList::keyPressEvent(QKeyEvent *e)
 {
     bool modifiers = e->modifiers() & (Qt::ControlModifier | Qt::ShiftModifier);
     if (modifiers) {
-        keyPress(e);
+        emit keyPress(e);
         return;
     }
 
@@ -40,7 +40,8 @@ void AutocompleteDropdownList::keyPressEvent(QKeyEvent *e)
     {
     case Qt::Key_Enter:
     case Qt::Key_Return:
-        returnPressed();
+        emit returnPressed();
+        return;
     case Qt::Key_Escape:
     case Qt::Key_Tab:
     case Qt::Key_Backtab:
@@ -50,7 +51,7 @@ void AutocompleteDropdownList::keyPressEvent(QKeyEvent *e)
         return;
     }
 
-    keyPress(e);
+    emit keyPress(e);
 }
 
 bool AutocompleteDropdownList::filterItems(QString filter) {
