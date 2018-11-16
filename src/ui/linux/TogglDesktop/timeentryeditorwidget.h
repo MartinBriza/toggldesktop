@@ -30,7 +30,6 @@ class TimeEntryEditorWidget : public QWidget {
     void setSelectedColor(QString color);
 
  public slots:
-    void fillInData(AutocompleteView *view);
     void fillInDescriptionReturnData();
     void fillInProjectReturnData();
 
@@ -61,10 +60,8 @@ class TimeEntryEditorWidget : public QWidget {
 
     bool confirmlessDelete;
 
-    AutocompleteDropdownList *timeEntryDropdown;
-    AutocompleteDropdownList *projectDropdown;
-    AutoCompleteListModel *model;
-    AutoCompleteFilterModel *proxy;
+    AutocompleteListModel *timeEntryModel;
+    AutocompleteListModel *projectModel;
 
     bool applyNewProject();
     bool eventFilter(QObject *object, QEvent *event);

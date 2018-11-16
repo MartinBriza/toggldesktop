@@ -6,7 +6,7 @@
 #include <QKeyEvent>
 #include <QMutex>
 
-#include "./autocompletecellwidget.h"
+#include "./autocompleteitemdelegate.h"
 
 class AutocompleteDropdownList : public QListView
 {
@@ -18,17 +18,15 @@ public:
 
 private:
     QVector<AutocompleteView *> list;
-    QStringList types;
     QMutex render_m_;
     bool loadedOnce;
 
 signals:
     void keyPress(QKeyEvent *e);
     void returnPressed();
-    void fillData(AutocompleteView *view);
 
 public slots:
-    //void onListItemClicked(QListWidgetItem* item);
+    void onItemClicked(const QModelIndex &index);
 
 protected:
     void keyPressEvent(QKeyEvent *e);

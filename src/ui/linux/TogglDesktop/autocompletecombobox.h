@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QTimer>
 #include "./autocompletedropdownlist.h"
+#include "./autocompletelistmodel.h"
 
 class AutocompleteCombobox : public QComboBox
 {
@@ -14,20 +15,18 @@ class AutocompleteCombobox : public QComboBox
         AutocompleteCombobox(QWidget* parent);
         ~AutocompleteCombobox();
         void setModel(QAbstractItemModel *model);
-        void setView(QAbstractItemView *itemView);
-        AutocompleteDropdownList *list;
-
-        void showPopup() override;
 
     private:
-        QTimer *timer;
+        AutocompleteDropdownList *list;
+        AutocompleteFilterModel *filter;
 
     protected:
-        void keyPressEvent(QKeyEvent *e);
+        //void keyPressEvent(QKeyEvent *e);
 
     private slots:
-        void keyPress(QKeyEvent *e);
-        void triggerFilter();
+        //void keyPress(QKeyEvent *e);
+        void onCurrentTextChanged();
+        void onItemActivated(int index);
 };
 
 #endif // AUTOCOMPLETECOMBOBOX_H

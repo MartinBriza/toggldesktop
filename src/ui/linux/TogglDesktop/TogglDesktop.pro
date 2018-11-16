@@ -47,7 +47,7 @@ SOURCES += main.cpp\
     colorpicker.cpp \
     countryview.cpp \
     overlaywidget.cpp \
-    autocompletecellwidget.cpp \
+    autocompleteitemdelegate.cpp \
     autocompletecombobox.cpp \
     autocompletedropdownlist.cpp \
     autocompletelistmodel.cpp
@@ -76,10 +76,10 @@ HEADERS  += \
     colorpicker.h \
     countryview.h \
     overlaywidget.h \
-    autocompletecellwidget.h \
     autocompletecombobox.h \
     autocompletedropdownlist.h \
-    autocompletelistmodel.h
+    autocompletelistmodel.h \
+    autocompleteitemdelegate.h
 
 FORMS    += \
     mainwindowcontroller.ui \

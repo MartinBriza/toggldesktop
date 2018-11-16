@@ -10,30 +10,16 @@ namespace Ui {
 class AutocompleteCellWidget;
 }
 
-class AutocompleteCellWidget : public QWidget
-{
-    Q_OBJECT
-
-public:
-    explicit AutocompleteCellWidget(QWidget *parent = nullptr);
-    ~AutocompleteCellWidget();
-
-    void display(AutocompleteView *view);
-
-    AutocompleteView *view_item;
-    bool filter(QString filter);
-
-private:
-    Ui::AutocompleteCellWidget *ui;
-};
-
-class AutoCompleteItemDelegate : public QStyledItemDelegate
+class AutoCompleteItemDelegate : public QItemDelegate
 {
     Q_OBJECT
 public:
     AutoCompleteItemDelegate(QObject *parent = nullptr);
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+
+private:
+    QString format(const AutocompleteView *view) const;
 };
 
 #endif // AUTOCOMPLETECELLWIDGET_H

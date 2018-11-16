@@ -23,19 +23,12 @@ timer(new QTimer(this)),
 colorPicker(new ColorPicker(this)),
 duration(0),
 previousTagList(""),
-timeEntryDropdown(new AutocompleteDropdownList(this)),
-projectDropdown(new AutocompleteDropdownList(this)) {
+timeEntryModel(new AutocompleteListModel(this)),
+projectModel(new AutocompleteListModel(this)) {
     ui->setupUi(this);
 
-    model = new AutoCompleteListModel(this);
-    proxy = new AutoCompleteFilterModel(model);
-    //proxy->setFilter("aa");
-
-    ui->description->setView(timeEntryDropdown);
-    ui->description->setModel(proxy);
-
-    ui->project->setView(projectDropdown);
-    ui->project->setModel(proxy);
+    ui->description->setModel(timeEntryModel);
+    ui->project->setModel(projectModel);
 
     ui->description->installEventFilter(this);
     ui->project->installEventFilter(this);
@@ -75,18 +68,6 @@ projectDropdown(new AutocompleteDropdownList(this)) {
             this, SLOT(setProjectColors(QVector<char*>)));  // NOLINT
 
     connect(timer, SIGNAL(timeout()), this, SLOT(timeout()));
-
-    connect(timeEntryDropdown, SIGNAL(fillData(AutocompleteView*)),
-            this, SLOT(fillInData(AutocompleteView*)));
-
-    connect(timeEntryDropdown, SIGNAL(returnPressed()),
-            this, SLOT(fillInDescriptionReturnData()));
-
-    connect(projectDropdown, SIGNAL(fillData(AutocompleteView*)),
-            this, SLOT(fillInData(AutocompleteView*)));
-
-    connect(projectDropdown, SIGNAL(returnPressed()),
-            this, SLOT(fillInProjectReturnData()));
 
     TogglApi::instance->getProjectColors();
 }
@@ -133,9 +114,8 @@ void TimeEntryEditorWidget::displayTimeEntryAutocomplete(
         return;
     }
     QString filter = ui->description->currentText();
-    model->setList(list, "");
-    timeEntryDropdown->setList(list, "");
-    ui->description->setEditText(filter);
+    timeEntryModel->setList(list);
+    //ui->description->setEditText(filter);
 }
 
 void TimeEntryEditorWidget::displayProjectAutocomplete(
@@ -145,7 +125,7 @@ void TimeEntryEditorWidget::displayProjectAutocomplete(
         return;
     }
     QString filter = ui->project->currentText();
-    projectDropdown->setList(list, "");
+    projectModel->setList(list);
 }
 
 void TimeEntryEditorWidget::displayWorkspaceSelect(
@@ -181,12 +161,14 @@ void TimeEntryEditorWidget::displayTimeEntryEditor(
     TimeEntryView *view,
     const QString focused_field_name) {
 
+    /*
     if (!ui->description->hasFocus() && !timeEntryDropdown->hasFocus()) {
         ui->description->setEditText(view->Description);
     }
     if (!ui->project->hasFocus() && !projectDropdown->hasFocus()) {
         ui->project->setEditText(view->ProjectAndTaskLabel);
     }
+    */
     if (!ui->duration->hasFocus()) {
         ui->duration->setText(view->Duration);
     }
@@ -264,8 +246,10 @@ void TimeEntryEditorWidget::displayTimeEntryEditor(
 void TimeEntryEditorWidget::on_doneButton_clicked() {
     if (applyNewProject()) {
         TogglApi::instance->viewTimeEntryList();
+        /*
         timeEntryDropdown->filterItems("");
         projectDropdown->filterItems("");
+        */
     }
 }
 
@@ -306,7 +290,7 @@ bool TimeEntryEditorWidget::applyNewProject() {
 }
 
 bool TimeEntryEditorWidget::eventFilter(QObject *object, QEvent *event) {
-    if (event->type() == QEvent::FocusOut) {
+    if (event->type() == QEvent::FocusOut && 0) { // TODO
         if (object == ui->description) {
             TogglApi::instance->setTimeEntryDescription(guid,
                     ui->description->currentText());
@@ -355,6 +339,7 @@ void TimeEntryEditorWidget::on_newProjectWorkspace_currentIndexChanged(
 }
 
 void TimeEntryEditorWidget::on_description_currentIndexChanged(int index) {
+    return; // TODO
     QVariant data = ui->description->currentData();
     if (data.canConvert<AutocompleteView *>()) {
         AutocompleteView *view = data.value<AutocompleteView *>();
@@ -407,6 +392,7 @@ void TimeEntryEditorWidget::fillInProjectReturnData() {
     */
 }
 
+/*
 void TimeEntryEditorWidget::fillInData(AutocompleteView *view) {
     QString currentDescription = ui->description->currentText();
     QString currentProject = view->ProjectAndTaskLabel;
@@ -448,6 +434,7 @@ void TimeEntryEditorWidget::fillInData(AutocompleteView *view) {
     timeEntryDropdown->filterItems("");
     projectDropdown->filterItems("");
 }
+*/
 
 void TimeEntryEditorWidget::on_description_activated(const QString &arg1) {
     TogglApi::instance->setTimeEntryDescription(guid, arg1);

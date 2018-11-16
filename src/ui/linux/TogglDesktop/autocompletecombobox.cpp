@@ -2,42 +2,26 @@
 
 AutocompleteCombobox::AutocompleteCombobox(QWidget* parent) :
     QComboBox(parent),
-    timer(new QTimer(this))
+    list(new AutocompleteDropdownList(this)),
+    filter(new AutocompleteFilterModel(this))
 {
-    timer->setSingleShot(true);
-    // setup timer signal and slot
-    connect(timer, SIGNAL(timeout()),
-        this, SLOT(triggerFilter()));
+    QComboBox::setView(list);
+    QComboBox::setModel(filter);
+    view()->setModel(filter);
+    connect(list, SIGNAL(keyPress(QKeyEvent *)), this, SLOT(keyPress(QKeyEvent *)));
+    //connect(this, &AutocompleteCombobox::currentTextChanged, this, &AutocompleteCombobox::onCurrentTextChanged);
+    connect(this, SIGNAL(activated(int)), this, SLOT(onItemActivated(int)));
 }
-
-
 
 AutocompleteCombobox::~AutocompleteCombobox()
 {
 }
 
 void AutocompleteCombobox::setModel(QAbstractItemModel *model) {
-    if (view())
-        view()->setModel(model);
-    QComboBox::setModel(model);
+    filter->setSourceModel(model);
 }
 
-void AutocompleteCombobox::setView(QAbstractItemView *itemView)
-{
-    list = static_cast<AutocompleteDropdownList *>(itemView);
-    QComboBox::setView(itemView);
-
-    connect(list, SIGNAL(keyPress(QKeyEvent *)),  // NOLINT
-                this, SLOT(keyPress(QKeyEvent *)));  // NOLINT
-
-}
-
-void AutocompleteCombobox::showPopup()
-{
-    triggerFilter();
-    QComboBox::showPopup();
-}
-
+/*
 void AutocompleteCombobox::keyPress(QKeyEvent *e)
 {
     keyPressEvent(e);
@@ -64,23 +48,19 @@ void AutocompleteCombobox::keyPressEvent(QKeyEvent *e)
         return;
     }
 */
-    QComboBox::keyPressEvent(e);
+
+    //QComboBox::keyPressEvent(e);
     //qDebug() << "FILTER: " << currentText();
+//}
 
-    if (timer->isActive()) {
-        timer->stop();
-    }
-
-    timer->start(200);
+void AutocompleteCombobox::onCurrentTextChanged() {
+    //filter->setFilter(currentText());
 }
 
-void AutocompleteCombobox::triggerFilter()
-{
-    QString lastText = currentText();
-    if (list->filterItems(currentText())) {
-        QComboBox::showPopup();
-    } else {
-        QComboBox::hidePopup();
+void AutocompleteCombobox::onItemActivated(int index) {
+    qCritical() << "Index activated:" << index << "Current index:" << currentIndex();
+    if (index >= 0) {
+        qCritical() << "Data at index" << index << "is" << itemData(index, Qt::UserRole);
+        qCritical() << "Text at index" << index << "is" << itemData(index, Qt::DisplayRole);
     }
-    setEditText(lastText);
 }

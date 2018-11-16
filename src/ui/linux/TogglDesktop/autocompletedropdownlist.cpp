@@ -5,16 +5,18 @@
 
 AutocompleteDropdownList::AutocompleteDropdownList(QWidget *parent) :
     QListView(parent),
-    types(QStringList()),
     loadedOnce(false)
 {
     setViewMode(QListView::ListMode);
-    types << "TIME ENTRIES" << "TASKS" << "PROJECTS" << "WORKSPACES";
-    connect(this, SIGNAL(itemPressed(QListWidgetItem*)),
-            this, SLOT(onListItemClicked(QListWidgetItem*)));
-    //setUniformItemSizes(true);
-    setStyleSheet("QListView::item:selected { background: #e8e8e8 }");
+    setUniformItemSizes(true);
     setItemDelegate(new AutoCompleteItemDelegate(this));
+    connect(this, &AutocompleteDropdownList::clicked, this, &AutocompleteDropdownList::onItemClicked);
+}
+
+void AutocompleteDropdownList::onItemClicked(const QModelIndex &index)
+{
+    qCritical() << "Item clicked";
+    qCritical() << qvariant_cast<AutocompleteView*>(index.data())->Description << "clicked";
 }
 /*
 void AutocompleteDropdownList::onListItemClicked(QListWidgetItem* item)

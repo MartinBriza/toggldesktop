@@ -11,7 +11,7 @@
 #include "./autocompleteview.h"
 #include "./timeentryview.h"
 #include "./toggl.h"
-#include "./autocompletecellwidget.h"
+#include "./autocompleteitemdelegate.h"
 
 TimerWidget::TimerWidget(QWidget *parent) : QWidget(parent),
 ui(new Ui::TimerWidget),
@@ -45,7 +45,7 @@ projectId(0) {
     connect(dropdown, SIGNAL(fillData(AutocompleteView*)),
             this, SLOT(fillInData(AutocompleteView*)));
 
-    model = new AutoCompleteListModel(this);
+    model = new AutocompleteListModel(this);
     ui->description->setModel(model);
     ui->description->setView(dropdown);
 
@@ -65,7 +65,7 @@ TimerWidget::~TimerWidget() {
 }
 
 void TimerWidget::fillInData(AutocompleteView *view) {
-    model->setList( {view}, "");
+    model->setList( {view});
     taskId = view->TaskID;
     projectId = view->ProjectID;
     ui->billable->setVisible(view->Billable);

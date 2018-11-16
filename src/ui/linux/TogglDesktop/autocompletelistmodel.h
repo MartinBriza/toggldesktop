@@ -6,12 +6,12 @@
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
 
-class AutoCompleteListModel : public QAbstractListModel
+class AutocompleteListModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    AutoCompleteListModel(QObject *parent = nullptr);
-    void setList(QVector<AutocompleteView *> autocompletelist, QString filter);
+    AutocompleteListModel(QObject *parent = nullptr);
+    void setList(QVector<AutocompleteView *> autocompletelist);
 
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
@@ -22,11 +22,11 @@ private:
     QVector<AutocompleteView *> list;
 };
 
-class AutoCompleteFilterModel : public QSortFilterProxyModel
+class AutocompleteFilterModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 public:
-    AutoCompleteFilterModel(QAbstractListModel *sourceModel = nullptr);
+    AutocompleteFilterModel(QObject *parent, QAbstractListModel *sourceModel = nullptr);
 
     void setFilter(const QString &filter);
 

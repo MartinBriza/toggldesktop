@@ -69,7 +69,7 @@ class TimerWidget : public QWidget {
     uint64_t projectId;
 
     AutocompleteDropdownList *dropdown;
-    AutoCompleteListModel *model;
+    AutocompleteListModel *model;
 
     bool timeEntryAutocompleteNeedsUpdate;
     QVector<AutocompleteView *> timeEntryAutocompleteUpdate;
