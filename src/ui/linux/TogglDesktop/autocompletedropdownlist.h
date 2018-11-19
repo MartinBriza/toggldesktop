@@ -13,13 +13,6 @@ class AutocompleteDropdownList : public QListView
     Q_OBJECT
 public:
     explicit AutocompleteDropdownList(QWidget *parent = 0);
-    bool filterItems(QString filter);
-    void setList(QVector<AutocompleteView *> autocompletelist, QString filter);
-
-private:
-    QVector<AutocompleteView *> list;
-    QMutex render_m_;
-    bool loadedOnce;
 
 signals:
     void keyPress(QKeyEvent *e);

@@ -9,6 +9,8 @@ AutocompleteListModel::AutocompleteListModel(QObject *parent) :
 
 void AutocompleteListModel::setList(QVector<AutocompleteView *> autocompletelist)
 {
+    if (list == autocompletelist)
+        return;
     beginResetModel();
     list = autocompletelist;
     endResetModel();

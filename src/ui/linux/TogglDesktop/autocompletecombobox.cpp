@@ -11,6 +11,7 @@ AutocompleteCombobox::AutocompleteCombobox(QWidget* parent) :
     view()->setModel(filter);
     connect(list, SIGNAL(keyPress(QKeyEvent *)), this, SLOT(keyPress(QKeyEvent *)));
     connect(lineEdit(), &QLineEdit::textChanged, this, &AutocompleteCombobox::onCurrentTextChanged);
+    connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(onCurrentIndexChanged(int)));
 }
 
 AutocompleteCombobox::~AutocompleteCombobox()
@@ -19,6 +20,13 @@ AutocompleteCombobox::~AutocompleteCombobox()
 
 void AutocompleteCombobox::setModel(QAbstractItemModel *model) {
     filter->setSourceModel(model);
+}
+
+AutocompleteView *AutocompleteCombobox::currentItem() {
+    qCritical() << __FUNCTION__ << currentData() << (qvariant_cast<AutocompleteView*>(currentData()) ? qvariant_cast<AutocompleteView*>(currentData())->Description : "N/A");
+    if (currentData().isValid())
+        return qvariant_cast<AutocompleteView*>(currentData());
+    return nullptr;
 }
 
 void AutocompleteCombobox::keyPress(QKeyEvent *e)
@@ -38,6 +46,12 @@ void AutocompleteCombobox::keyPressEvent(QKeyEvent *e)
         QComboBox::keyPressEvent(e);
         return;
     }
+
+    if (e->key() == Qt::Key_Enter || e->key() == Qt::Key_Return) {
+        qCritical() << "AYY";
+        emit returnPressed();
+    }
+
 /*
     if ((e->key() == Qt::Key_Enter
          || e->key() == Qt::Key_Return
@@ -68,11 +82,17 @@ void AutocompleteCombobox::onCurrentTextChanged() {
         return;
     filter->setFilter(lineEdit()->text());
     lineEdit()->setText(oldString);
-    previous = oldString;
+    //previous = oldString;
 
     if (filter->rowCount() <= 0)
         hidePopup();
 }
+
+void AutocompleteCombobox::onCurrentIndexChanged(int idx) {
+    qCritical() << "Current index is:" << idx;
+    currentItem();
+}
+
 AutocompleteLineEdit::AutocompleteLineEdit(QWidget *parent) :
     QLineEdit(parent)
 {

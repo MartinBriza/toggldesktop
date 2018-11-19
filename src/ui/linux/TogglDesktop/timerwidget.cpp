@@ -39,7 +39,7 @@ projectId(0) {
 
     connect(timer, SIGNAL(timeout()), this, SLOT(timeout()));
 
-    connect(dropdown, SIGNAL(returnPressed()),
+    connect(ui->description, SIGNAL(returnPressed()),
             this, SLOT(fillInAndStart()));
 
     connect(dropdown, SIGNAL(fillData(AutocompleteView*)),
@@ -47,7 +47,6 @@ projectId(0) {
 
     model = new AutocompleteListModel(this);
     ui->description->setModel(model);
-    ui->description->setView(dropdown);
 
     ui->billable->setVisible(false);
     ui->tags->setVisible(false);
@@ -65,7 +64,6 @@ TimerWidget::~TimerWidget() {
 }
 
 void TimerWidget::fillInData(AutocompleteView *view) {
-    model->setList( {view});
     taskId = view->TaskID;
     projectId = view->ProjectID;
     ui->billable->setVisible(view->Billable);
@@ -75,13 +73,13 @@ void TimerWidget::fillInData(AutocompleteView *view) {
     } else {
         tagsHolder = "";
     }
-    dropdown->filterItems("");
     ui->project->setText(view->ProjectAndTaskLabel);
     ui->description->setEditText(view->Description);
     ui->description->hidePopup();
 }
 
 void TimerWidget::fillInAndStart() {
+    ui->description->currentItem();
     /*
     QListWidgetItem *it = dropdown->currentItem();
     AutocompleteCellWidget *cl = static_cast<AutocompleteCellWidget *>(
@@ -110,7 +108,6 @@ void TimerWidget::focusChanged(QWidget *old, QWidget *now) {
 
 void TimerWidget::displayRunningTimerState(
     TimeEntryView *te) {
-    return;
     ui->start->setText("Stop");
     ui->start->setStyleSheet(
         "background-color: #e20000; color:'white'; font-weight: bold;");
@@ -226,7 +223,7 @@ void TimerWidget::displayMinitimerAutocomplete(
     if (ui->description->currentText() != descriptionPlaceholder) {
         filter = ui->description->currentText();
     }
-    dropdown->setList(list, "");
+    model->setList(list);
     ui->description->setEditText(filter);
 }
 
