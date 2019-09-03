@@ -74,7 +74,7 @@ jobs:
         sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
         sudo flatpak install --system -y flathub org.kde.Platform//5.12
         sudo flatpak install --system -y flathub org.kde.Sdk//5.12 
-        push dist/flatpak
+        pushd dist/flatpak
         sudo flatpak-builder --repo=flatpak-repo --force-clean flatpak-build com.toggl.TogglDesktop.json
         flatpak build-bundle flatpak-repo com.toggl.TogglDesktop.flatpak com.toggl.TogglDesktop
         popd
@@ -109,9 +109,8 @@ jobs:
       run: |
         choco install nsis -y
         "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe" src/ui/windows/TogglDesktop/TogglDesktop.sln /p:Configuration=Release /p:Platform="x86" /t:Clean,Build /restore
-        pushd dist/windows
+        cd dist/windows
         makensis TogglDesktopInstaller-x86.nsi
-      shell: bash
     - name: Upload to GitHub
       run: |
         EVENT_TYPE=$(cat "$GITHUB_EVENT_PATH" | jq -r ".ref_type")
@@ -130,9 +129,8 @@ jobs:
       run: |
         choco install nsis -y
         "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe" src/ui/windows/TogglDesktop/TogglDesktop.sln /p:Configuration=Release /p:Platform="x64" /t:Clean,Build /restore
-        pushd dist/windows
+        cd dist/windows
         makensis TogglDesktopInstaller-x64.nsi
-      shell: bash
     - name: Upload to GitHub
       run: |
         EVENT_TYPE=$(cat "$GITHUB_EVENT_PATH" | jq -r ".ref_type")
