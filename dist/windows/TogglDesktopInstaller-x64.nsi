@@ -61,7 +61,7 @@
 
   Name "Toggl Desktop"
 
-  Icon "..\ui\windows\TogglDesktop\TogglDesktop\Resources\toggl.ico"
+  Icon "..\..\src\ui\windows\TogglDesktop\TogglDesktop\Resources\toggl.ico"
 
   ;Default installation folder. Local app data does not need
   ;admin privileges to install.
@@ -82,7 +82,7 @@
 
 ;Icons
 
-  !define MUI_ICON "..\ui\windows\TogglDesktop\TogglDesktop\Resources\toggl.ico"
+  !define MUI_ICON "..\..\src\ui\windows\TogglDesktop\TogglDesktop\Resources\toggl.ico"
 
 ;Header image
 
@@ -134,7 +134,7 @@
 ;--------------------------------
 ;Installer Sections
 
-!define srcdir "..\ui\windows\TogglDesktop\TogglDesktop\bin\x64\Release"
+!define srcdir "..\..\src\ui\windows\TogglDesktop\TogglDesktop\bin\x64\Release"
 !define redist "..\..\third_party\vs_redist\x64"
 
 Section
@@ -174,7 +174,7 @@ Section
   File "${srcdir}\*.exe"
   File "${srcdir}\cacert.pem"
   File "${srcdir}\TogglDesktop.exe.config"
-  File "..\ui\windows\TogglDesktop\TogglDesktop\Resources\toggl.ico"
+  File "..\..\src\ui\windows\TogglDesktop\TogglDesktop\Resources\toggl.ico"
 
   ;Store installation folder
   WriteRegStr HKCU "Software\TogglDesktop" "" $INSTDIR
