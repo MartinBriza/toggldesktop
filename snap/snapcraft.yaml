@@ -96,6 +96,7 @@ parts:
       - libssl-dev
       - libpoco-dev
       - libxss-dev
+      - libxmu-dev
       - libjsoncpp-dev
       - liblua50-dev
     stage-packages:
