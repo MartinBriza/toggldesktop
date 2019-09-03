@@ -14,6 +14,10 @@ grade: stable
 confinement: strict
 adopt-info: toggldesktop
 
+architectures:
+  - build-on: [amd64, i386, armhf, arm64]
+    run-on: [amd64, i386, armhf, arm64]
+
 plugs:
   browser-sandbox:
     interface: browser-support
