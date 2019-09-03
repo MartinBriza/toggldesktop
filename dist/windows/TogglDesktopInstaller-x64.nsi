@@ -82,7 +82,7 @@
 
 ;Icons
 
-  !define MUI_ICON "..\..\ui\windows\TogglDesktop\TogglDesktop\Resources\toggl.ico"
+  !define MUI_ICON "..\ui\windows\TogglDesktop\TogglDesktop\Resources\toggl.ico"
 
 ;Header image
 
@@ -134,8 +134,8 @@
 ;--------------------------------
 ;Installer Sections
 
-!define srcdir "..\..\ui\windows\TogglDesktop\TogglDesktop\bin\x64\Release"
-!define redist "..\..\..\third_party\vs_redist\x64"
+!define srcdir "..\ui\windows\TogglDesktop\TogglDesktop\bin\x64\Release"
+!define redist "..\..\third_party\vs_redist\x64"
 
 Section
 
