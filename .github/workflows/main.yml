@@ -23,25 +23,7 @@ jobs:
         if [[ "$EVENT_TYPE" != "tag" ]]; then exit 0; fi
         TAG_NAME=$(cat "$GITHUB_EVENT_PATH" | jq -r ".ref")
         ./dist/upload-github-release-asset.sh github_api_token=${{ secrets.GITHUB_TOKEN }} owner=MartinBriza repo=toggldesktop tag="$TAG_NAME" filename="toggldesktop_x86_64.tar.gz"
-        
-  linux-ubuntu1604:
-    runs-on: ubuntu-16.04
-    steps:
-    - uses: actions/checkout@v1
-      with:
-        fetch-depth: 1
-    - name: Install dependencies
-      run: |
-        exit 0 # don't waste resources while it doesn't work
-        sudo add-apt-repository ppa:nextcloud-devs/client
-        sudo apt install devscripts cmake debhelper pkg-config qtbase5-dev qtwebengine5-dev libqt5x11extras5-dev qtbase5-private-dev libssl-dev libxss-dev libxmu-dev
-        dch -D unstable --package "toggldesktop" -v ${TAG_NAME/v/} "General bug fixes and improvements" -u low -M
-    - name: Build a Debian package
-      run: |
-        rm Makefile
-        debuild
 
-        
   linux-ubuntu1804:
     runs-on: ubuntu-18.04
     steps:
@@ -60,6 +42,10 @@ jobs:
       run: |
         rm Makefile
         TAG_NAME=$(cat "$GITHUB_EVENT_PATH" | jq -r ".ref")
+        cd dist
+        ln -s ../src .
+        ln -s ../CMakeLists.txt .
+        ln -s ../third_party .
         dch -D unstable --package "toggldesktop" -v ${TAG_NAME/v/} "General bug fixes and improvements" -u low -M
         debuild
     - name: Upload to GitHub
@@ -67,7 +53,7 @@ jobs:
         EVENT_TYPE=$(cat "$GITHUB_EVENT_PATH" | jq -r ".ref_type")
         if [[ "$EVENT_TYPE" != "tag" ]]; then exit 0; fi
         TAG_NAME=$(cat "$GITHUB_EVENT_PATH" | jq -r ".ref")
-        ./dist/upload-github-release-asset.sh github_api_token=${{ secrets.GITHUB_TOKEN }} owner=MartinBriza repo=toggldesktop tag="$TAG_NAME" filename="../toggldesktop_${TAG_NAME/v/}_amd64.deb"
+        ./dist/upload-github-release-asset.sh github_api_token=${{ secrets.GITHUB_TOKEN }} owner=MartinBriza repo=toggldesktop tag="$TAG_NAME" filename="toggldesktop_${TAG_NAME/v/}_amd64.deb"
         
   linux-flatpak-kde:
     runs-on: ubuntu-18.04
