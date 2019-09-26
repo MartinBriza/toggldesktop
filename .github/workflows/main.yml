@@ -1,6 +1,11 @@
-name: Build
+name: Build and run test
 
-on: [push, create]
+# When new PR is opened
+on:
+  pull_request:
+    types: [opened]
+    branches:    
+      - master
 
 jobs:
   # linux-basic:

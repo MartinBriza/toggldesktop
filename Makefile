@@ -435,3 +435,8 @@ package:
 
 authors:
 	git log --all --format='%aN <%cE>' | sort -u > AUTHORS
+
+ifeq ($(UNAME_S),Darwin)
+release_nightly:
+	git clone git@github.com:toggl/toggldesktop-branding.git src/branding && ./src/branding/osx/nightly.sh
+endif
