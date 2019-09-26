@@ -526,7 +526,8 @@ extension EditorViewController: AutoCompleteTextFieldDelegate {
             DesktopLibraryBridge.shared().updateTimeEntry(withTags: selectedTags.toNames(), guid: timeEntry.guid)
 
             // Focus on tag textfield agains, so user can continue typying
-            sender.window?.makeFirstResponder(tagTextField)
+            tagTextField.focus()
+            tagTextField.resetText()
         }
     }
 
@@ -535,6 +536,12 @@ extension EditorViewController: AutoCompleteTextFieldDelegate {
             tagTextField.removeFromSuperview()
             tagAutoCompleteContainerView.addSubview(tagTextField)
             tagTextField.edgesToSuperView()
+
+            // Since Tag Token appear -> There is no text field to be focus
+            // Focus on duration
+            if !tagStackView.isHidden && durationTextField.currentEditor() == nil {
+                view.window?.makeFirstResponder(durationTextField)
+            }
         }
     }
     
@@ -600,6 +607,7 @@ extension EditorViewController: TagDataSourceDelegate {
     func tagSelectionChanged(with selectedTags: [Tag]) {
         let tags = selectedTags.toNames()
         DesktopLibraryBridge.shared().updateTimeEntry(withTags: tags, guid: timeEntry.guid)
+        tagTextField.resetText()
     }
 }
 

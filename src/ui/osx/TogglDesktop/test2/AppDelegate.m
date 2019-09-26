@@ -36,6 +36,7 @@
 #import "AppIconFactory.h"
 #import <MASShortcut/Shortcut.h>
 #import "Reachability.h"
+#import <AppAuth/AppAuth.h>
 
 @interface AppDelegate ()
 @property (nonatomic, strong) MainWindowController *mainWindowController;
@@ -315,6 +316,9 @@ void *ctx;
 	}
 
 	[self hideConsoleMenuIfNeed];
+
+	// Setup Google Service Callback
+	[self registerGoogleEventHandler];
 }
 
 - (void)systemWillPowerOff:(NSNotification *)aNotification
@@ -907,6 +911,21 @@ void *ctx;
 	[self.runningTimeEntryMenuItem setTitle:@"Timer is not tracking"];
 }
 
+- (NSMenu *)applicationDockMenu:(NSApplication *)sender {
+	NSMenu *menu = [[NSMenu alloc] init];
+
+	[menu addItemWithTitle:@"Start New"
+					action:@selector(onNewMenuItem:)
+			 keyEquivalent:@"n"].tag = kMenuItemTagNew;
+	[menu addItemWithTitle:@"Continue Latest"
+					action:@selector(onContinueMenuItem:)
+			 keyEquivalent:@"o"].tag = kMenuItemTagContinue;
+	[menu addItemWithTitle:@"Stop Timer"
+					action:@selector(onStopMenuItem:)
+			 keyEquivalent:@"s"].tag = kMenuItemTagStop;
+	return menu;
+}
+
 - (void)createStatusItem
 {
 	NSAssert([NSThread isMainThread], @"Rendering stuff should happen on main thread");
@@ -995,7 +1014,7 @@ void *ctx;
 
 - (void)onNewMenuItem:(id)sender
 {
-	[[NSNotificationCenter defaultCenter] postNotificationOnMainThread:kCommandNewShortcut
+	[[NSNotificationCenter defaultCenter] postNotificationOnMainThread:kCommandNew
 																object:[[TimeEntryViewItem alloc] init]];
 }
 
@@ -1430,7 +1449,6 @@ const NSString *appName = @"osx_native_app";
 	NSAssert([NSThread isMainThread], @"Rendering stuff should happen on main thread");
 
 	[self.idleNotificationWindowController displayIdleEvent:idleEvent];
-	[NSApp activateIgnoringOtherApps:YES];
 }
 
 - (PLCrashReporter *)configuredCrashReporter
@@ -1823,6 +1841,27 @@ void on_countries(TogglCountryView *first)
 #else
 	[self.consoleMenuItem setHidden:YES];
 #endif
+}
+
+#pragma mark - Google Authentication
+
+- (void)registerGoogleEventHandler
+{
+	NSAppleEventManager *appleEventManager = [NSAppleEventManager sharedAppleEventManager];
+
+	[appleEventManager setEventHandler:self
+						   andSelector:@selector(handleGetURLEvent:withReplyEvent:)
+						 forEventClass:kInternetEventClass
+							andEventID:kAEGetURL];
+}
+
+- (void)handleGetURLEvent:(NSAppleEventDescriptor *)event
+		   withReplyEvent:(NSAppleEventDescriptor *)replyEvent
+{
+	NSString *URLString = [[event paramDescriptorForKeyword:keyDirectObject] stringValue];
+	NSURL *URL = [NSURL URLWithString:URLString];
+
+	[_currentAuthorizationFlow resumeExternalUserAgentFlowWithURL:URL];
 }
 
 @end

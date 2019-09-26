@@ -8,7 +8,12 @@ using Google.Apis.Auth.OAuth2;
 using Google.Apis.Oauth2.v2;
 using TogglDesktop.Diagnostics;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
 using System.Windows.Navigation;
+using Google.Apis.Auth.OAuth2.Flows;
+using Google.Apis.Http;
+using Google.Apis.Util;
 
 namespace TogglDesktop
 {
@@ -31,6 +36,7 @@ namespace TogglDesktop
         private bool countriesLoaded = false;
         private long selectedCountryID = -1;
         private List<TogglDesktop.Toggl.TogglCountryView> countriesList;
+        private HttpClientFactory httpClientFactory;
 
         public LoginView()
         {
@@ -39,6 +45,35 @@ namespace TogglDesktop
 
             this.IsVisibleChanged += this.onIsVisibleChanged;
             Toggl.OnDisplayCountries += this.onDisplayCountries;
+            Toggl.OnSettings += this.onSettings;
+        }
+
+        private void onSettings(bool open, Toggl.TogglSettingsView settings)
+        {
+            this.httpClientFactory = HttpClientFactoryFromProxySettings(settings);
+        }
+
+        private static HttpClientFactory HttpClientFactoryFromProxySettings(Toggl.TogglSettingsView settings)
+        {
+            var proxyHttpClientFactory = new ProxySupportedHttpClientFactory
+            {
+                UseProxy = settings.UseProxy
+            };
+            if (settings.AutodetectProxy)
+            {
+                proxyHttpClientFactory.Proxy = WebRequest.DefaultWebProxy;
+            }
+            else if (settings.UseProxy)
+            {
+                var proxy = new WebProxy(settings.ProxyHost + ":" + settings.ProxyPort, true);
+                if (!string.IsNullOrEmpty(settings.ProxyUsername))
+                {
+                    proxy.Credentials = new NetworkCredential(settings.ProxyUsername, settings.ProxyPassword);
+                }
+                proxyHttpClientFactory.Proxy = proxy;
+            }
+
+            return proxyHttpClientFactory;
         }
 
         private void onDisplayCountries(List<TogglDesktop.Toggl.TogglCountryView> list)
@@ -82,7 +117,6 @@ namespace TogglDesktop
             this.tryConfirm();
         }
 
-
         private void onSignupLoginToggleClick(object sender, RoutedEventArgs e)
         {
             switch (this.confirmAction)
@@ -100,7 +134,22 @@ namespace TogglDesktop
 
         private void onGoogleLoginClick(object sender, RoutedEventArgs e)
         {
-            this.googleLogin();
+            if (!validateGoogleLoginSignup())
+            {
+                return;
+            }
+
+            switch (this.confirmAction)
+            {
+                case ConfirmAction.LogIn:
+                    this.googleLogin();
+                    break;
+                case ConfirmAction.SignUp:
+                    this.googleSignup();
+                    break;
+                default:
+                    throw new ArgumentException(string.Format("Invalid action '{0}' in login form.", this.confirmAction));
+            }
         }
 
         private void onForgotPasswordButtonClick(object sender, RoutedEventArgs e)
@@ -119,7 +168,7 @@ namespace TogglDesktop
                 case ConfirmAction.LogIn:
                     this.confirmButtonText.Text = "LOG IN";
                     this.forgotPasswordButton.Visibility = Visibility.Visible;
-                    this.googleLoginButton.Visibility = Visibility.Visible;
+                    this.googleLoginButtonTextBlock.Text = "LOG IN WITH GOOGLE";
                     this.countryLabel.Visibility = Visibility.Collapsed;
                     this.countrySelect.Visibility = Visibility.Collapsed;
                     this.tosCheckbox.Visibility = Visibility.Collapsed;
@@ -128,15 +177,12 @@ namespace TogglDesktop
                 case ConfirmAction.SignUp:
                     this.confirmButtonText.Text = "SIGN UP";
                     this.forgotPasswordButton.Visibility = Visibility.Collapsed;
-                    this.googleLoginButton.Visibility = Visibility.Collapsed;
+                    this.googleLoginButtonTextBlock.Text = "SIGN UP WITH GOOGLE";
                     this.countryLabel.Visibility = Visibility.Visible;
                     this.countrySelect.Visibility = Visibility.Visible;
                     this.tosCheckbox.Visibility = Visibility.Visible;
                     this.signupLoginToggle.Content = "Log in";
-                    Task.Factory.StartNew(() =>
-                    {
-                        getCountries();
-                    });
+                    Task.Run(getCountries);
                     break;
                 default:
                     throw new ArgumentException(string.Format("Invalid action '{0}' in login form.", action));
@@ -146,19 +192,16 @@ namespace TogglDesktop
 
         private void getCountries()
         {
-            Dispatcher.Invoke(() =>
+            if (!this.countriesLoaded)
             {
-                if (!this.countriesLoaded)
-                {
-                    Toggl.GetCountries();
-                    this.countriesLoaded = true;
-                }
-            });            
+                Toggl.GetCountries();
+                this.countriesLoaded = true;
+            }
         }
 
         private void tryConfirm()
         {
-            if (!this.validateFields())
+            if (!this.validateLoginSignup())
             {
                 return;
             }
@@ -225,7 +268,7 @@ namespace TogglDesktop
             this.confirmSpinnerAnimation.Begin();
         }
 
-        private bool validateFields()
+        private bool validateLoginSignup()
         {
             if (this.emailTextBox.Text == "")
             {
@@ -240,22 +283,42 @@ namespace TogglDesktop
                 return false;
             }
 
-            if (this.confirmAction == ConfirmAction.SignUp)
+            if (this.confirmAction == ConfirmAction.SignUp
+                && !validateMandatorySignupFields())
             {
-                if (this.selectedCountryID == -1)
-                {
-                    this.countrySelect.Focus();
-                    Toggl.NewError("Please select Country before signing up", true);
-                    return false;
-                }
-                if (!this.tosCheckbox.IsChecked.Value)
-                {
-                    this.tosCheckbox.Focus();
-                    Toggl.NewError("You must agree to the terms of service and privacy policy to use Toggl", true);
-
-                    return false;
-                }
+                return false;
             }
+
+            return true;
+        }
+
+        private bool validateMandatorySignupFields()
+        {
+            if (this.selectedCountryID == -1)
+            {
+                this.countrySelect.Focus();
+                Toggl.NewError("Please select Country before signing up", true);
+                return false;
+            }
+            if (!this.tosCheckbox.IsChecked.Value)
+            {
+                this.tosCheckbox.Focus();
+                Toggl.NewError("You must agree to the terms of service and privacy policy to use Toggl", true);
+
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool validateGoogleLoginSignup()
+        {
+            if (this.confirmAction == ConfirmAction.SignUp
+                && !validateMandatorySignupFields())
+            {
+                return false;
+            }
+
             return true;
         }
 
@@ -263,26 +326,15 @@ namespace TogglDesktop
         {
             try
             {
-                var credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(
-                    new ClientSecrets
-                    {
-                        ClientId = "426090949585-uj7lka2mtanjgd7j9i6c4ik091rcv6n5.apps.googleusercontent.com",
-                        ClientSecret = "6IHWKIfTAMF7cPJsBvoGxYui"
-                    },
-                    new[]
-                    {
-                        Oauth2Service.Scope.UserinfoEmail,
-                        Oauth2Service.Scope.UserinfoProfile
-                    },
-                    "user",
-                    CancellationToken.None);
+                var credential = await obtainGoogleUserCredentialAsync();
                 Toggl.GoogleLogin(credential.Token.AccessToken);
                 await credential.RevokeTokenAsync(CancellationToken.None);
             }
-            catch (AggregateException ex)
+            catch (Exception ex)
             {
-                if (ex.InnerException != null &&
-                    ex.InnerException.Message.Contains("access_denied"))
+                if (ex.Message.Contains("access_denied") ||
+                    (ex.InnerException != null &&
+                     ex.InnerException.Message.Contains("access_denied")))
                 {
                     Toggl.NewError("Login process was canceled", true);
                 }
@@ -291,6 +343,58 @@ namespace TogglDesktop
                     Toggl.NewError(ex.Message, false);
                 }
             }
+        }
+
+        private async void googleSignup()
+        {
+            try
+            {
+                var credential = await obtainGoogleUserCredentialAsync();
+                Toggl.GoogleSignup(credential.Token.AccessToken, selectedCountryID);
+                await credential.RevokeTokenAsync(CancellationToken.None);
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("access_denied") ||
+                    (ex.InnerException != null &&
+                    ex.InnerException.Message.Contains("access_denied")))
+                {
+                    Toggl.NewError("Signup process was canceled", true);
+                }
+                else
+                {
+                    Toggl.NewError(ex.Message, false);
+                }
+            }
+        }
+
+        private async Task<UserCredential> obtainGoogleUserCredentialAsync()
+        {
+            var initializer = new GoogleAuthorizationCodeFlow.Initializer
+            {
+                ClientSecrets = new ClientSecrets
+                {
+                    ClientId = "426090949585-uj7lka2mtanjgd7j9i6c4ik091rcv6n5.apps.googleusercontent.com",
+                    ClientSecret = "6IHWKIfTAMF7cPJsBvoGxYui"
+                },
+                HttpClientFactory = httpClientFactory
+            };
+            var credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(
+                initializer,
+                new[]
+                {
+                    Oauth2Service.Scope.UserinfoEmail,
+                    Oauth2Service.Scope.UserinfoProfile
+                },
+                "user",
+                CancellationToken.None);
+            var isTokenExpired = credential.Token.IsExpired(SystemClock.Default);
+            if (isTokenExpired)
+            {
+                await credential.RefreshTokenAsync(CancellationToken.None);
+            }
+
+            return credential;
         }
 
         private void reset()
@@ -364,13 +468,33 @@ namespace TogglDesktop
 
         private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
         {
-            System.Diagnostics.Process.Start(e.Uri.ToString());
+            Toggl.OpenInBrowser(e.Uri.ToString());
         }
 
         private void countrySelect_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             TogglDesktop.Toggl.TogglCountryView item = this.countriesList[this.countrySelect.SelectedIndex];
             this.selectedCountryID = item.ID;
+        }
+
+        private class ProxySupportedHttpClientFactory : HttpClientFactory
+        {
+            public bool UseProxy { get; set; }
+            public IWebProxy Proxy { get; set; }
+            protected override HttpMessageHandler CreateHandler(CreateHttpClientArgs args)
+            {
+                var webRequestHandler = new WebRequestHandler
+                {
+                    UseProxy = this.UseProxy,
+                    UseCookies = false
+                };
+                if (webRequestHandler.UseProxy)
+                {
+                    webRequestHandler.Proxy = Proxy;
+                }
+
+                return webRequestHandler;
+            }
         }
     }
 

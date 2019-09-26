@@ -521,6 +521,16 @@ extern "C" {
         const char_t *password,
         const uint64_t country_id);
 
+    TOGGL_EXPORT bool_t toggl_google_signup(
+        void *context,
+        const char_t *access_token,
+        const uint64_t country_id);
+
+    TOGGL_EXPORT bool_t toggl_google_signup_async(
+        void *context,
+        const char_t *access_token,
+        const uint64_t country_id);
+
     TOGGL_EXPORT bool_t toggl_google_login(
         void *context,
         const char_t *access_token);
@@ -985,13 +995,6 @@ extern "C" {
     TOGGL_EXPORT bool_t testing_set_logged_in_user(
         void *context,
         const char *json);
-
-    TOGGL_EXPORT void toggl_set_compact_mode(
-        void *context,
-        const bool_t value);
-
-    TOGGL_EXPORT bool_t toggl_get_compact_mode(
-        void *context);
 
     TOGGL_EXPORT void toggl_set_keep_end_time_fixed(
         void *context,

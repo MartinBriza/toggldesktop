@@ -433,6 +433,22 @@ bool_t toggl_signup_async(
             to_string(password), country_id);
 }
 
+bool_t toggl_google_signup(
+    void *context,
+    const char_t *access_token,
+    const uint64_t country_id) {
+    return toggl::noError == app(context)->GoogleSignup(to_string(access_token),
+            country_id);
+}
+
+bool_t toggl_google_signup_async(
+    void *context,
+    const char_t *access_token,
+    const uint64_t country_id) {
+    return toggl::noError == app(context)->AsyncGoogleSignup(to_string(access_token),
+            country_id);
+}
+
 bool_t toggl_google_login(
     void *context,
     const char_t *access_token) {
@@ -1318,17 +1334,6 @@ bool_t testing_set_logged_in_user(
     const char *json) {
     toggl::Context *ctx = reinterpret_cast<toggl::Context *>(context);
     return toggl::noError == ctx->SetLoggedInUserFromJSON(std::string(json));
-}
-
-void toggl_set_compact_mode(
-    void *context,
-    const bool_t value) {
-    app(context)->SetCompactMode(value);
-}
-
-bool_t toggl_get_compact_mode(
-    void *context) {
-    return app(context)->GetCompactMode();
 }
 
 void toggl_set_keep_end_time_fixed(
