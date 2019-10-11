@@ -113,6 +113,7 @@ jobs:
       run: |
         sudo apt update
         sudo apt install devscripts cmake debhelper pkg-config libssl-dev libxss-dev libxmu-dev
+        sudo apt install dbus libfreetype6 fontconfig libx11-6 libx11-xcb1 libgl1-mesa-dev libnss3 libasound2 libxcomposite1 libxcursor1 libxi6 libxtst6 wget
     - name: Fetch and install binary Qt
       run: |
         bash ./dist/linux/install-qt.sh 5.12.5
