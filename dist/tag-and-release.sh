@@ -52,7 +52,7 @@ fi
 curl -o /dev/null -sH "$AUTH" $GH_REPO || { echo "Error: Invalid repo, token or network issue!";  exit 1; }
 
 # and push the tag, that will make it discoverable later
-#curl -d '{ "tag": "'$NEW_TAG'", "message": "'$NEW_TAG'",  "object": "'$CURRENT_COMMIT'", "type": "commit" }' -H "Content-Type: application/json" -X POST -o /dev/null -sH "$AUTH" $GH_RELEASES
+curl -d '{ "tag": "'$NEW_TAG'", "message": "'$NEW_TAG'",  "object": "'$CURRENT_COMMIT'", "type": "commit" }' -H "Content-Type: application/json" -X POST -o /dev/null -sH "$AUTH" $GH_RELEASES
 
 # Create a release out of the tag (shouldn't fail if it's already released)
 curl -d '{ "tag_name": "'$NEW_TAG'", "target_commitish": "'$CURRENT_COMMIT'", "name": "'$NEW_TAG'", "body": "'$NEW_TAG'", "draft": false, "prerelease": true }' -H "Content-Type: application/json" -X POST -o /dev/null -sH "$AUTH" $GH_RELEASES
