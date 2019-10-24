@@ -5,7 +5,7 @@ on:
     branches:
       - '**'
   release:
-    types: [ published, created, edited, prereleased ]
+    types: [ created ]
 
 jobs:
   linux-basic:
