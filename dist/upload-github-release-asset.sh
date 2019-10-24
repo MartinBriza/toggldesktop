@@ -33,10 +33,6 @@ for line in $CONFIG; do
   eval "$line"
 done
 
-EVENT_TYPE=$(cat "$GITHUB_EVENT_PATH" | jq -r ".ref_type")
-if [[ "$EVENT_TYPE" != "tag" ]]; then exit 0; fi
-TAG_NAME=$(cat "$GITHUB_EVENT_PATH" | jq -r ".ref")
-
 # Define variables.
 OWNER=${GITHUB_REPOSITORY/\/*/}
 REPO=${GITHUB_REPOSITORY/*\//}
