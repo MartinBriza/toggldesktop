@@ -32,10 +32,6 @@ jobs:
         security import Bundle.p12 -k build.keychain -P ${{ secrets.CERT_MACOS_PASSWORD }} -T /usr/bin/codesign;
 
         security set-key-partition-list -S apple-tool:,apple: -s -k password build.keychain
-
-        # remove certs
-        rm -fr *.p12
-        security import ./Bundle.p12 -P 
     - name: Build the dependencies
       run: |
         security unlock-keychain -p password build.keychain
