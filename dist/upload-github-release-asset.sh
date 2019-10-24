@@ -36,7 +36,6 @@ done
 EVENT_TYPE=$(cat "$GITHUB_EVENT_PATH" | jq -r ".ref_type")
 if [[ "$EVENT_TYPE" != "tag" ]]; then exit 0; fi
 TAG_NAME=$(cat "$GITHUB_EVENT_PATH" | jq -r ".ref")
-./dist/upload-github-release-asset.sh github_api_token=${{ secrets.GITHUB_TOKEN }}
 
 # Define variables.
 OWNER=${GITHUB_REPOSITORY/\/*/}
