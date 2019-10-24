@@ -13,6 +13,9 @@ for line in $CONFIG; do
   eval "$line"
 done
 
+# cloning takes a while, it'd be better to check if the commit has not been tagged in the meantime
+git fetch --tags --force
+
 # first get the commit hash of HEAD
 CURRENT_COMMIT=$(git rev-parse --verify HEAD)
 
