@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -e
+set -x
 
 CONFIG=$@
 
@@ -12,7 +13,10 @@ for line in $CONFIG; do
   eval "$line"
 done
 
+# first try looking if HEAD is tagged already or not
 NEW_TAG=$(git tag --points-at HEAD)
+
+# if it is not tagged, create a new tag, while adding the values of MINOR, MAJOR and PATCH
 if [[ "$NEW_TAG" == "" ]]; then
     CURRENT_TAG=$(git tag -l 'v7.*.*' --sort=-v:refname | head -n1)
     CURRENT_MAJOR=$(cut -d. -f1 <<< ${CURRENT_TAG/v/})
@@ -21,6 +25,7 @@ if [[ "$NEW_TAG" == "" ]]; then
 
     NEW_TAG="v$(($CURRENT_MAJOR+$MAJOR)).$(($CURRENT_MINOR+$MINOR)).$(($CURRENT_PATCH+$PATCH))"
 
+    # and push the tag, that will make it discoverable later
     git tag "$NEW_TAG"
     git push --tags
 fi
@@ -43,6 +48,7 @@ fi
 # Validate token.
 curl -o /dev/null -sH "$AUTH" $GH_REPO || { echo "Error: Invalid repo, token or network issue!";  exit 1; }
 
+# Create a release out of the tag (shouldn't fail if it's already released)
 curl -d '{ "tag_name": "'$NEW_TAG'", "target_commitish": "", "name": "'$NEW_TAG'", "body": "'$NEW_TAG'", "draft": false, "prerelease": true }' -H "Content-Type: application/json" -X POST -o /dev/null -sH "$AUTH" $GH_RELEASES
 
 # Read asset tags.
