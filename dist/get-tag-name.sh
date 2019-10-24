@@ -1,6 +1,5 @@
 #!/bin/bash
 
-set -e
 set -x
 
 PROBABLY_TAG=${GITHUB_REF/refs\/tags\//}
