@@ -5,4 +5,6 @@ set -x
 
 PROBABLY_TAG=${GITHUB_REF/refs\/tags\//}
 
-[[ "$PROBABLY_TAG" =~ v[0-9][0-9]*[.][0-9][0-9]*[.][0-9][0-9]* ]] && echo $PROBABLY_TAG
+if [[ grep -Eq "^v[0-9][0-9]*[.][0-9][0-9]*[.][0-9][0-9]*$" <<< "$PROBABLY_TAG" ]]; then
+    echo $PROBABLY_TAG
+fi
