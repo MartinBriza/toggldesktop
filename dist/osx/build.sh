@@ -108,7 +108,7 @@ function notarize() {
 }
 
 function dmg() {
-    npm install -g create-dmg
+    sudo npm install -g create-dmg
     npm create-dmg $APP_PATH
     mv *.dmg TogglDesktop.dmg
 }
