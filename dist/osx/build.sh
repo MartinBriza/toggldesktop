@@ -109,7 +109,7 @@ function notarize() {
 
 function dmg() {
     npm i -g create-dmg
-    npm create-dmg $APP_PATH
+    /usr/local/bin/create-dmg $APP_PATH
     mv *.dmg TogglDesktop.dmg
 }
 
