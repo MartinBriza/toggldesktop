@@ -17,6 +17,9 @@ jobs:
     - uses: actions/checkout@v1
       with:
         fetch-depth: 1
+    - name: wtf
+      run: |
+        node i -g create-dmg
     - name: Import signing key
       run: |
         set -x
