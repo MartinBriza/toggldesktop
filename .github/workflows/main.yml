@@ -19,7 +19,7 @@ jobs:
         fetch-depth: 1
     - name: wtf
       run: |
-        node i -g create-dmg
+        npm i -g create-dmg
     - name: Import signing key
       run: |
         set -x
