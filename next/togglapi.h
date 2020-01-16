@@ -7,15 +7,17 @@ class TogglApi {
 public:
     TogglApi(const std::string &app_name, const std::string &username = {}, const std::string &password = {});
 
-    std::pair<Error, std::string> v8_me(bool with_related_data);
+    void setCredentials(const std::string &username, const std::string &password);
 
-    std::pair<Error, std::string> v9_status();
-
+    std::pair<Error, std::string> v8_me(bool with_related_data, int64_t since = 0);
     // POST timeline_upload + /api/v8/timeline_settings + payload(json)
     // POST api + /api/v8/feedback/web + form()
     // POST api + /api/v8/desktop_login_tokens + payload(empty json)
 
+    std::pair<Error, std::string> v9_status();
+
     // GET api + /api/v8/desktop_login + login_token=
+
     // GET api + /api/v9/me/time_entries + since=
     // GET api + /api/v9/me/workspaces
     // GET api + /api/v9/workspaces/ + ID + /preferences

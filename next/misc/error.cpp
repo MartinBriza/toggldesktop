@@ -1,5 +1,14 @@
 #include "error.h"
 
+std::string Error::String() const {
+    try {
+        return values.at(code_);
+    }
+    catch (std::out_of_range &) {
+        return "Unknown error (" + std::to_string(code_) + ")";
+    }
+}
+
 bool Error::operator==(const Error::Code &c) { return code_ == c; }
 bool Error::operator!=(const Error::Code &c) { return code_ != c; }
 

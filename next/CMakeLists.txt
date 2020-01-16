@@ -47,6 +47,7 @@ target_link_libraries(Next PRIVATE
     ${JSONCPP_LIBRARIES}
     ${LUA_LIBRARIES}
     PocoFoundation PocoCrypto PocoDataSQLite PocoNet PocoNetSSL
+    pthread
 )
 
 install(TARGETS Next DESTINATION bin)

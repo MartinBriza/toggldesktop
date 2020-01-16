@@ -19,12 +19,15 @@
 #include "Poco/LocalDateTime.h"
 #include "Poco/Types.h"
 
+class Context;
+
 namespace toggl {
 
 class TOGGL_INTERNAL_EXPORT User : public BaseModel {
  public:
-    User()
-        : api_token_("")
+    User(Context *context)
+    : context_(context)
+    , api_token_("")
     , default_wid_(0)
     , since_(0)
     , fullname_("")
@@ -40,6 +43,8 @@ class TOGGL_INTERNAL_EXPORT User : public BaseModel {
     , collapse_entries_(false) {}
 
     ~User();
+
+    static User *constructFromJSON(Context *ctx, const Json::Value &root);
 
     error EnableOfflineLogin(
         const std::string &password);
@@ -150,28 +155,6 @@ class TOGGL_INTERNAL_EXPORT User : public BaseModel {
     bool LoadUserPreferencesFromJSON(
         Json::Value data);
 
-    template<typename T>
-    void EnsureWID(T *model) const {
-        // Do nothing if TE already has WID assigned
-        if (model->WID()) {
-            return;
-        }
-
-        // Try to set default user WID
-        if (DefaultWID()) {
-            model->SetWID(DefaultWID());
-            return;
-        }
-
-        // Try to set first WID available
-        std::vector<Workspace *>::const_iterator it =
-            related.Workspaces.begin();
-        if (it != related.Workspaces.end()) {
-            Workspace *ws = *it;
-            model->SetWID(ws->ID());
-        }
-    }
-
     static error UserID(
         const std::string &json_data_string,
         Poco::UInt64 *result);
@@ -225,6 +208,7 @@ class TOGGL_INTERNAL_EXPORT User : public BaseModel {
 
     std::string generateKey(const std::string &password);
 
+    Context *context_;
     std::string api_token_;
     Poco::UInt64 default_wid_;
     // Unix timestamp of the user data; returned from API

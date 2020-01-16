@@ -27,6 +27,11 @@ bool HttpClient::isRedirect(const Poco::Int64 status_code) {
     return (status_code >= 300 && status_code < 400);
 }
 
+void HttpClient::setCredentials(const std::string &username, const std::string &password) {
+    username_ = username;
+    password_ = password;
+}
+
 std::pair<Error, std::string> HttpClient::Request(const std::string &method, const std::string &host, const std::string &path, const std::string &payload) {
     //HTTPSRequest req) const {
     auto response = internalRequest(method, host, path, payload);

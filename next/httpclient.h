@@ -23,6 +23,8 @@ public:
 
     static bool isRedirect(const Poco::Int64 status_code);
 
+    void setCredentials(const std::string &username, const std::string &password);
+
     inline static const std::string CONTENTTYPE_FORM_DATA { "multipart/form-data" };
     inline static const std::string CONTENTTYPE_JSON { "application/json" } ;
 

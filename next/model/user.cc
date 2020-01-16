@@ -1,6 +1,6 @@
 // Copyright 2014 Toggl Desktop developers.
 
-#include "../src/user.h"
+#include "user.h"
 
 #include <time.h>
 
@@ -36,124 +36,14 @@ namespace toggl {
 User::~User() {
 }
 
-Project *User::CreateProject(
-    const Poco::UInt64 workspace_id,
-    const Poco::UInt64 client_id,
-    const std::string &client_guid,
-    const std::string &client_name,
-    const std::string &project_name,
-    const bool is_private,
-    const std::string &project_color,
-    const bool billable) {
-
-    Project *p = new Project();
-    p->SetWID(workspace_id);
-    p->SetName(project_name);
-    p->SetCID(client_id);
-    p->SetClientGUID(client_guid);
-    p->SetUID(ID());
-    p->SetActive(true);
-    p->SetPrivate(is_private);
-    p->SetBillable(billable);
-    p->SetClientName(client_name);
-    if (!project_color.empty()) {
-        p->SetColorCode(project_color);
+User *User::constructFromJSON(Context *ctx, const Json::Value &root) {
+    User *user = new User(ctx);
+    user->loadUserAndRelatedDataFromJSON(root, false);
+    if (user->ID() == 0) {
+        delete user;
+        return nullptr;
     }
-
-    AddProjectToList(p);
-
-    return p;
-}
-
-void User::AddProjectToList(Project *p) {
-    bool WIDMatch = false;
-    bool CIDMatch = false;
-
-    // We should push the project to correct alphabetical position
-    // (since we try to avoid sorting the large list)
-    for (std::vector<Project *>::iterator it =
-        related.Projects.begin();
-            it != related.Projects.end(); ++it) {
-        Project *pr = *it;
-        if (p->WID() == pr->WID()) {
-            WIDMatch = true;
-            if ((p->CID() == 0 && p->ClientGUID().empty()) && pr->CID() == 0) {
-                // Handle adding project without client
-                CIDMatch = true;
-                if (Poco::UTF8::icompare(p->Name(), pr->Name()) < 0) {
-                    related.Projects.insert(it, p);
-                    return;
-                }
-            } else if (Poco::UTF8::icompare(p->ClientName(), pr->ClientName()) == 0) {
-                // Handle adding project with client
-                CIDMatch = true;
-                if (Poco::UTF8::icompare(p->FullName(), pr->FullName()) < 0) {
-                    related.Projects.insert(it,p);
-                    return;
-                }
-            } else if (CIDMatch) {
-                // in case new project is last in client list
-                related.Projects.insert(it,p);
-                return;
-            } else if ((p->CID() != 0 || !p->ClientGUID().empty()) && pr->CID() != 0) {
-                if (Poco::UTF8::icompare(p->FullName(), pr->FullName()) < 0) {
-                    related.Projects.insert(it,p);
-                    return;
-                }
-            }
-        } else if (WIDMatch) {
-            //In case new project is last in workspace list
-            related.Projects.insert(it,p);
-            return;
-        }
-    }
-
-    // if projects vector is empty or project should be added to the end
-    related.Projects.push_back(p);
-}
-
-std::string User::DateDuration(TimeEntry * const te) const {
-    Poco::Int64 date_duration(0);
-    std::string date_header = Formatter::FormatDateHeader(te->Start());
-    for (std::vector<TimeEntry *>::const_iterator it =
-        related.TimeEntries.begin();
-            it != related.TimeEntries.end();
-            ++it) {
-        TimeEntry *n = *it;
-        if (Formatter::FormatDateHeader(n->Start()) == date_header) {
-            Poco::Int64 duration = n->DurationInSeconds();
-            if (duration > 0) {
-                date_duration += duration;
-            }
-        }
-    }
-    return Formatter::FormatDurationForDateHeader(date_duration);
-}
-
-bool User::HasPremiumWorkspaces() const {
-    for (std::vector<Workspace *>::const_iterator it =
-        related.Workspaces.begin();
-            it != related.Workspaces.end();
-            ++it) {
-        Workspace *model = *it;
-        if (model->Premium()) {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool User::CanAddProjects() const {
-    for (std::vector<Workspace *>::const_iterator it =
-        related.Workspaces.begin();
-            it != related.Workspaces.end();
-            ++it) {
-        Workspace *model = *it;
-        if (model->OnlyAdminsMayCreateProjects()) {
-            return false;
-        }
-    }
-    return true;
+    return user;
 }
 
 void User::SetFullname(const std::string &value) {
@@ -248,32 +138,6 @@ void User::SetCollapseEntries(const bool value) {
     }
 }
 
-// Stop a time entry, mark it as dirty.
-// Note that there may be multiple TE-s running. If there are,
-// all of them are stopped (multi-tracking is not supported by Toggl).
-void User::Stop(std::vector<TimeEntry *> *stopped) {
-    TimeEntry *te = RunningTimeEntry();
-    while (te) {
-        if (stopped) {
-            stopped->push_back(te);
-        }
-        te->StopTracking();
-        te = RunningTimeEntry();
-    }
-}
-
-TimeEntry *User::RunningTimeEntry() const {
-    for (std::vector<TimeEntry *>::const_iterator it =
-        related.TimeEntries.begin();
-            it != related.TimeEntries.end();
-            ++it) {
-        if ((*it)->DurationInSeconds() < 0) {
-            return *it;
-        }
-    }
-    return nullptr;
-}
-
 bool User::HasValidSinceDate() const {
     // has no value
     if (!Since()) {
@@ -300,29 +164,6 @@ std::string User::String() const {
         << " since=" << since_
         << " record_timeline=" << record_timeline_;
     return ss.str();
-}
-
-void User::DeleteRelatedModelsWithWorkspace(const Poco::UInt64 wid) {
-    deleteRelatedModelsWithWorkspace(wid, &related.Clients);
-    deleteRelatedModelsWithWorkspace(wid, &related.Projects);
-    deleteRelatedModelsWithWorkspace(wid, &related.Tasks);
-    deleteRelatedModelsWithWorkspace(wid, &related.TimeEntries);
-    deleteRelatedModelsWithWorkspace(wid, &related.Tags);
-}
-
-void User::RemoveClientFromRelatedModels(const Poco::UInt64 cid) {
-    for (std::vector<Project *>::iterator it = related.Projects.begin();
-            it != related.Projects.end(); ++it) {
-        Project *model = *it;
-        if (model->CID() == cid) {
-            model->SetCID(0);
-        }
-    }
-}
-
-void User::RemoveProjectFromRelatedModels(const Poco::UInt64 pid) {
-    removeProjectFromRelatedModels(pid, &related.Tasks);
-    removeProjectFromRelatedModels(pid, &related.TimeEntries);
 }
 
 error User::LoadUserAndRelatedDataFromJSONString(
@@ -556,65 +397,12 @@ error User::EnableOfflineLogin(
     return noError;
 }
 
-bool User::CanSeeBillable(
-    const Workspace *ws) const {
-    if (!HasPremiumWorkspaces()) {
-        return false;
-    }
-    if (ws && !ws->Premium()) {
-        return false;
-    }
-    return true;
-}
-
 std::string User::ModelName() const {
     return kModelUser;
 }
 
 std::string User::ModelURL() const {
     return "/api/v9/me";
-}
-
-template<class T>
-void deleteZombies(
-    const std::vector<T> &list,
-    const std::set<Poco::UInt64> &alive) {
-    for (size_t i = 0; i < list.size(); ++i) {
-        BaseModel *model = list[i];
-        if (!model->ID()) {
-            // If model has no server-assigned ID, it's not even
-            // pushed to server. So actually we don't know if it's
-            // a zombie or not. Ignore:
-            continue;
-        }
-        if (alive.end() == alive.find(model->ID())) {
-            model->MarkAsDeletedOnServer();
-        }
-    }
-}
-
-template <typename T>
-void deleteRelatedModelsWithWorkspace(const Poco::UInt64 wid,
-                                      std::vector<T *> *list) {
-    typedef typename std::vector<T *>::iterator iterator;
-    for (iterator it = list->begin(); it != list->end(); ++it) {
-        T *model = *it;
-        if (model->WID() == wid) {
-            model->MarkAsDeletedOnServer();
-        }
-    }
-}
-
-template <typename T>
-void removeProjectFromRelatedModels(const Poco::UInt64 pid,
-                                    std::vector<T *> *list) {
-    typedef typename std::vector<T *>::iterator iterator;
-    for (iterator it = list->begin(); it != list->end(); ++it) {
-        T *model = *it;
-        if (model->PID() == pid) {
-            model->SetPID(0);
-        }
-    }
 }
 
 }  // namespace toggl
