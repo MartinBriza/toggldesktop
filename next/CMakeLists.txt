@@ -33,6 +33,9 @@ set(NEXT_SOURCE_FILES
     misc/logger.cc
     misc/error.cpp
 
+    httpclient.cpp
+    togglapi.cpp
+
     main.cc
 )
 
