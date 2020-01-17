@@ -28,6 +28,7 @@
 namespace toggl {
 
 bool TimeEntry::ResolveError(const error &err) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (durationTooLarge(err) && Stop() && Start()) {
         Poco::Int64 seconds =
             (std::min)(Stop() - Start(),
@@ -74,47 +75,56 @@ bool TimeEntry::ResolveError(const error &err) {
 }
 
 bool TimeEntry::isNotFound(const error &err) const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return std::string::npos != std::string(err).find(
         "Time entry not found");
 }
 bool TimeEntry::isMissingCreatedWith(const error &err) const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return std::string::npos != std::string(err).find(
         "created_with needs to be provided an a valid string");
 }
 
 bool TimeEntry::userCannotAccessTheSelectedProject(
     const error &err) const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return (std::string::npos != std::string(err).find(
         "User cannot access the selected project"));
 }
 
 bool TimeEntry::userCannotAccessSelectedTask(
     const error &err) const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return (std::string::npos != std::string(err).find(
         "User cannot access selected task"));
 }
 
 bool TimeEntry::durationTooLarge(const error &err) const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return (std::string::npos != std::string(err).find(
         "Max allowed duration per 1 time entry is 999 hours"));
 }
 
 bool TimeEntry::startTimeWrongYear(const error &err) const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return (std::string::npos != std::string(err).find(
         "Start time year must be between 2006 and 2030"));
 }
 
 bool TimeEntry::stopTimeMustBeAfterStartTime(const error &err) const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return (std::string::npos != std::string(err).find(
         "Stop time must be after start time"));
 }
 
 bool TimeEntry::billableIsAPremiumFeature(const error &err) const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return (std::string::npos != std::string(err).find(
         "Billable is a premium feature"));
 }
 
 void TimeEntry::DiscardAt(const Poco::Int64 at) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (!IsTracking()) {
         logger().error("Cannot discard time entry that is not tracking");
         return;
@@ -143,10 +153,12 @@ void TimeEntry::DiscardAt(const Poco::Int64 at) {
 }
 
 void TimeEntry::StopTracking() {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     DiscardAt(time(nullptr));
 }
 
 std::string TimeEntry::String() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     std::stringstream ss;
     ss  << "TimeEntry"
         << " ID=" << ID()
@@ -171,12 +183,14 @@ std::string TimeEntry::String() const {
 }
 
 void TimeEntry::SetLastStartAt(const Poco::Int64 value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (last_start_at_ != value) {
         last_start_at_ = value;
     }
 }
 
 void TimeEntry::SetDurOnly(const bool value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (duronly_ != value) {
         duronly_ = value;
         SetDirty();
@@ -184,6 +198,7 @@ void TimeEntry::SetDurOnly(const bool value) {
 }
 
 void TimeEntry::SetStart(const Poco::Int64 value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (start_ != value) {
         start_ = value;
         SetDirty();
@@ -191,6 +206,7 @@ void TimeEntry::SetStart(const Poco::Int64 value) {
 }
 
 void TimeEntry::SetStop(const Poco::Int64 value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (stop_ != value) {
         stop_ = value;
         SetDirty();
@@ -198,6 +214,7 @@ void TimeEntry::SetStop(const Poco::Int64 value) {
 }
 
 void TimeEntry::SetDescription(const std::string &value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     const std::string &trimValue = trim_whitespace(value);
     if (description_ != trimValue) {
         description_ = trimValue;
@@ -206,10 +223,12 @@ void TimeEntry::SetDescription(const std::string &value) {
 }
 
 void TimeEntry::SetStopString(const std::string &value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     SetStop(Formatter::Parse8601(value));
 }
 
 void TimeEntry::SetCreatedWith(const std::string &value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (created_with_ != value) {
         created_with_ = value;
         SetDirty();
@@ -217,6 +236,7 @@ void TimeEntry::SetCreatedWith(const std::string &value) {
 }
 
 void TimeEntry::SetBillable(const bool value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (billable_ != value) {
         billable_ = value;
         SetDirty();
@@ -224,6 +244,7 @@ void TimeEntry::SetBillable(const bool value) {
 }
 
 void TimeEntry::SetWID(const Poco::UInt64 value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (wid_ != value) {
         wid_ = value;
         SetDirty();
@@ -231,6 +252,7 @@ void TimeEntry::SetWID(const Poco::UInt64 value) {
 }
 
 void TimeEntry::SetStopUserInput(const std::string &value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     SetStopString(value);
 
     if (Stop() < Start()) {
@@ -257,6 +279,7 @@ void TimeEntry::SetStopUserInput(const std::string &value) {
 }
 
 void TimeEntry::SetTID(const Poco::UInt64 value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (tid_ != value) {
         tid_ = value;
         SetDirty();
@@ -266,6 +289,7 @@ void TimeEntry::SetTID(const Poco::UInt64 value) {
 static const char kTagSeparator = '\t';
 
 void TimeEntry::SetTags(const std::string &tags) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (Tags() != tags) {
         TagNames.clear();
         if (!tags.empty()) {
@@ -281,6 +305,7 @@ void TimeEntry::SetTags(const std::string &tags) {
 }
 
 void TimeEntry::SetPID(const Poco::UInt64 value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (pid_ != value) {
         pid_ = value;
         SetDirty();
@@ -288,6 +313,7 @@ void TimeEntry::SetPID(const Poco::UInt64 value) {
 }
 
 void TimeEntry::SetDurationInSeconds(const Poco::Int64 value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (duration_in_seconds_ != value) {
         duration_in_seconds_ = value;
         SetDirty();
@@ -296,6 +322,7 @@ void TimeEntry::SetDurationInSeconds(const Poco::Int64 value) {
 
 void TimeEntry::SetStartUserInput(const std::string &value,
                                   const bool keepEndTimeFixed) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     Poco::Int64 start = Formatter::Parse8601(value);
     if (IsTracking()) {
         SetDurationInSeconds(-start);
@@ -316,10 +343,12 @@ void TimeEntry::SetStartUserInput(const std::string &value,
 }
 
 void TimeEntry::SetStartString(const std::string &value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     SetStart(Formatter::Parse8601(value));
 }
 
 void TimeEntry::SetDurationUserInput(const std::string &value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     int seconds = Formatter::ParseDurationString(value);
     if (IsTracking()) {
         time_t now = time(nullptr);
@@ -338,6 +367,7 @@ void TimeEntry::SetDurationUserInput(const std::string &value) {
 }
 
 void TimeEntry::SetProjectGUID(const std::string &value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (project_guid_ != value) {
         project_guid_ = value;
         SetDirty();
@@ -345,6 +375,7 @@ void TimeEntry::SetProjectGUID(const std::string &value) {
 }
 
 const std::string TimeEntry::Tags() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     std::stringstream ss;
     for (auto it = TagNames.begin(); it != TagNames.end(); ++it) {
         if (it != TagNames.begin()) {
@@ -356,6 +387,7 @@ const std::string TimeEntry::Tags() const {
 }
 
 const std::string TimeEntry::TagsHash() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     std::vector<std::string> sortedTagNames(TagNames);
     sort(sortedTagNames.begin(), sortedTagNames.end());
     std::stringstream ss;
@@ -369,14 +401,17 @@ const std::string TimeEntry::TagsHash() const {
 }
 
 std::string TimeEntry::StopString() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return Formatter::Format8601(stop_);
 }
 
 std::string TimeEntry::StartString() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return Formatter::Format8601(start_);
 }
 
 const std::string TimeEntry::GroupHash() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     std::stringstream ss;
     ss << toggl::Formatter::FormatDateHeader(Start())
        << Description()
@@ -390,6 +425,7 @@ const std::string TimeEntry::GroupHash() const {
 }
 
 bool TimeEntry::IsToday() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     Poco::Timestamp ts = Poco::Timestamp::fromEpochTime(Start());
     Poco::LocalDateTime datetime(ts);
     Poco::LocalDateTime today;
@@ -399,6 +435,7 @@ bool TimeEntry::IsToday() const {
 }
 
 void TimeEntry::LoadFromJSON(Json::Value data) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     // No ui_modified_at in server responses.
     // Compare updated_at with ui_modified_at to see if ui has been changed
     Json::Value at = data["at"];
@@ -462,6 +499,7 @@ void TimeEntry::LoadFromJSON(Json::Value data) {
 }
 
 Json::Value TimeEntry::SaveToJSON() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     Json::Value n;
     if (ID()) {
         n["id"] = Json::UInt64(ID());
@@ -520,12 +558,14 @@ Json::Value TimeEntry::SaveToJSON() const {
 }
 
 Poco::Int64 TimeEntry::RealDurationInSeconds() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     auto now = time(nullptr);
 
     return now + DurationInSeconds();
 }
 
 void TimeEntry::loadTagsFromJSON(Json::Value list) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     TagNames.clear();
 
     for (unsigned int i = 0; i < list.size(); i++) {
@@ -537,10 +577,12 @@ void TimeEntry::loadTagsFromJSON(Json::Value list) {
 }
 
 std::string TimeEntry::ModelName() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return kModelTimeEntry;
 }
 
 std::string TimeEntry::ModelURL() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     std::stringstream relative_url;
     relative_url << "/api/v9/workspaces/"
                  << WID() << "/time_entries";

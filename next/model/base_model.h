@@ -7,6 +7,7 @@
 #include <vector>
 #include <cstring>
 #include <ctime>
+#include <mutex>
 
 #include <json/json.h>  // NOLINT
 
@@ -40,62 +41,75 @@ class TOGGL_INTERNAL_EXPORT BaseModel {
 
     virtual ~BaseModel() {}
 
-    std::string GenerateGUID();
+    static std::string GenerateGUID();
 
     const Poco::Int64 &LocalID() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return local_id_;
     }
     void SetLocalID(const Poco::Int64 value) {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         local_id_ = value;
     }
 
     const Poco::UInt64 &ID() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return id_;
     }
     void SetID(const Poco::UInt64 value);
 
     const Poco::Int64 &UIModifiedAt() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return ui_modified_at_;
     }
     void SetUIModifiedAt(const Poco::Int64 value);
     void SetUIModified() {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         SetUIModifiedAt(time(nullptr));
     }
 
     const std::string &GUID() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return guid_;
     }
     void SetGUID(const std::string &value);
 
     const Poco::UInt64 &UID() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return uid_;
     }
     void SetUID(const Poco::UInt64 value);
 
     void SetDirty();
     const bool &Dirty() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return dirty_;
     }
     void ClearDirty() {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         dirty_ = false;
     }
 
     const bool &Unsynced() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return unsynced_;
     }
     void SetUnsynced();
     void ClearUnsynced() {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         unsynced_ = false;
     }
 
     // Deleting a time entry hides it from
     // UI and flags it for removal from server:
     const Poco::Int64 &DeletedAt() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return deleted_at_;
     }
     void SetDeletedAt(const Poco::Int64 value);
 
     const Poco::Int64 &UpdatedAt() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return updated_at_;
     }
     void SetUpdatedAt(const Poco::Int64 value);
@@ -107,9 +121,11 @@ class TOGGL_INTERNAL_EXPORT BaseModel {
     // on server, it will be removed from local
     // DB using this flag:
     bool IsMarkedAsDeletedOnServer() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return is_marked_as_deleted_on_server_;
     }
     void MarkAsDeletedOnServer() {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         is_marked_as_deleted_on_server_ = true;
         SetDirty();
     }
@@ -126,6 +142,7 @@ class TOGGL_INTERNAL_EXPORT BaseModel {
     void ClearValidationError();
     void SetValidationError(const std::string &value);
     const std::string &ValidationError() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return validation_error_;
     }
 
@@ -135,6 +152,7 @@ class TOGGL_INTERNAL_EXPORT BaseModel {
 
     virtual void LoadFromJSON(Json::Value value) {}
     virtual Json::Value SaveToJSON() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return 0;
     }
 
@@ -161,6 +179,8 @@ class TOGGL_INTERNAL_EXPORT BaseModel {
     Poco::Logger &logger() const;
 
     bool userCannotAccessWorkspace(const toggl::error &err) const;
+
+    mutable std::recursive_mutex mutex_;
 
  private:
     std::string batchUpdateRelativeURL() const;

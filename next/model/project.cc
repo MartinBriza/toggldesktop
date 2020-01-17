@@ -1,6 +1,6 @@
 // Copyright 2014 Toggl Desktop developers.
 
-#include "../src/project.h"
+#include "project.h"
 
 #include <sstream>
 #include <ctime>
@@ -26,6 +26,7 @@ template<typename T, size_t N> T *end(T (&ra)[N]) {
 std::vector<std::string> Project::ColorCodes(known_colors, end(known_colors));
 
 std::string Project::String() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     std::stringstream ss;
     ss  << "ID=" << ID()
         << " local_id=" << LocalID()
@@ -43,6 +44,7 @@ std::string Project::String() const {
 }
 
 std::string Project::FullName() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     std::stringstream ss;
     ss << client_name_
        << name_;
@@ -50,6 +52,7 @@ std::string Project::FullName() const {
 }
 
 void Project::SetClientGUID(const std::string &value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (client_guid_ != value) {
         client_guid_ = value;
         SetDirty();
@@ -57,6 +60,7 @@ void Project::SetClientGUID(const std::string &value) {
 }
 
 void Project::SetActive(const bool value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (active_ != value) {
         active_ = value;
         SetDirty();
@@ -64,6 +68,7 @@ void Project::SetActive(const bool value) {
 }
 
 void Project::SetPrivate(const bool value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (private_ != value) {
         private_ = value;
         SetDirty();
@@ -71,6 +76,7 @@ void Project::SetPrivate(const bool value) {
 }
 
 void Project::SetName(const std::string &value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (name_ != value) {
         name_ = value;
         SetDirty();
@@ -78,6 +84,7 @@ void Project::SetName(const std::string &value) {
 }
 
 void Project::SetBillable(const bool value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (billable_ != value) {
         billable_ = value;
         SetDirty();
@@ -85,6 +92,7 @@ void Project::SetBillable(const bool value) {
 }
 
 void Project::SetColor(const std::string &value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (color_ != value) {
         color_ = Poco::UTF8::toLower(value);
         SetDirty();
@@ -92,6 +100,7 @@ void Project::SetColor(const std::string &value) {
 }
 
 std::string Project::ColorCode() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     unsigned index(0);
     if (!Poco::NumberParser::tryParseUnsigned(Color(), index)) {
         return Color();
@@ -100,11 +109,13 @@ std::string Project::ColorCode() const {
 }
 
 error Project::SetColorCode(const std::string &color_code) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     SetColor(color_code);
     return noError;
 }
 
 void Project::SetWID(const Poco::UInt64 value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (wid_ != value) {
         wid_ = value;
         SetDirty();
@@ -112,6 +123,7 @@ void Project::SetWID(const Poco::UInt64 value) {
 }
 
 void Project::SetCID(const Poco::UInt64 value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (cid_ != value) {
         cid_ = value;
         SetDirty();
@@ -119,6 +131,7 @@ void Project::SetCID(const Poco::UInt64 value) {
 }
 
 void Project::SetClientName(const std::string &value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (client_name_ != value) {
         client_name_ = value;
         SetDirty();
@@ -126,6 +139,7 @@ void Project::SetClientName(const std::string &value) {
 }
 
 void Project::LoadFromJSON(Json::Value data) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (data.isMember("hex_color")) {
         SetColor(data["hex_color"].asString());
     } else {
@@ -141,6 +155,7 @@ void Project::LoadFromJSON(Json::Value data) {
 }
 
 Json::Value Project::SaveToJSON() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     Json::Value n;
     if (ID()) {
         n["id"] = Json::UInt64(ID());
@@ -162,16 +177,19 @@ Json::Value Project::SaveToJSON() const {
 }
 
 bool Project::DuplicateResource(const toggl::error &err) const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return (std::string::npos !=
             std::string(err).find("Name has already been taken"));
 }
 
 bool Project::ResourceCannotBeCreated(const toggl::error &err) const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return (std::string::npos != std::string(err).find(
         "User cannot add or edit projects in workspace"));
 }
 
 bool Project::clientIsInAnotherWorkspace(const toggl::error &err) const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return (std::string::npos != std::string(err).find(
         "client is in another workspace")
             || (std::string::npos != std::string(err).find("Client with the ID")
@@ -180,11 +198,13 @@ bool Project::clientIsInAnotherWorkspace(const toggl::error &err) const {
 
 bool Project::onlyAdminsCanChangeProjectVisibility(
     const toggl::error &err) const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return (std::string::npos != std::string(err).find(
         "Only admins can change project visibility"));
 }
 
 bool Project::ResolveError(const toggl::error &err) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (userCannotAccessWorkspace(err)) {
         SetWID(0);
         return true;
@@ -206,10 +226,12 @@ bool Project::ResolveError(const toggl::error &err) {
 }
 
 std::string Project::ModelName() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return kModelProject;
 }
 
 std::string Project::ModelURL() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     std::stringstream relative_url;
     relative_url << "/api/v9/workspaces/"
                  << WID() << "/projects";

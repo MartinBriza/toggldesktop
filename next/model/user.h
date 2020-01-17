@@ -58,17 +58,20 @@ class TOGGL_INTERNAL_EXPORT User : public BaseModel {
     std::string DateDuration(TimeEntry *te) const;
 
     const std::string &APIToken() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return api_token_;
     }
     void SetAPIToken(const std::string &api_token);
 
     const Poco::UInt64 &DefaultWID() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return default_wid_;
     }
     void SetDefaultWID(Poco::UInt64 value);
 
     // Unix timestamp of the user data; returned from API
     const Poco::Int64 &Since() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return since_;
     }
     void SetSince(const Poco::Int64 value);
@@ -76,51 +79,61 @@ class TOGGL_INTERNAL_EXPORT User : public BaseModel {
     bool HasValidSinceDate() const;
 
     const std::string &Fullname() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return fullname_;
     }
     void SetFullname(const std::string &value);
 
     const std::string &TimeOfDayFormat() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return timeofday_format_;
     }
     void SetTimeOfDayFormat(const std::string &value);
 
     const std::string &Email() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return email_;
     }
     void SetEmail(const std::string &value);
 
     const bool &RecordTimeline() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return record_timeline_;
     }
     void SetRecordTimeline(const bool value);
 
     const std::string &DurationFormat() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return duration_format_;
     }
     void SetDurationFormat(const std::string &);
 
     const bool &StoreStartAndStopTime() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return store_start_and_stop_time_;
     }
     void SetStoreStartAndStopTime(const bool value);
 
     const std::string & OfflineData() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return offline_data_;
     }
     void SetOfflineData(const std::string &);
 
     const Poco::UInt64& DefaultPID() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return default_pid_;
     }
     void SetDefaultPID(const Poco::UInt64);
 
     const Poco::UInt64& DefaultTID() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return default_tid_;
     }
     void SetDefaultTID(const Poco::UInt64);
 
     const bool &CollapseEntries() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return collapse_entries_;
     }
     void SetCollapseEntries(const bool value);
@@ -169,10 +182,12 @@ class TOGGL_INTERNAL_EXPORT User : public BaseModel {
         std::string *result);
 
     bool HasLoadedMore() {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return has_loaded_more_;
     }
 
     void ConfirmLoadedMore() {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         has_loaded_more_ = true;
     }
 

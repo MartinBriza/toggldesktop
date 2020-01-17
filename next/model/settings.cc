@@ -1,12 +1,13 @@
 // Copyright 2014 Toggl Desktop developers.
 
-#include "../src/settings.h"
+#include "settings.h"
 
 #include "./formatter.h"
 
 namespace toggl {
 
 Json::Value Settings::SaveToJSON() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     Json::Value json;
     json["use_idle_detection"] = use_idle_detection;
     json["menubar_timer"] = menubar_timer;
@@ -41,6 +42,7 @@ Json::Value Settings::SaveToJSON() const {
 }
 
 std::string Settings::String() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     std::stringstream ss;
     ss << "Settings"
        << " use_idle_detection=" << use_idle_detection
@@ -76,6 +78,7 @@ std::string Settings::String() const {
 }
 
 bool Settings::IsSame(const Settings &other) const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return ((use_idle_detection == other.use_idle_detection)
             && (menubar_timer == other.menubar_timer)
             && (menubar_project == other.menubar_project)

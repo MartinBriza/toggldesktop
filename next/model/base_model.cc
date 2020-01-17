@@ -16,6 +16,7 @@
 namespace toggl {
 
 bool BaseModel::NeedsPush() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     // Note that if a model has a validation error previously
     // received and attached from the backend, the model won't be
     // pushed again unless the error is somehow fixed by user.
@@ -26,25 +27,30 @@ bool BaseModel::NeedsPush() const {
 }
 
 bool BaseModel::NeedsPOST() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     // No server side ID yet, meaning it's not POSTed yet
     return !id_ && !(deleted_at_ > 0);
 }
 
 bool BaseModel::NeedsPUT() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     // Model has been updated and is not deleted, needs a PUT
     return id_ && ui_modified_at_ > 0 && !(deleted_at_ > 0);
 }
 
 bool BaseModel::NeedsDELETE() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     // Model is deleted, needs a DELETE on server side
     return id_ && (deleted_at_ > 0);
 }
 
 bool BaseModel::NeedsToBeSaved() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return !local_id_ || dirty_;
 }
 
 void BaseModel::EnsureGUID() {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (!guid_.empty()) {
         return;
     }
@@ -52,10 +58,12 @@ void BaseModel::EnsureGUID() {
 }
 
 void BaseModel::ClearValidationError() {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     SetValidationError(noError);
 }
 
 void BaseModel::SetValidationError(const std::string &value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (validation_error_ != value) {
         validation_error_ = value;
         SetDirty();
@@ -63,6 +71,7 @@ void BaseModel::SetValidationError(const std::string &value) {
 }
 
 void BaseModel::SetDeletedAt(const Poco::Int64 value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (deleted_at_ != value) {
         deleted_at_ = value;
         SetDirty();
@@ -70,6 +79,7 @@ void BaseModel::SetDeletedAt(const Poco::Int64 value) {
 }
 
 void BaseModel::SetUpdatedAt(const Poco::Int64 value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (updated_at_ != value) {
         updated_at_ = value;
         SetDirty();
@@ -77,6 +87,7 @@ void BaseModel::SetUpdatedAt(const Poco::Int64 value) {
 }
 
 void BaseModel::SetGUID(const std::string &value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (guid_ != value) {
         guid_ = value;
         SetDirty();
@@ -84,6 +95,7 @@ void BaseModel::SetGUID(const std::string &value) {
 }
 
 void BaseModel::SetUIModifiedAt(const Poco::Int64 value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (ui_modified_at_ != value) {
         ui_modified_at_ = value;
         SetDirty();
@@ -91,6 +103,7 @@ void BaseModel::SetUIModifiedAt(const Poco::Int64 value) {
 }
 
 void BaseModel::SetUID(const Poco::UInt64 value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (uid_ != value) {
         uid_ = value;
         SetDirty();
@@ -98,6 +111,7 @@ void BaseModel::SetUID(const Poco::UInt64 value) {
 }
 
 void BaseModel::SetID(const Poco::UInt64 value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (id_ != value) {
         id_ = value;
         SetDirty();
@@ -105,10 +119,12 @@ void BaseModel::SetID(const Poco::UInt64 value) {
 }
 
 void BaseModel::SetUpdatedAtString(const std::string &value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     SetUpdatedAt(Formatter::Parse8601(value));
 }
 
 error BaseModel::LoadFromDataString(const std::string &data_string) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     Json::Value root;
     Json::Reader reader;
     if (!reader.parse(data_string, root)) {
@@ -119,12 +135,14 @@ error BaseModel::LoadFromDataString(const std::string &data_string) {
 }
 
 void BaseModel::Delete() {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     SetDeletedAt(time(nullptr));
     SetUIModified();
 }
 
 error BaseModel::ApplyBatchUpdateResult(
     BatchUpdateResult * const update) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     poco_check_ptr(update);
 
     if (update->ResourceIsGone()) {
@@ -153,11 +171,13 @@ error BaseModel::ApplyBatchUpdateResult(
 }
 
 bool BaseModel::userCannotAccessWorkspace(const error &err) const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return (std::string::npos != std::string(err).find(
         kCannotAccessWorkspaceError));
 }
 
 std::string BaseModel::batchUpdateRelativeURL() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (NeedsPOST()) {
         return ModelURL();
     }
@@ -168,6 +188,7 @@ std::string BaseModel::batchUpdateRelativeURL() const {
 }
 
 std::string BaseModel::batchUpdateMethod() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (NeedsDELETE()) {
         return "DELETE";
     }
@@ -181,6 +202,7 @@ std::string BaseModel::batchUpdateMethod() const {
 
 // Convert model JSON into batch update format.
 error BaseModel::BatchUpdateJSON(Json::Value *result) const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (GUID().empty()) {
         return error("Cannot export model to batch update without a GUID");
     }
@@ -197,14 +219,17 @@ error BaseModel::BatchUpdateJSON(Json::Value *result) const {
 }
 
 Poco::Logger &BaseModel::logger() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return Poco::Logger::get(ModelName());
 }
 
 void BaseModel::SetDirty() {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     dirty_ = true;
 }
 
 void BaseModel::SetUnsynced() {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     unsynced_ = true;
 }
 

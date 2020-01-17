@@ -23,11 +23,13 @@ class TOGGL_INTERNAL_EXPORT Client : public BaseModel {
     , name_("") {}
 
     const Poco::UInt64 &WID() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return wid_;
     }
     void SetWID(const Poco::UInt64 value);
 
     const std::string &Name() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return name_;
     }
     void SetName(const std::string &value);

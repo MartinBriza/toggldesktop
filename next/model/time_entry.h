@@ -35,6 +35,7 @@ class TOGGL_INTERNAL_EXPORT TimeEntry : public BaseModel, public TimedEvent {
     virtual ~TimeEntry() {}
 
     const Poco::Int64 &LastStartAt() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return last_start_at_;
     }
     void SetLastStartAt(const Poco::Int64 value);
@@ -47,36 +48,43 @@ class TOGGL_INTERNAL_EXPORT TimeEntry : public BaseModel, public TimedEvent {
     const std::string TagsHash() const;
 
     const Poco::UInt64 &WID() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return wid_;
     }
     void SetWID(const Poco::UInt64 value);
 
     const Poco::UInt64 &PID() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return pid_;
     }
     void SetPID(const Poco::UInt64 value);
 
     const Poco::UInt64 &TID() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return tid_;
     }
     void SetTID(const Poco::UInt64 value);
 
     const bool &Billable() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return billable_;
     }
     void SetBillable(const bool value);
 
     const Poco::Int64 &DurationInSeconds() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return duration_in_seconds_;
     }
     void SetDurationInSeconds(const Poco::Int64 value);
 
     const bool &DurOnly() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return duronly_;
     }
     void SetDurOnly(const bool value);
 
     const std::string &Description() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return description_;
     }
     void SetDescription(const std::string &value);
@@ -85,6 +93,7 @@ class TOGGL_INTERNAL_EXPORT TimeEntry : public BaseModel, public TimedEvent {
     void SetStartString(const std::string &value);
 
     const Poco::Int64 &Start() const override {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return start_;
     }
     void SetStart(const Poco::Int64 value);
@@ -93,11 +102,13 @@ class TOGGL_INTERNAL_EXPORT TimeEntry : public BaseModel, public TimedEvent {
     void SetStopString(const std::string &value);
 
     const Poco::Int64 &Stop() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return stop_;
     }
     void SetStop(const Poco::Int64 value);
 
     const std::string &CreatedWith() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return created_with_;
     }
     void SetCreatedWith(const std::string &value);
@@ -107,6 +118,7 @@ class TOGGL_INTERNAL_EXPORT TimeEntry : public BaseModel, public TimedEvent {
     bool IsToday() const;
 
     const std::string &ProjectGUID() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return project_guid_;
     }
     void SetProjectGUID(const std::string &);
@@ -117,6 +129,7 @@ class TOGGL_INTERNAL_EXPORT TimeEntry : public BaseModel, public TimedEvent {
     void SetStartUserInput(const std::string &, const bool);
 
     bool IsTracking() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return duration_in_seconds_ < 0;
     }
 
@@ -134,6 +147,7 @@ class TOGGL_INTERNAL_EXPORT TimeEntry : public BaseModel, public TimedEvent {
     // Implement TimedEvent
 
     virtual const Poco::Int64 &Duration() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return DurationInSeconds();
     }
 

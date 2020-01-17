@@ -1,12 +1,13 @@
 // Copyright 2014 Toggl Desktop developers.
 
-#include "../src/task.h"
+#include "task.h"
 
 #include <sstream>
 
 namespace toggl {
 
 std::string Task::String() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     std::stringstream ss;
     ss  << "ID=" << ID()
         << " local_id=" << LocalID()
@@ -17,6 +18,7 @@ std::string Task::String() const {
 }
 
 void Task::SetPID(const Poco::UInt64 value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (pid_ != value) {
         pid_ = value;
         SetDirty();
@@ -24,6 +26,7 @@ void Task::SetPID(const Poco::UInt64 value) {
 }
 
 void Task::SetWID(const Poco::UInt64 value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (wid_ != value) {
         wid_ = value;
         SetDirty();
@@ -31,6 +34,7 @@ void Task::SetWID(const Poco::UInt64 value) {
 }
 
 void Task::SetName(const std::string &value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (name_ != value) {
         name_ = value;
         SetDirty();
@@ -38,6 +42,7 @@ void Task::SetName(const std::string &value) {
 }
 
 void Task::SetActive(const bool value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (active_ != value) {
         active_ = value;
         SetDirty();
@@ -45,6 +50,7 @@ void Task::SetActive(const bool value) {
 }
 
 void Task::LoadFromJSON(Json::Value data) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
     SetID(data["id"].asUInt64());
     SetName(data["name"].asString());
     SetPID(data["pid"].asUInt64());

@@ -8,6 +8,8 @@
 #include <mutex>
 #include <queue>
 #include <functional>
+#include <atomic>
+#include <condition_variable>
 
 #include "model/tag.h"
 #include "model/time_entry.h"
@@ -38,29 +40,46 @@ public:
     }
 
     void dumpAll() {
-        std::cout << "==== Tags ====" << std::endl << std::flush;
-        dump(tags_);
-        std::cout << "==== Clients ====" << std::endl << std::flush;
-        dump(clients_);
-        std::cout << "==== Projects ====" << std::endl << std::flush;
-        dump(projects_);
-        std::cout << "==== Time Entries ====" << std::endl << std::flush;
-        for (auto i : timeEntries_) {
-            std::cout << i->Description() << ", ";
+        {
+            std::unique_lock<std::recursive_mutex> lock(tagsMutex_);
+            std::cout << "==== Tags ====" << std::endl << std::flush;
+            dump(tags_);
+            lock.unlock();
+        }{
+            std::unique_lock<std::recursive_mutex> lock(clientsMutex_);
+            std::cout << "==== Clients ====" << std::endl << std::flush;
+            dump(clients_);
+            lock.unlock();
+        }{
+            std::unique_lock<std::recursive_mutex> lock(projectsMutex_);
+            std::cout << "==== Projects ====" << std::endl << std::flush;
+            dump(projects_);
+            lock.unlock();
+        }{
+            std::unique_lock<std::recursive_mutex> lock(timeEntriesMutex_);
+            std::cout << "==== Time Entries ====" << std::endl << std::flush;
+            for (auto i : timeEntries_) {
+                std::cout << i->Description() << ", ";
+            }
+            lock.unlock();
         }
         std::cout << std::endl << std::flush;
     }
 
     Error loadTags(const Json::Value &root) {
+        std::scoped_lock<std::recursive_mutex> lock(tagsMutex_);
         return load<Tag>(tags_, root);
     }
     Error loadClients(const Json::Value &root) {
+        std::scoped_lock<std::recursive_mutex> lock(clientsMutex_);
         return load<Client>(clients_, root);
     }
     Error loadProjects(const Json::Value &root) {
+        std::scoped_lock<std::recursive_mutex> lock(projectsMutex_);
         return load<Project>(projects_, root);
     }
     Error loadTimeEntries(const Json::Value &root) {
+        std::scoped_lock<std::recursive_mutex> lock(timeEntriesMutex_);
         return load<TimeEntry>(timeEntries_, root);
     }
 
@@ -92,9 +111,13 @@ private:
     }
 
     std::list<Tag*> tags_;
+    std::recursive_mutex tagsMutex_;
     std::list<Client*> clients_;
+    std::recursive_mutex clientsMutex_;
     std::list<Project*> projects_;
+    std::recursive_mutex projectsMutex_;
     std::list<TimeEntry*> timeEntries_;
+    std::recursive_mutex timeEntriesMutex_;
 };
 
 static struct Callbacks {
@@ -108,14 +131,26 @@ public:
     Context(const std::string &app_name, Callbacks callbacks)
         : callbacks_(callbacks)
         , api(app_name)
-        , workThread(&Context::threadLoop, this)
     {
 
     }
 
+    void Start() {
+        workThread = std::thread(&Context::threadLoop, this);
+    }
+
+    void QueueTestPrint() {
+        std::unique_lock<std::recursive_mutex> lock(queueLock);
+        queue.emplace(std::chrono::system_clock::now() + std::chrono::seconds(5), std::bind(&Context::testPrint, this));
+        lock.unlock();
+        cv.notify_all();
+    }
+
     void Login(const std::string &username, const std::string &password) {
         std::unique_lock<std::recursive_mutex> lock(queueLock);
-        queue.push(std::bind(&Context::login, this, username, password));
+        queue.emplace(std::chrono::system_clock::now(), std::bind(&Context::login, this, username, password));
+        lock.unlock();
+        cv.notify_all();
     }
 private:
     void login(const std::string &username, const std::string &password) {
@@ -125,7 +160,6 @@ private:
             Json::Value root;
             Json::Reader reader;
             reader.parse(result.second, root);
-
 
             std::cout << root.toStyledString() << std::endl << std::flush;
 
@@ -153,19 +187,39 @@ private:
             std::cout << result.first.String() << std::endl << std::flush;
         }
     }
+    void testPrint() {
+        std::cout << "Testing" << std::endl << std::flush;
+    }
 
     Callbacks callbacks_;
 
-    std::queue<std::function<void(void)>> queue;
+    std::multimap<std::chrono::time_point<std::chrono::system_clock>, std::function<void(void)>> queue;
     std::recursive_mutex queueLock;
+    std::condition_variable cv;
+    std::mutex cvMutex;
 
-    void threadLoop() {
+    [[noreturn]] void threadLoop() {
         while (true) {
-            std::this_thread::sleep_for(std::chrono::seconds(1));
             std::unique_lock<std::recursive_mutex> lock(queueLock);
-            if (queue.size()) {
-                queue.front()();
-                queue.pop();
+            auto time = std::chrono::system_clock::now();
+            while (queue.begin() != queue.end() && queue.begin()->first <= time) {
+                std::cerr << "The time is now" << std::to_string(time.time_since_epoch().count()) << std::endl << std::flush;
+                std::cerr << "The event time is" << std::to_string(queue.begin()->first.time_since_epoch().count()) << std::endl << std::flush;
+                queue.begin()->second();
+                queue.erase(queue.begin());
+            }
+            if (queue.begin() != queue.end()) {
+                std::cerr << "Waiting for an event" << std::endl << std::flush;
+                auto nextTime = queue.begin()->first;
+                lock.unlock();
+                std::unique_lock<std::mutex> cvLock(cvMutex);
+                cv.wait_until(cvLock, nextTime);
+            }
+            else {
+                std::cerr << "Waiting before somebody wakes me up" << std::endl << std::flush;
+                lock.unlock();
+                std::unique_lock<std::mutex> cvLock(cvMutex);
+                cv.wait(cvLock);
             }
         }
     }
@@ -177,12 +231,14 @@ private:
 
 int main(void) {
     Context *ctx = new Context("linux_native_app", callbacks);
+    ctx->Start();
 
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+    ctx->QueueTestPrint();
     std::this_thread::sleep_for(std::chrono::seconds(1));
-
     ctx->Login(TEST_USERNAME, TEST_PASSWORD);
 
-    std::this_thread::sleep_for(std::chrono::seconds(10));
+    std::this_thread::sleep_for(std::chrono::seconds(15));
 
     return EXIT_SUCCESS;
 
