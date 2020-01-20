@@ -35,6 +35,9 @@ set(NEXT_SOURCE_FILES
 
     httpclient.cpp
     togglapi.cpp
+    context.cpp
+    eventqueue.cpp
+    userdata.cpp
 
     main.cc
 )
