@@ -20,10 +20,19 @@ void Context::login(const std::string &username, const std::string &password) {
         if (user) {
             std::cout << "Logged in as user " << user->ID() << std::endl << std::flush;
             api.setCredentials(user->APIToken(), "api_token");
+            /*
+            if (callbacks_.OnLogin)
+                callbacks_.OnLogin(true, user->ID());
+            */
         }
         else {
-            if (callbacks_.OnError)
-                callbacks_.OnError("Login failed: " + result.first.String());
+            if (callbacks_.OnError) {
+                std::cerr << "CALLING ONERROR\n";
+                callbacks_.OnError("Login failed: " + result.first.String(), true);
+            }
+            else {
+                std::cerr << "ONERROR IS MIA\n";
+            }
             return;
         }
 
@@ -33,9 +42,12 @@ void Context::login(const std::string &username, const std::string &password) {
         data->loadProjects(root["data"]["projects"]);
         data->loadTimeEntries(root["data"]["time_entries"]);
         data->dumpAll();
-
     }
     else {
         std::cout << result.first.String() << std::endl << std::flush;
+        if (callbacks_.OnError) {
+            std::cerr << "CALLING ONERROR\n";
+            callbacks_.OnError("Login failed: " + result.first.String(), true);
+        }
     }
 }

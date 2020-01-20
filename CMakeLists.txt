@@ -86,7 +86,7 @@ set(TOGGL_INTERNAL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE STRING "Bundled l
 set(CMAKE_INSTALL_RPATH "${TOGGL_LIB_DIR};${TOGGL_INTERNAL_LIB_DIR}" CACHE STRING "Custom RPATH for the binaries and libraries")
 
 add_subdirectory(third_party)
-add_subdirectory(src)
+#add_subdirectory(src)
 add_subdirectory(next)
-add_subdirectory(src/test)
+#add_subdirectory(src/test)
 add_subdirectory(src/ui/linux/TogglDesktop)

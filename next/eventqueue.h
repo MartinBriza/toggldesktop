@@ -21,6 +21,7 @@ public:
 
     // TODO rewrite this into a template method
     void schedule(std::chrono::time_point<std::chrono::system_clock> time, std::function<void(void)> event);
+    void schedule(std::function<void(void)> event);
 
 private:
     [[noreturn]] void threadLoop();

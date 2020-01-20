@@ -13,6 +13,11 @@ include_directories(
     .
     model
     misc
+
+)
+set(NEXTLIBRARY_INCLUDE_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    PARENT_SCOPE
 )
 
 # TogglDesktopLibrary sources
@@ -40,19 +45,29 @@ set(NEXT_SOURCE_FILES
     userdata.cpp
 
     legacy_api.cc
+)
 
+set(NEXT_APP_SOURCE_FILES
     main.cc
 )
 
-# Set up compilation targets
-add_executable(Next ${NEXT_SOURCE_FILES})
-
-# And list the dependencies between them (and system libraries)
-target_link_libraries(Next PRIVATE
+add_library(NextLibrary ${NEXT_SOURCE_FILES})
+target_link_libraries(NextLibrary PRIVATE
     ${JSONCPP_LIBRARIES}
     ${LUA_LIBRARIES}
     PocoFoundation PocoCrypto PocoDataSQLite PocoNet PocoNetSSL
     pthread
 )
 
+add_executable(Next ${NEXT_APP_SOURCE_FILES})
+target_link_libraries(Next PRIVATE
+    NextLibrary
+    ${JSONCPP_LIBRARIES}
+    ${LUA_LIBRARIES}
+    PocoFoundation PocoCrypto PocoDataSQLite PocoNet PocoNetSSL
+    pthread
+)
+
+
 install(TARGETS Next DESTINATION bin)
+install(TARGETS NextLibrary DESTINATION lib)

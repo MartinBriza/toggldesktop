@@ -21,6 +21,10 @@ void EventQueue::schedule(std::chrono::time_point<std::chrono::system_clock> tim
     cv.notify_all();
 }
 
+void EventQueue::schedule(std::function<void ()> event) {
+    schedule({}, event);
+}
+
 void EventQueue::threadLoop() {
     while (true) {
         std::unique_lock<std::recursive_mutex> lock(queueLock);

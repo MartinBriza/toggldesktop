@@ -29,7 +29,7 @@
 
 using namespace toggl;
 
-void OnError(const std::string &error) {
+void OnError(const std::string &error, bool user_error) {
     std::cerr << "An error occurred: " << error << std::endl << std::flush;
 }
 
@@ -42,8 +42,6 @@ int main(void) {
     Context *ctx = new Context("linux_native_app", callbacks);
     ctx->Start();
 
-    std::this_thread::sleep_for(std::chrono::seconds(5));
-    ctx->QueueTestPrint();
     std::this_thread::sleep_for(std::chrono::seconds(1));
     ctx->Login(TEST_USERNAME, TEST_PASSWORD);
 
