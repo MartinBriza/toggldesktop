@@ -10,7 +10,7 @@
 
 #include <stdint.h>
 
-#include "./toggl_api.h"
+#include "../../next/legacy_api.h"
 
 class AutocompleteView;
 class GenericView;

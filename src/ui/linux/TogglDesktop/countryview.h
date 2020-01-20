@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QVector>
 
-#include "./toggl_api.h"
+#include "legacy_api.h"
 
 class CountryView : public QObject
 {

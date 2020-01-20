@@ -11,10 +11,9 @@
 #include <QStringList>
 #include <QDate>
 
-#include <iostream>   // NOLINT
+#include "../../next/legacy_api.h"
 
-#include "./../../../toggl_api.h"
-#include "./../../../platforminfo.h"
+#include <iostream>   // NOLINT
 
 #include "./timeentryview.h"
 #include "./genericview.h"
@@ -291,6 +290,7 @@ TogglApi::TogglApi(
     }
 
     Bugsnag::device.osName = "linux";
+#if 0
     auto platform = RetrieveOsDetailsMap();
     if (platform.count("window_manager"))
         Bugsnag::device.wm = QString::fromStdString(platform["window_manager"]);
@@ -302,7 +302,7 @@ TogglApi::TogglApi(
         Bugsnag::device.session = QString::fromStdString(platform["session_type"]);
     if(platform.count("build_type"))
         Bugsnag::device.build = QString::fromStdString(platform["build_type"]);
-
+#endif
     instance = this;
 }
 

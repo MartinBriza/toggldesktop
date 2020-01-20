@@ -7,7 +7,7 @@ add_definitions(-DTOGGL_DATA_DIR="${TOGGL_DATA_DIR}")
 
 # And include dirs
 include_directories(
-    ${TOGGLDESKTOPLIBRARY_INCLUDE_DIR}
+    ${NEXTLIBRARY_INCLUDE_DIR}
     ${OAUTH_INCLUDE_DIR}
     ${BUGSNAG_INCLUDE_DIR}
     ${QXT_INCLUDE_DIRS}
@@ -69,7 +69,7 @@ add_executable(TogglDesktop ${BINARY_SOURCE_FILES})
 
 # And list the dependencies between them (and system libraries)
 target_link_libraries(TogglDesktop PRIVATE
-    TogglDesktopLibrary
+    NextLibrary
     Qt5::Widgets Qt5::DBus Qt5::WebEngine
     OAuth2
     ${QXT_LIBRARIES}
