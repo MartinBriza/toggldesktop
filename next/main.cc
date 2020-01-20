@@ -33,7 +33,7 @@ void OnError(const std::string &error) {
     std::cerr << "An error occurred: " << error << std::endl << std::flush;
 }
 
-static Callbacks callbacks {
+static Context::Callbacks callbacks {
     OnError
 };
 

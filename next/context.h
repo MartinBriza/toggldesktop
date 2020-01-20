@@ -7,18 +7,22 @@
 #include "togglapi.h"
 #include "eventqueue.h"
 
-struct Callbacks {
-    void (*OnError)(const std::string &error);
-};
-
 class Context {
 public:
+    struct Callbacks {
+        std::function<void(const std::string&)> OnError;
+    };
+
     Context(const std::string &app_name, Callbacks callbacks)
         : callbacks_(callbacks)
         , api(app_name)
         , eventQueue_(this)
     {
 
+    }
+
+    Callbacks *GetCallbacks() {
+        return &callbacks_;
     }
 
     void Start() {
