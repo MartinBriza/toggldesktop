@@ -9,20 +9,20 @@
 
 namespace toggl {
 
-std::string Client::ModelName() const {
+std::string ClientModel::ModelName() const {
     return kModelClient;
 }
 
-std::string Client::ModelURL() const {
+std::string ClientModel::ModelURL() const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     std::stringstream relative_url;
     relative_url << "/api/v9/workspaces/"
-                 << WID() << "/clients";
+                 << WID() << "/ClientModels";
 
     return relative_url.str();
 }
 
-std::string Client::String() const {
+std::string ClientModel::String() const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     std::stringstream ss;
     ss  << "ID=" << ID()
@@ -33,7 +33,7 @@ std::string Client::String() const {
     return ss.str();
 }
 
-void Client::SetName(const std::string &value) {
+void ClientModel::SetName(const std::string &value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (name_ != value) {
         name_ = value;
@@ -41,7 +41,7 @@ void Client::SetName(const std::string &value) {
     }
 }
 
-void Client::SetWID(const Poco::UInt64 value) {
+void ClientModel::SetWID(const Poco::UInt64 value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (wid_ != value) {
         wid_ = value;
@@ -49,14 +49,14 @@ void Client::SetWID(const Poco::UInt64 value) {
     }
 }
 
-void Client::LoadFromJSON(Json::Value data) {
+void ClientModel::LoadFromJSON(Json::Value data) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     SetID(data["id"].asUInt64());
     SetName(data["name"].asString());
     SetWID(data["wid"].asUInt64());
 }
 
-Json::Value Client::SaveToJSON() const {
+Json::Value ClientModel::SaveToJSON() const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     Json::Value n;
     if (ID()) {
@@ -69,7 +69,7 @@ Json::Value Client::SaveToJSON() const {
     return n;
 }
 
-bool Client::ResolveError(const toggl::error &err) {
+bool ClientModel::ResolveError(const toggl::error &err) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (nameHasAlreadyBeenTaken(err)) {
         SetName(Name() + " 1");
@@ -83,15 +83,15 @@ bool Client::ResolveError(const toggl::error &err) {
     return false;
 }
 
-bool Client::nameHasAlreadyBeenTaken(const error &err) {
+bool ClientModel::nameHasAlreadyBeenTaken(const error &err) {
     return (std::string::npos != std::string(err).find(
         "Name has already been taken"));
 }
 
-bool Client::ResourceCannotBeCreated(const toggl::error &err) const {
+bool ClientModel::ResourceCannotBeCreated(const toggl::error &err) const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return (std::string::npos != std::string(err).find(
-        "cannot add or edit clients in workspace"));
+        "cannot add or edit ClientModels in workspace"));
 }
 
 }   // namespace toggl

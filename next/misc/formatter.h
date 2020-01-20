@@ -26,10 +26,10 @@ class TOGGL_INTERNAL_EXPORT Format {
     static const std::string ImprovedOnlyMinAndSec;
 };
 
-class Client;
-class Project;
-class Task;
-class Workspace;
+class ClientModel;
+class ProjectModel;
+class TaskModel;
+class WorkspaceModel;
 
 class TOGGL_INTERNAL_EXPORT TimedEvent {
  public:
@@ -48,8 +48,8 @@ class TOGGL_INTERNAL_EXPORT Formatter {
     static std::string DurationFormat;
 
     static std::string JoinTaskName(
-        Task * const,
-        Project * const);
+        TaskModel * const,
+        ProjectModel * const);
 
     static std::string FormatDuration(
         const Poco::Int64 value,
@@ -138,8 +138,8 @@ class TOGGL_INTERNAL_EXPORT Formatter {
 };
 
 bool CompareClientByName(
-    Client *a,
-    Client *b);
+    ClientModel *a,
+    ClientModel *b);
 bool CompareByStart(
     TimedEvent *a,
     TimedEvent *b);
@@ -150,8 +150,8 @@ bool CompareStructuredAutocompleteItems(
     view::Autocomplete a,
     view::Autocomplete b);
 bool CompareWorkspaceByName(
-    Workspace *a,
-    Workspace *b);
+    WorkspaceModel *a,
+    WorkspaceModel *b);
 bool CompareAutotrackerTitles(
     const std::string &a,
     const std::string &b);

@@ -68,8 +68,15 @@ public:
     void Login(const std::string &username, const std::string &password) {
         eventQueue_.schedule(std::bind(&Context::login, this, username, password));
     }
+
+    void GetCountries() {
+        eventQueue_.schedule(std::bind(&Context::getCountries, this));
+    }
+
+
 private:
     void login(const std::string &username, const std::string &password);
+    void getCountries();
 
     Callbacks callbacks_;
 

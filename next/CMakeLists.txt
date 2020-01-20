@@ -33,10 +33,13 @@ set(NEXT_SOURCE_FILES
     model/time_entry.cc
     model/user.cc
     model/workspace.cc
+    model/country.cc
 
     misc/formatter.cc
     misc/logger.cc
     misc/error.cpp
+
+    entity/user.cpp
 
     httpclient.cpp
     togglapi.cpp

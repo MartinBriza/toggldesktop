@@ -15,9 +15,9 @@
 
 namespace toggl {
 
-class TOGGL_INTERNAL_EXPORT Client : public BaseModel {
+class TOGGL_INTERNAL_EXPORT ClientModel : public BaseModel {
  public:
-    Client()
+    ClientModel()
         : BaseModel()
     , wid_(0)
     , name_("") {}

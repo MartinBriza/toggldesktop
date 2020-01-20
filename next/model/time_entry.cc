@@ -27,7 +27,7 @@
 
 namespace toggl {
 
-bool TimeEntry::ResolveError(const error &err) {
+bool TimeEntryModel::ResolveError(const error &err) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (durationTooLarge(err) && Stop() && Start()) {
         Poco::Int64 seconds =
@@ -74,56 +74,56 @@ bool TimeEntry::ResolveError(const error &err) {
     return false;
 }
 
-bool TimeEntry::isNotFound(const error &err) const {
+bool TimeEntryModel::isNotFound(const error &err) const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return std::string::npos != std::string(err).find(
         "Time entry not found");
 }
-bool TimeEntry::isMissingCreatedWith(const error &err) const {
+bool TimeEntryModel::isMissingCreatedWith(const error &err) const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return std::string::npos != std::string(err).find(
         "created_with needs to be provided an a valid string");
 }
 
-bool TimeEntry::userCannotAccessTheSelectedProject(
+bool TimeEntryModel::userCannotAccessTheSelectedProject(
     const error &err) const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return (std::string::npos != std::string(err).find(
         "User cannot access the selected project"));
 }
 
-bool TimeEntry::userCannotAccessSelectedTask(
+bool TimeEntryModel::userCannotAccessSelectedTask(
     const error &err) const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return (std::string::npos != std::string(err).find(
         "User cannot access selected task"));
 }
 
-bool TimeEntry::durationTooLarge(const error &err) const {
+bool TimeEntryModel::durationTooLarge(const error &err) const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return (std::string::npos != std::string(err).find(
         "Max allowed duration per 1 time entry is 999 hours"));
 }
 
-bool TimeEntry::startTimeWrongYear(const error &err) const {
+bool TimeEntryModel::startTimeWrongYear(const error &err) const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return (std::string::npos != std::string(err).find(
         "Start time year must be between 2006 and 2030"));
 }
 
-bool TimeEntry::stopTimeMustBeAfterStartTime(const error &err) const {
+bool TimeEntryModel::stopTimeMustBeAfterStartTime(const error &err) const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return (std::string::npos != std::string(err).find(
         "Stop time must be after start time"));
 }
 
-bool TimeEntry::billableIsAPremiumFeature(const error &err) const {
+bool TimeEntryModel::billableIsAPremiumFeature(const error &err) const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return (std::string::npos != std::string(err).find(
         "Billable is a premium feature"));
 }
 
-void TimeEntry::DiscardAt(const Poco::Int64 at) {
+void TimeEntryModel::DiscardAt(const Poco::Int64 at) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (!IsTracking()) {
         logger().error("Cannot discard time entry that is not tracking");
@@ -152,12 +152,12 @@ void TimeEntry::DiscardAt(const Poco::Int64 at) {
     SetUIModified();
 }
 
-void TimeEntry::StopTracking() {
+void TimeEntryModel::StopTracking() {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     DiscardAt(time(nullptr));
 }
 
-std::string TimeEntry::String() const {
+std::string TimeEntryModel::String() const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     std::stringstream ss;
     ss  << "TimeEntry"
@@ -182,14 +182,14 @@ std::string TimeEntry::String() const {
     return ss.str();
 }
 
-void TimeEntry::SetLastStartAt(const Poco::Int64 value) {
+void TimeEntryModel::SetLastStartAt(const Poco::Int64 value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (last_start_at_ != value) {
         last_start_at_ = value;
     }
 }
 
-void TimeEntry::SetDurOnly(const bool value) {
+void TimeEntryModel::SetDurOnly(const bool value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (duronly_ != value) {
         duronly_ = value;
@@ -197,7 +197,7 @@ void TimeEntry::SetDurOnly(const bool value) {
     }
 }
 
-void TimeEntry::SetStart(const Poco::Int64 value) {
+void TimeEntryModel::SetStart(const Poco::Int64 value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (start_ != value) {
         start_ = value;
@@ -205,7 +205,7 @@ void TimeEntry::SetStart(const Poco::Int64 value) {
     }
 }
 
-void TimeEntry::SetStop(const Poco::Int64 value) {
+void TimeEntryModel::SetStop(const Poco::Int64 value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (stop_ != value) {
         stop_ = value;
@@ -213,7 +213,7 @@ void TimeEntry::SetStop(const Poco::Int64 value) {
     }
 }
 
-void TimeEntry::SetDescription(const std::string &value) {
+void TimeEntryModel::SetDescription(const std::string &value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     const std::string &trimValue = trim_whitespace(value);
     if (description_ != trimValue) {
@@ -222,12 +222,12 @@ void TimeEntry::SetDescription(const std::string &value) {
     }
 }
 
-void TimeEntry::SetStopString(const std::string &value) {
+void TimeEntryModel::SetStopString(const std::string &value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     SetStop(Formatter::Parse8601(value));
 }
 
-void TimeEntry::SetCreatedWith(const std::string &value) {
+void TimeEntryModel::SetCreatedWith(const std::string &value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (created_with_ != value) {
         created_with_ = value;
@@ -235,7 +235,7 @@ void TimeEntry::SetCreatedWith(const std::string &value) {
     }
 }
 
-void TimeEntry::SetBillable(const bool value) {
+void TimeEntryModel::SetBillable(const bool value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (billable_ != value) {
         billable_ = value;
@@ -243,7 +243,7 @@ void TimeEntry::SetBillable(const bool value) {
     }
 }
 
-void TimeEntry::SetWID(const Poco::UInt64 value) {
+void TimeEntryModel::SetWID(const Poco::UInt64 value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (wid_ != value) {
         wid_ = value;
@@ -251,7 +251,7 @@ void TimeEntry::SetWID(const Poco::UInt64 value) {
     }
 }
 
-void TimeEntry::SetStopUserInput(const std::string &value) {
+void TimeEntryModel::SetStopUserInput(const std::string &value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     SetStopString(value);
 
@@ -278,7 +278,7 @@ void TimeEntry::SetStopUserInput(const std::string &value) {
     }
 }
 
-void TimeEntry::SetTID(const Poco::UInt64 value) {
+void TimeEntryModel::SetTID(const Poco::UInt64 value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (tid_ != value) {
         tid_ = value;
@@ -288,7 +288,7 @@ void TimeEntry::SetTID(const Poco::UInt64 value) {
 
 static const char kTagSeparator = '\t';
 
-void TimeEntry::SetTags(const std::string &tags) {
+void TimeEntryModel::SetTags(const std::string &tags) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (Tags() != tags) {
         TagNames.clear();
@@ -304,7 +304,7 @@ void TimeEntry::SetTags(const std::string &tags) {
     }
 }
 
-void TimeEntry::SetPID(const Poco::UInt64 value) {
+void TimeEntryModel::SetPID(const Poco::UInt64 value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (pid_ != value) {
         pid_ = value;
@@ -312,7 +312,7 @@ void TimeEntry::SetPID(const Poco::UInt64 value) {
     }
 }
 
-void TimeEntry::SetDurationInSeconds(const Poco::Int64 value) {
+void TimeEntryModel::SetDurationInSeconds(const Poco::Int64 value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (duration_in_seconds_ != value) {
         duration_in_seconds_ = value;
@@ -320,7 +320,7 @@ void TimeEntry::SetDurationInSeconds(const Poco::Int64 value) {
     }
 }
 
-void TimeEntry::SetStartUserInput(const std::string &value,
+void TimeEntryModel::SetStartUserInput(const std::string &value,
                                   const bool keepEndTimeFixed) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     Poco::Int64 start = Formatter::Parse8601(value);
@@ -342,12 +342,12 @@ void TimeEntry::SetStartUserInput(const std::string &value,
     }
 }
 
-void TimeEntry::SetStartString(const std::string &value) {
+void TimeEntryModel::SetStartString(const std::string &value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     SetStart(Formatter::Parse8601(value));
 }
 
-void TimeEntry::SetDurationUserInput(const std::string &value) {
+void TimeEntryModel::SetDurationUserInput(const std::string &value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     int seconds = Formatter::ParseDurationString(value);
     if (IsTracking()) {
@@ -366,7 +366,7 @@ void TimeEntry::SetDurationUserInput(const std::string &value) {
     }
 }
 
-void TimeEntry::SetProjectGUID(const std::string &value) {
+void TimeEntryModel::SetProjectGUID(const std::string &value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (project_guid_ != value) {
         project_guid_ = value;
@@ -374,7 +374,7 @@ void TimeEntry::SetProjectGUID(const std::string &value) {
     }
 }
 
-const std::string TimeEntry::Tags() const {
+const std::string TimeEntryModel::Tags() const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     std::stringstream ss;
     for (auto it = TagNames.begin(); it != TagNames.end(); ++it) {
@@ -386,7 +386,7 @@ const std::string TimeEntry::Tags() const {
     return ss.str();
 }
 
-const std::string TimeEntry::TagsHash() const {
+const std::string TimeEntryModel::TagsHash() const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     std::vector<std::string> sortedTagNames(TagNames);
     sort(sortedTagNames.begin(), sortedTagNames.end());
@@ -400,17 +400,17 @@ const std::string TimeEntry::TagsHash() const {
     return ss.str();
 }
 
-std::string TimeEntry::StopString() const {
+std::string TimeEntryModel::StopString() const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return Formatter::Format8601(stop_);
 }
 
-std::string TimeEntry::StartString() const {
+std::string TimeEntryModel::StartString() const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return Formatter::Format8601(start_);
 }
 
-const std::string TimeEntry::GroupHash() const {
+const std::string TimeEntryModel::GroupHash() const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     std::stringstream ss;
     ss << toggl::Formatter::FormatDateHeader(Start())
@@ -424,7 +424,7 @@ const std::string TimeEntry::GroupHash() const {
     return ss.str();
 }
 
-bool TimeEntry::IsToday() const {
+bool TimeEntryModel::IsToday() const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     Poco::Timestamp ts = Poco::Timestamp::fromEpochTime(Start());
     Poco::LocalDateTime datetime(ts);
@@ -434,7 +434,7 @@ bool TimeEntry::IsToday() const {
            today.day() == datetime.day();
 }
 
-void TimeEntry::LoadFromJSON(Json::Value data) {
+void TimeEntryModel::LoadFromJSON(Json::Value data) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     // No ui_modified_at in server responses.
     // Compare updated_at with ui_modified_at to see if ui has been changed
@@ -498,7 +498,7 @@ void TimeEntry::LoadFromJSON(Json::Value data) {
     ClearUnsynced();
 }
 
-Json::Value TimeEntry::SaveToJSON() const {
+Json::Value TimeEntryModel::SaveToJSON() const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     Json::Value n;
     if (ID()) {
@@ -557,14 +557,14 @@ Json::Value TimeEntry::SaveToJSON() const {
     return n;
 }
 
-Poco::Int64 TimeEntry::RealDurationInSeconds() const {
+Poco::Int64 TimeEntryModel::RealDurationInSeconds() const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     auto now = time(nullptr);
 
     return now + DurationInSeconds();
 }
 
-void TimeEntry::loadTagsFromJSON(Json::Value list) {
+void TimeEntryModel::loadTagsFromJSON(Json::Value list) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     TagNames.clear();
 
@@ -576,12 +576,12 @@ void TimeEntry::loadTagsFromJSON(Json::Value list) {
     }
 }
 
-std::string TimeEntry::ModelName() const {
+std::string TimeEntryModel::ModelName() const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return kModelTimeEntry;
 }
 
-std::string TimeEntry::ModelURL() const {
+std::string TimeEntryModel::ModelURL() const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     std::stringstream relative_url;
     relative_url << "/api/v9/workspaces/"

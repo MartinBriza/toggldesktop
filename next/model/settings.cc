@@ -6,7 +6,7 @@
 
 namespace toggl {
 
-Json::Value Settings::SaveToJSON() const {
+Json::Value SettingsModel::SaveToJSON() const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     Json::Value json;
     json["use_idle_detection"] = use_idle_detection;
@@ -41,7 +41,7 @@ Json::Value Settings::SaveToJSON() const {
     return json;
 }
 
-std::string Settings::String() const {
+std::string SettingsModel::String() const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     std::stringstream ss;
     ss << "Settings"
@@ -77,7 +77,7 @@ std::string Settings::String() const {
     return ss.str();
 }
 
-bool Settings::IsSame(const Settings &other) const {
+bool SettingsModel::IsSame(const SettingsModel &other) const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return ((use_idle_detection == other.use_idle_detection)
             && (menubar_timer == other.menubar_timer)
@@ -110,11 +110,11 @@ bool Settings::IsSame(const Settings &other) const {
             && (show_touch_bar == other.show_touch_bar));
 }
 
-std::string Settings::ModelName() const {
+std::string SettingsModel::ModelName() const {
     return kModelSettings;
 }
 
-std::string Settings::ModelURL() const {
+std::string SettingsModel::ModelURL() const {
     return "";
 }
 

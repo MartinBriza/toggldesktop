@@ -14,15 +14,15 @@
 
 namespace toggl {
 
-class TOGGL_INTERNAL_EXPORT AutotrackerRule : public BaseModel {
+class TOGGL_INTERNAL_EXPORT AutotrackerRuleModel : public BaseModel {
  public:
-    AutotrackerRule()
+    AutotrackerRuleModel()
         : BaseModel()
     , term_("")
     , pid_(0)
     , tid_(0) {}
 
-    virtual ~AutotrackerRule() {}
+    virtual ~AutotrackerRuleModel() {}
 
     bool Matches(const TimelineEvent &event) const;
 

@@ -1,6 +1,6 @@
 // Copyright 2014 Toggl Desktop developers.
 
-#include "../src/formatter.h"
+#include "formatter.h"
 
 #include <time.h>
 #include <sstream>
@@ -44,8 +44,8 @@ std::string Formatter::togglTimeOfDayToPocoFormat(
 }
 
 std::string Formatter::JoinTaskName(
-    Task * const t,
-    Project * const p) {
+    TaskModel * const t,
+    ProjectModel * const p) {
     std::stringstream ss;
     bool empty = true;
     if (t) {
@@ -598,7 +598,7 @@ error Formatter::CollectErrors(std::vector<error> * const errors) {
     return error(ss.str());
 }
 
-bool CompareClientByName(Client *a, Client *b) {
+bool CompareClientByName(ClientModel *a, ClientModel *b) {
     return (Poco::UTF8::icompare(a->Name(), b->Name()) < 0);
 }
 
@@ -606,7 +606,7 @@ bool CompareByStart(TimedEvent *a, TimedEvent *b) {
     return a->Start() < b->Start();
 }
 
-bool CompareWorkspaceByName(Workspace *a, Workspace *b) {
+bool CompareWorkspaceByName(WorkspaceModel *a, WorkspaceModel *b) {
     return (Poco::UTF8::icompare(a->Name(), b->Name()) < 0);
 }
 

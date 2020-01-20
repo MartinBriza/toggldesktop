@@ -13,9 +13,9 @@
 
 namespace toggl {
 
-class TOGGL_INTERNAL_EXPORT Task : public BaseModel {
+class TOGGL_INTERNAL_EXPORT TaskModel : public BaseModel {
  public:
-    Task()
+    TaskModel()
         : BaseModel()
     , name_("")
     , wid_(0)

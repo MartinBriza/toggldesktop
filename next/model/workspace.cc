@@ -7,7 +7,7 @@
 
 namespace toggl {
 
-std::string Workspace::String() const {
+std::string WorkspaceModel::String() const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     std::stringstream ss;
     ss  << "ID=" << ID()
@@ -16,7 +16,7 @@ std::string Workspace::String() const {
     return ss.str();
 }
 
-void Workspace::SetName(const std::string &value) {
+void WorkspaceModel::SetName(const std::string &value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (name_ != value) {
         name_ = value;
@@ -24,7 +24,7 @@ void Workspace::SetName(const std::string &value) {
     }
 }
 
-void Workspace::SetPremium(const bool value) {
+void WorkspaceModel::SetPremium(const bool value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (premium_ != value) {
         premium_ = value;
@@ -32,7 +32,7 @@ void Workspace::SetPremium(const bool value) {
     }
 }
 
-void Workspace::SetOnlyAdminsMayCreateProjects(const bool value) {
+void WorkspaceModel::SetOnlyAdminsMayCreateProjects(const bool value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (only_admins_may_create_projects_ != value) {
         only_admins_may_create_projects_ = value;
@@ -40,7 +40,7 @@ void Workspace::SetOnlyAdminsMayCreateProjects(const bool value) {
     }
 }
 
-void Workspace::SetAdmin(const bool value) {
+void WorkspaceModel::SetAdmin(const bool value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (admin_ != value) {
         admin_ = value;
@@ -48,7 +48,7 @@ void Workspace::SetAdmin(const bool value) {
     }
 }
 
-void Workspace::SetProjectsBillableByDefault(const bool value) {
+void WorkspaceModel::SetProjectsBillableByDefault(const bool value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (projects_billable_by_default_ != value) {
         projects_billable_by_default_ = value;
@@ -56,7 +56,7 @@ void Workspace::SetProjectsBillableByDefault(const bool value) {
     }
 }
 
-void Workspace::SetBusiness(const bool value) {
+void WorkspaceModel::SetBusiness(const bool value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (business_ != value) {
         business_ = value;
@@ -64,7 +64,7 @@ void Workspace::SetBusiness(const bool value) {
     }
 }
 
-void Workspace::SetLockedTime(const time_t value) {
+void WorkspaceModel::SetLockedTime(const time_t value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (locked_time_ != value) {
         locked_time_ = value;
@@ -72,7 +72,7 @@ void Workspace::SetLockedTime(const time_t value) {
     }
 }
 
-void Workspace::LoadFromJSON(Json::Value n) {
+void WorkspaceModel::LoadFromJSON(Json::Value n) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     SetID(n["id"].asUInt64());
     SetName(n["name"].asString());
@@ -86,7 +86,7 @@ void Workspace::LoadFromJSON(Json::Value n) {
     SetBusiness(profile > 13);
 }
 
-void Workspace::LoadSettingsFromJson(Json::Value n) {
+void WorkspaceModel::LoadSettingsFromJson(Json::Value n) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     auto lockDateString = n["report_locked_at"].asString();
     if (!lockDateString.empty()) {
@@ -95,11 +95,11 @@ void Workspace::LoadSettingsFromJson(Json::Value n) {
     }
 }
 
-std::string Workspace::ModelName() const {
+std::string WorkspaceModel::ModelName() const {
     return kModelWorkspace;
 }
 
-std::string Workspace::ModelURL() const {
+std::string WorkspaceModel::ModelURL() const {
     return "/api/v9/workspaces";
 }
 

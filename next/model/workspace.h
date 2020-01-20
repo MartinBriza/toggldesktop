@@ -11,9 +11,9 @@
 
 namespace toggl {
 
-class TOGGL_INTERNAL_EXPORT Workspace : public BaseModel {
+class TOGGL_INTERNAL_EXPORT WorkspaceModel : public BaseModel {
  public:
-    Workspace()
+    WorkspaceModel()
         : BaseModel()
     , name_("")
     , premium_(false)

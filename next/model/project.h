@@ -13,9 +13,9 @@
 
 namespace toggl {
 
-class TOGGL_INTERNAL_EXPORT Project : public BaseModel {
+class TOGGL_INTERNAL_EXPORT ProjectModel : public BaseModel {
  public:
-    Project()
+    ProjectModel()
         : BaseModel()
     , wid_(0)
     , cid_(0)

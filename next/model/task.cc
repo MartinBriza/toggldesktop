@@ -6,7 +6,7 @@
 
 namespace toggl {
 
-std::string Task::String() const {
+std::string TaskModel::String() const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     std::stringstream ss;
     ss  << "ID=" << ID()
@@ -17,7 +17,7 @@ std::string Task::String() const {
     return ss.str();
 }
 
-void Task::SetPID(const Poco::UInt64 value) {
+void TaskModel::SetPID(const Poco::UInt64 value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (pid_ != value) {
         pid_ = value;
@@ -25,7 +25,7 @@ void Task::SetPID(const Poco::UInt64 value) {
     }
 }
 
-void Task::SetWID(const Poco::UInt64 value) {
+void TaskModel::SetWID(const Poco::UInt64 value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (wid_ != value) {
         wid_ = value;
@@ -33,7 +33,7 @@ void Task::SetWID(const Poco::UInt64 value) {
     }
 }
 
-void Task::SetName(const std::string &value) {
+void TaskModel::SetName(const std::string &value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (name_ != value) {
         name_ = value;
@@ -41,7 +41,7 @@ void Task::SetName(const std::string &value) {
     }
 }
 
-void Task::SetActive(const bool value) {
+void TaskModel::SetActive(const bool value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (active_ != value) {
         active_ = value;
@@ -49,7 +49,7 @@ void Task::SetActive(const bool value) {
     }
 }
 
-void Task::LoadFromJSON(Json::Value data) {
+void TaskModel::LoadFromJSON(Json::Value data) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     SetID(data["id"].asUInt64());
     SetName(data["name"].asString());
@@ -58,11 +58,11 @@ void Task::LoadFromJSON(Json::Value data) {
     SetActive(data["active"].asBool());
 }
 
-std::string Task::ModelName() const {
+std::string TaskModel::ModelName() const {
     return kModelTask;
 }
 
-std::string Task::ModelURL() const {
+std::string TaskModel::ModelURL() const {
     return "/api/v9/tasks";
 }
 

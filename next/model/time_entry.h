@@ -14,9 +14,9 @@
 
 namespace toggl {
 
-class TOGGL_INTERNAL_EXPORT TimeEntry : public BaseModel, public TimedEvent {
+class TOGGL_INTERNAL_EXPORT TimeEntryModel : public BaseModel, public TimedEvent {
  public:
-    TimeEntry()
+    TimeEntryModel()
         : BaseModel()
     , wid_(0)
     , pid_(0)
@@ -32,7 +32,7 @@ class TOGGL_INTERNAL_EXPORT TimeEntry : public BaseModel, public TimedEvent {
     , unsynced_(false)
     , last_start_at_(0) {}
 
-    virtual ~TimeEntry() {}
+    virtual ~TimeEntryModel() {}
 
     const Poco::Int64 &LastStartAt() const {
         std::scoped_lock<std::recursive_mutex> lock(mutex_);

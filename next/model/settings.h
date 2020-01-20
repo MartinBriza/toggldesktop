@@ -14,9 +14,9 @@
 
 namespace toggl {
 
-class TOGGL_INTERNAL_EXPORT Settings : public BaseModel {
+class TOGGL_INTERNAL_EXPORT SettingsModel : public BaseModel {
  public:
-    Settings()
+    SettingsModel()
         : use_idle_detection(false)
     , menubar_timer(false)
     , menubar_project(false)
@@ -47,7 +47,7 @@ class TOGGL_INTERNAL_EXPORT Settings : public BaseModel {
     , stop_entry_on_shutdown_sleep(false)
     , show_touch_bar(true) {}
 
-    virtual ~Settings() {}
+    virtual ~SettingsModel() {}
 
     bool use_idle_detection;
     bool menubar_timer;
@@ -79,7 +79,7 @@ class TOGGL_INTERNAL_EXPORT Settings : public BaseModel {
     bool stop_entry_on_shutdown_sleep;
     bool show_touch_bar;
 
-    bool IsSame(const Settings &other) const;
+    bool IsSame(const SettingsModel &other) const;
 
     // Override BaseModel
 

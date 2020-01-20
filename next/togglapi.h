@@ -26,7 +26,8 @@ public:
     // POST api + /api/v9/signup + payload(json)
     //  ^- google signup sends app name but regular doesn't for some reason
     // POST api + /api/v9/me/accept_tos
-    // GET api + /api/v9/countries
+
+    std::pair<Error, std::string> v9_countries();
 
 private:
     HttpClient client_;

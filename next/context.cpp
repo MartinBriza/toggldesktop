@@ -15,7 +15,7 @@ void Context::login(const std::string &username, const std::string &password) {
 
         std::cout << root.toStyledString() << std::endl << std::flush;
 
-        toggl::User *user = toggl::User::constructFromJSON(this, root["data"]);
+        toggl::UserModel *user = toggl::UserModel::constructFromJSON(this, root["data"]);
 
         if (user) {
             std::cout << "Logged in as user " << user->ID() << std::endl << std::flush;
@@ -50,4 +50,9 @@ void Context::login(const std::string &username, const std::string &password) {
             callbacks_.OnError("Login failed: " + result.first.String(), true);
         }
     }
+}
+
+void Context::getCountries() {
+    auto result = api.v9_countries();
+    std::cout << result.first.String() << result.second << std::endl << std::flush;
 }

@@ -33,11 +33,11 @@
 
 namespace toggl {
 
-User::~User() {
+UserModel::~UserModel() {
 }
 
-User *User::constructFromJSON(Context *ctx, const Json::Value &root) {
-    User *user = new User(ctx);
+UserModel *UserModel::constructFromJSON(Context *ctx, const Json::Value &root) {
+    UserModel *user = new UserModel(ctx);
     user->loadUserAndRelatedDataFromJSON(root, false);
     if (user->ID() == 0) {
         delete user;
@@ -46,7 +46,7 @@ User *User::constructFromJSON(Context *ctx, const Json::Value &root) {
     return user;
 }
 
-void User::SetFullname(const std::string &value) {
+void UserModel::SetFullname(const std::string &value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (fullname_ != value) {
         fullname_ = value;
@@ -54,7 +54,7 @@ void User::SetFullname(const std::string &value) {
     }
 }
 
-void User::SetTimeOfDayFormat(const std::string &value) {
+void UserModel::SetTimeOfDayFormat(const std::string &value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     Formatter::TimeOfDayFormat = value;
     if (timeofday_format_ != value) {
@@ -63,7 +63,7 @@ void User::SetTimeOfDayFormat(const std::string &value) {
     }
 }
 
-void User::SetDurationFormat(const std::string &value) {
+void UserModel::SetDurationFormat(const std::string &value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     Formatter::DurationFormat = value;
     if (duration_format_ != value) {
@@ -72,7 +72,7 @@ void User::SetDurationFormat(const std::string &value) {
     }
 }
 
-void User::SetOfflineData(const std::string &value) {
+void UserModel::SetOfflineData(const std::string &value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (offline_data_ != value) {
         offline_data_ = value;
@@ -80,7 +80,7 @@ void User::SetOfflineData(const std::string &value) {
     }
 }
 
-void User::SetStoreStartAndStopTime(const bool value) {
+void UserModel::SetStoreStartAndStopTime(const bool value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (store_start_and_stop_time_ != value) {
         store_start_and_stop_time_ = value;
@@ -88,7 +88,7 @@ void User::SetStoreStartAndStopTime(const bool value) {
     }
 }
 
-void User::SetRecordTimeline(const bool value) {
+void UserModel::SetRecordTimeline(const bool value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (record_timeline_ != value) {
         record_timeline_ = value;
@@ -96,7 +96,7 @@ void User::SetRecordTimeline(const bool value) {
     }
 }
 
-void User::SetEmail(const std::string &value) {
+void UserModel::SetEmail(const std::string &value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (email_ != value) {
         email_ = value;
@@ -104,14 +104,14 @@ void User::SetEmail(const std::string &value) {
     }
 }
 
-void User::SetAPIToken(const std::string &value) {
+void UserModel::SetAPIToken(const std::string &value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     // API token is not saved into DB, so no
     // no dirty checking needed for it.
     api_token_ = value;
 }
 
-void User::SetSince(const Poco::Int64 value) {
+void UserModel::SetSince(const Poco::Int64 value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (since_ != value) {
         since_ = value;
@@ -119,7 +119,7 @@ void User::SetSince(const Poco::Int64 value) {
     }
 }
 
-void User::SetDefaultWID(const Poco::UInt64 value) {
+void UserModel::SetDefaultWID(const Poco::UInt64 value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (default_wid_ != value) {
         default_wid_ = value;
@@ -127,7 +127,7 @@ void User::SetDefaultWID(const Poco::UInt64 value) {
     }
 }
 
-void User::SetDefaultPID(const Poco::UInt64 value) {
+void UserModel::SetDefaultPID(const Poco::UInt64 value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (default_pid_ != value) {
         default_pid_ = value;
@@ -135,7 +135,7 @@ void User::SetDefaultPID(const Poco::UInt64 value) {
     }
 }
 
-void User::SetDefaultTID(const Poco::UInt64 value) {
+void UserModel::SetDefaultTID(const Poco::UInt64 value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (default_tid_ != value) {
         default_tid_ = value;
@@ -143,7 +143,7 @@ void User::SetDefaultTID(const Poco::UInt64 value) {
     }
 }
 
-void User::SetCollapseEntries(const bool value) {
+void UserModel::SetCollapseEntries(const bool value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (collapse_entries_ != value) {
         collapse_entries_ = value;
@@ -151,7 +151,7 @@ void User::SetCollapseEntries(const bool value) {
     }
 }
 
-bool User::HasValidSinceDate() const {
+bool UserModel::HasValidSinceDate() const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     // has no value
     if (!Since()) {
@@ -169,7 +169,7 @@ bool User::HasValidSinceDate() const {
     return true;
 }
 
-std::string User::String() const {
+std::string UserModel::String() const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     std::stringstream ss;
     ss  << "ID=" << ID()
@@ -181,7 +181,7 @@ std::string User::String() const {
     return ss.str();
 }
 
-error User::LoadUserAndRelatedDataFromJSONString(
+error UserModel::LoadUserAndRelatedDataFromJSONString(
     const std::string &json,
     const bool &including_related_data) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
@@ -210,7 +210,7 @@ error User::LoadUserAndRelatedDataFromJSONString(
     return noError;
 }
 
-void User::loadUserAndRelatedDataFromJSON(
+void UserModel::loadUserAndRelatedDataFromJSON(
     Json::Value data,
     const bool &including_related_data) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
@@ -231,7 +231,7 @@ void User::loadUserAndRelatedDataFromJSON(
     SetDurationFormat(data["duration_format"].asString());
 }
 
-bool User::LoadUserPreferencesFromJSON(
+bool UserModel::LoadUserPreferencesFromJSON(
     Json::Value data) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (data.isMember("CollapseTimeEntries")
@@ -243,7 +243,7 @@ bool User::LoadUserPreferencesFromJSON(
 }
 
 
-error User::UserID(
+error UserModel::UserID(
     const std::string &json_data_string,
     Poco::UInt64 *result) {
     *result = 0;
@@ -257,7 +257,7 @@ error User::UserID(
     return noError;
 }
 
-error User::LoginToken(
+error UserModel::LoginToken(
     const std::string &json_data_string,
     std::string *result) {
     *result = "";
@@ -271,8 +271,8 @@ error User::LoginToken(
     return noError;
 }
 
-error User::UpdateJSON(
-    std::vector<TimeEntry *> * const time_entries,
+error UserModel::UpdateJSON(
+    std::vector<TimeEntryModel *> * const time_entries,
     std::string *result) const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
 
@@ -281,7 +281,7 @@ error User::UpdateJSON(
     Json::Value c;
 
     // Time entries go last
-    for (std::vector<TimeEntry *>::const_iterator it =
+    for (std::vector<TimeEntryModel *>::const_iterator it =
         time_entries->begin();
             it != time_entries->end(); ++it) {
         Json::Value update;
@@ -298,7 +298,7 @@ error User::UpdateJSON(
     return noError;
 }
 
-std::string User::generateKey(const std::string &password) {
+std::string UserModel::generateKey(const std::string &password) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     Poco::SHA1Engine sha1;
     Poco::DigestOutputStream outstr(sha1);
@@ -309,7 +309,7 @@ std::string User::generateKey(const std::string &password) {
     return Poco::DigestEngine::digestToHex(digest);
 }
 
-error User::SetAPITokenFromOfflineData(const std::string &password) {
+error UserModel::SetAPITokenFromOfflineData(const std::string &password) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (Email().empty()) {
         return error("cannot decrypt offline data without an e-mail");
@@ -358,7 +358,7 @@ error User::SetAPITokenFromOfflineData(const std::string &password) {
     return noError;
 }
 
-error User::EnableOfflineLogin(
+error UserModel::EnableOfflineLogin(
     const std::string &password) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (Email().empty()) {
@@ -419,11 +419,11 @@ error User::EnableOfflineLogin(
     return noError;
 }
 
-std::string User::ModelName() const {
+std::string UserModel::ModelName() const {
     return kModelUser;
 }
 
-std::string User::ModelURL() const {
+std::string UserModel::ModelURL() const {
     return "/api/v9/me";
 }
 

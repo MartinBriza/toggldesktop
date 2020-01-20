@@ -8,7 +8,7 @@
 
 namespace toggl {
 
-std::string Tag::String() const {
+std::string TagModel::String() const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     std::stringstream ss;
     ss  << "ID=" << ID()
@@ -19,7 +19,7 @@ std::string Tag::String() const {
     return ss.str();
 }
 
-void Tag::SetWID(const Poco::UInt64 value) {
+void TagModel::SetWID(const Poco::UInt64 value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (wid_ != value) {
         wid_ = value;
@@ -27,7 +27,7 @@ void Tag::SetWID(const Poco::UInt64 value) {
     }
 }
 
-void Tag::SetName(const std::string &value) {
+void TagModel::SetName(const std::string &value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (name_ != value) {
         name_ = value;
@@ -35,18 +35,18 @@ void Tag::SetName(const std::string &value) {
     }
 }
 
-void Tag::LoadFromJSON(Json::Value data) {
+void TagModel::LoadFromJSON(Json::Value data) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     SetID(data["id"].asUInt64());
     SetName(data["name"].asString());
     SetWID(data["wid"].asUInt64());
 }
 
-std::string Tag::ModelName() const {
+std::string TagModel::ModelName() const {
     return kModelTag;
 }
 
-std::string Tag::ModelURL() const {
+std::string TagModel::ModelURL() const {
     return "/api/v9/tags";
 }
 

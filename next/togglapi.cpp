@@ -25,3 +25,7 @@ std::pair<Error, std::string> TogglApi::v8_me(bool with_related_data, int64_t si
 std::pair<Error, std::string> TogglApi::v9_status() {
     return client_.Get("https://toggl.space", "/api/v9/status");
 }
+
+std::pair<Error, std::string> TogglApi::v9_countries() {
+    return client_.Get("https://toggl.space", "/api/v9/countries");
+}

@@ -9,7 +9,7 @@
 
 namespace toggl {
 
-bool AutotrackerRule::Matches(const TimelineEvent &event) const {
+bool AutotrackerRuleModel::Matches(const TimelineEvent &event) const {
     if (Poco::UTF8::toLower(event.Filename()).find(term_)
             != std::string::npos) {
         return true;
@@ -21,40 +21,40 @@ bool AutotrackerRule::Matches(const TimelineEvent &event) const {
     return false;
 }
 
-const std::string &AutotrackerRule::Term() const {
+const std::string &AutotrackerRuleModel::Term() const {
     return term_;
 }
 
-void AutotrackerRule::SetTerm(const std::string &value) {
+void AutotrackerRuleModel::SetTerm(const std::string &value) {
     if (term_ != value) {
         term_ = value;
         SetDirty();
     }
 }
 
-const Poco::UInt64 &AutotrackerRule::PID() const {
+const Poco::UInt64 &AutotrackerRuleModel::PID() const {
     return pid_;
 }
 
-void AutotrackerRule::SetPID(const Poco::UInt64 value) {
+void AutotrackerRuleModel::SetPID(const Poco::UInt64 value) {
     if (pid_ != value) {
         pid_ = value;
         SetDirty();
     }
 }
 
-const Poco::UInt64 &AutotrackerRule::TID() const {
+const Poco::UInt64 &AutotrackerRuleModel::TID() const {
     return tid_;
 }
 
-void AutotrackerRule::SetTID(const Poco::UInt64 value) {
+void AutotrackerRuleModel::SetTID(const Poco::UInt64 value) {
     if (tid_ != value) {
         tid_ = value;
         SetDirty();
     }
 }
 
-std::string AutotrackerRule::String() const {
+std::string AutotrackerRuleModel::String() const {
     std::stringstream ss;
     ss << " local_id=" << LocalID()
        << " term=" << term_
@@ -64,11 +64,11 @@ std::string AutotrackerRule::String() const {
     return ss.str();
 }
 
-std::string AutotrackerRule::ModelName() const {
+std::string AutotrackerRuleModel::ModelName() const {
     return kModelAutotrackerRule;
 }
 
-std::string AutotrackerRule::ModelURL() const {
+std::string AutotrackerRuleModel::ModelURL() const {
     return "";
 }
 

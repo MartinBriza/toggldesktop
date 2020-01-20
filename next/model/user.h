@@ -23,9 +23,9 @@ class Context;
 
 namespace toggl {
 
-class TOGGL_INTERNAL_EXPORT User : public BaseModel {
+class TOGGL_INTERNAL_EXPORT UserModel : public BaseModel {
  public:
-    User(Context *context)
+    UserModel(Context *context)
     : context_(context)
     , api_token_("")
     , default_wid_(0)
@@ -42,9 +42,9 @@ class TOGGL_INTERNAL_EXPORT User : public BaseModel {
     , has_loaded_more_(false)
     , collapse_entries_(false) {}
 
-    ~User();
+    ~UserModel();
 
-    static User *constructFromJSON(Context *ctx, const Json::Value &root);
+    static UserModel *constructFromJSON(Context *ctx, const Json::Value &root);
 
     error EnableOfflineLogin(
         const std::string &password);
@@ -53,9 +53,9 @@ class TOGGL_INTERNAL_EXPORT User : public BaseModel {
     bool CanAddProjects() const;
 
     bool CanSeeBillable(
-        const Workspace *ws) const;
+        const WorkspaceModel *ws) const;
 
-    std::string DateDuration(TimeEntry *te) const;
+    std::string DateDuration(TimeEntryModel *te) const;
 
     const std::string &APIToken() const {
         std::scoped_lock<std::recursive_mutex> lock(mutex_);
@@ -162,7 +162,7 @@ class TOGGL_INTERNAL_EXPORT User : public BaseModel {
     error SetAPITokenFromOfflineData(const std::string &password);
 
     error UpdateJSON(
-        std::vector<TimeEntry *> * const,
+        std::vector<TimeEntryModel *> * const,
         std::string *result) const;
 
     bool LoadUserPreferencesFromJSON(
@@ -203,11 +203,11 @@ class TOGGL_INTERNAL_EXPORT User : public BaseModel {
     void loadUserUpdateFromJSON(
         Json::Value list);
 
-    std::string dirtyObjectsJSON(std::vector<TimeEntry *> * const) const;
+    std::string dirtyObjectsJSON(std::vector<TimeEntryModel *> * const) const;
 
     void processResponseArray(
         std::vector<BatchUpdateResult> * const results,
-        std::vector<TimeEntry *> *dirty,
+        std::vector<TimeEntryModel *> *dirty,
         std::vector<error> *errors);
 
     error requestJSON(

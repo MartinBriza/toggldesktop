@@ -216,7 +216,9 @@ void toggl_on_project_colors(
 
 void toggl_on_countries(
     void *context,
-    TogglDisplayCountries cb) { }
+    TogglDisplayCountries cb) {
+    //reinterpret_cast<Context*>(context)->GetCallbacks()->
+}
 
 void toggl_on_promotion(
     void *context,
@@ -766,7 +768,9 @@ void toggl_get_project_colors(
     void *context) { }
 
 void toggl_get_countries(
-    void *context) { }
+    void *context) {
+    reinterpret_cast<Context*>(context)->GetCountries();
+}
 
 void toggl_get_countries_async(
     void *context) { }

@@ -16,10 +16,10 @@
 #include "model/tag.h"
 #include "model/time_entry.h"
 
-using toggl::Tag;
-using toggl::Client;
-using toggl::Project;
-using toggl::TimeEntry;
+using toggl::TagModel;
+using toggl::ClientModel;
+using toggl::ProjectModel;
+using toggl::TimeEntryModel;
 
 class UserData {
 public:
@@ -31,19 +31,19 @@ public:
 
     Error loadTags(const Json::Value &root) {
         std::scoped_lock<std::recursive_mutex> lock(tagsMutex_);
-        return load<Tag>(tags_, root);
+        return load<TagModel>(tags_, root);
     }
     Error loadClients(const Json::Value &root) {
         std::scoped_lock<std::recursive_mutex> lock(clientsMutex_);
-        return load<Client>(clients_, root);
+        return load<ClientModel>(clients_, root);
     }
     Error loadProjects(const Json::Value &root) {
         std::scoped_lock<std::recursive_mutex> lock(projectsMutex_);
-        return load<Project>(projects_, root);
+        return load<ProjectModel>(projects_, root);
     }
     Error loadTimeEntries(const Json::Value &root) {
         std::scoped_lock<std::recursive_mutex> lock(timeEntriesMutex_);
-        return load<TimeEntry>(timeEntries_, root);
+        return load<TimeEntryModel>(timeEntries_, root);
     }
 
 private:
@@ -73,13 +73,13 @@ private:
         return Error::NO_ERROR;
     }
 
-    std::list<Tag*> tags_;
+    std::list<TagModel*> tags_;
     std::recursive_mutex tagsMutex_;
-    std::list<Client*> clients_;
+    std::list<ClientModel*> clients_;
     std::recursive_mutex clientsMutex_;
-    std::list<Project*> projects_;
+    std::list<ProjectModel*> projects_;
     std::recursive_mutex projectsMutex_;
-    std::list<TimeEntry*> timeEntries_;
+    std::list<TimeEntryModel*> timeEntries_;
     std::recursive_mutex timeEntriesMutex_;
 };
 
