@@ -305,6 +305,9 @@
             </item>
             <item>
              <widget class="QComboBox" name="countryComboBox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>320</width>

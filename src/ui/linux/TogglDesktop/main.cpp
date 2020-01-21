@@ -56,6 +56,7 @@ int main(int argc, char *argv[]) try {
     qRegisterMetaType<QVector<TimeEntryView*> >("QVector<TimeEntryView*>");
     qRegisterMetaType<QVector<AutocompleteView*> >("QVector<AutocompleteView*>");
     qRegisterMetaType<QVector<GenericView*> >("QVector<GenericView*>");
+    qRegisterMetaType<QVector<CountryView*> >("QVector<CountryView*>");
 
     QApplication::setApplicationName("Toggl Desktop");
     QApplication::setOrganizationName("Toggl");

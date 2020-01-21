@@ -3,6 +3,8 @@
 
 #include "context.h"
 
+#include "model/country.h"
+
 // Initialize/destroy an instance of the app
 
 void *toggl_context_init(
@@ -217,7 +219,33 @@ void toggl_on_project_colors(
 void toggl_on_countries(
     void *context,
     TogglDisplayCountries cb) {
-    //reinterpret_cast<Context*>(context)->GetCallbacks()->
+    reinterpret_cast<Context*>(context)->GetCallbacks()->OnCountries = [cb](const std::list<toggl::CountryModel*> &countries) {
+        TogglCountryView *result = nullptr, *previous = nullptr;
+        for (auto i : countries) {
+            auto current = new TogglCountryView;
+            current->ID = i->ID();
+            current->Name = strdup(i->Name().c_str());
+            current->Code = strdup(i->CountryCode().c_str());
+            current->Next = nullptr;
+            current->VatRegex = nullptr;
+            current->VatPercentage = nullptr;
+            current->VatApplicable = 0;
+            if (!result)
+                result = current;
+            if (previous)
+                previous->Next = current;
+            previous = current;
+        }
+        std::cerr << "Trying to call the callback (" << cb << ")" << std::endl;
+        cb(result);
+        while (result) {
+            auto next = reinterpret_cast<TogglCountryView*>(result->Next);
+            free(result->Name);
+            free(result->Code);
+            delete result;
+            result = next;
+        }
+    };
 }
 
 void toggl_on_promotion(
@@ -773,7 +801,9 @@ void toggl_get_countries(
 }
 
 void toggl_get_countries_async(
-    void *context) { }
+    void *context) {
+    reinterpret_cast<Context*>(context)->GetCountries();
+}
 
 // You must free() the result
 char_t *toggl_get_default_project_name(

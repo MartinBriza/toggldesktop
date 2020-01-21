@@ -65,7 +65,9 @@ void Context::getCountries() {
         c->LoadFromJSON(i);
         countries.push_back(c);
     }
+    if (callbacks_.OnCountries)
+        callbacks_.OnCountries(countries);
     for (auto i : countries) {
-        std::cout << i->Name() << " ";
+        delete i;
     }
 }

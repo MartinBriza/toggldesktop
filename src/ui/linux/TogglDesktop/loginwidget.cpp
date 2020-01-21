@@ -30,6 +30,7 @@ oauth2(new OAuth2(this)) {
     signupVisible = true;
     countriesLoaded = false;
     selectedCountryId = UINT64_MAX;
+    ui->countryComboBox->addItem("  -- Country list is being updated --   ");
 
     on_viewchangelabel_linkActivated("");
 }
@@ -163,6 +164,7 @@ void LoginWidget::setCountries(
     QVector<CountryView * > list) {
     ui->countryComboBox->clear();
     ui->countryComboBox->addItem("  -- Select country --   ");
+    ui->countryComboBox->setEnabled(true);
     foreach(CountryView *view, list) {
         ui->countryComboBox->addItem(view->Text, QVariant::fromValue(view));
     }

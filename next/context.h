@@ -7,6 +7,10 @@
 #include "togglapi.h"
 #include "eventqueue.h"
 
+namespace toggl {
+    class CountryModel;
+}
+
 class Context {
 public:
     struct Callbacks {
@@ -41,7 +45,7 @@ public:
         std::function<void(const std::string&, const std::string&, const std::string&, int64_t, const std::string&)> OnIdleNotification;
         //std::function<void(TogglAutotrackerRuleView*, uint64_t, const std::list<std::string>&)> OnAutotrackerRules;
         std::function<void(const std::list<std::string>&)> OnProjectColors;
-        //std::function<void(TogglCountryView*)> OnCountries;
+        std::function<void(const std::list<toggl::CountryModel*>&)> OnCountries;
         std::function<void(int64_t)> OnPromotion;
     };
 
