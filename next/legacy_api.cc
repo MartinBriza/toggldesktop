@@ -5,6 +5,16 @@
 
 #include "model/country.h"
 
+char_t *copy_string(const std::string &s) {
+#if defined(_WIN32) || defined(WIN32)
+    std::wstring ws;
+    Poco::UnicodeConverter::toUTF16(s, ws);
+    return wcsdup(ws.c_str());
+#else
+    return strdup(s.c_str());
+#endif
+}
+
 // Initialize/destroy an instance of the app
 
 void *toggl_context_init(
@@ -98,7 +108,7 @@ void toggl_on_error(
     void *context,
     TogglDisplayError cb) {
     reinterpret_cast<Context*>(context)->GetCallbacks()->OnError = [cb](const std::string &err, bool user_error) {
-        auto errCopy = strdup(err.c_str());
+        auto errCopy = copy_string(err);
         cb(errCopy, user_error);
         free(errCopy);
     };
@@ -162,7 +172,7 @@ void toggl_on_time_entry_list(
             auto current = new TogglTimeEntryView;
             memset(current, 0, sizeof(TogglTimeEntryView));
             current->ID = i->ID();
-            current->Description = strdup(i->Description().c_str());
+            current->Description = copy_string(i->Description());
             if (!result)
                 result = current;
             if (previous)
@@ -248,8 +258,8 @@ void toggl_on_countries(
         for (auto i : countries) {
             auto current = new TogglCountryView;
             current->ID = i->ID();
-            current->Name = strdup(i->Name().c_str());
-            current->Code = strdup(i->CountryCode().c_str());
+            current->Name = copy_string(i->Name());
+            current->Code = copy_string(i->CountryCode());
             current->Next = nullptr;
             current->VatRegex = nullptr;
             current->VatPercentage = nullptr;
