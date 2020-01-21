@@ -7,6 +7,7 @@
 #include "togglapi.h"
 #include "eventqueue.h"
 #include "userdata.h"
+#include "settings.h"
 
 namespace toggl {
     class UserModel;
@@ -63,6 +64,10 @@ public:
         return &callbacks_;
     }
 
+    Settings *GetSettings() {
+        return &settings_;
+    }
+
     void Start() {
         eventQueue_.start();
         callbacks_.OnShowApp(true);
@@ -88,6 +93,7 @@ private:
     TogglApi api;
     UserData data;
     toggl::UserModel *user { nullptr };
+    Settings settings_;
 
     EventQueue eventQueue_;
 };

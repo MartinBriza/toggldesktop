@@ -680,7 +680,16 @@ bool_t toggl_set_window_settings(
     const int64_t window_y,
     const int64_t window_height,
     const int64_t window_width) {
-    return false;
+    auto ctx = reinterpret_cast<Context*>(context);
+    if (ctx) {
+        ctx->GetSettings()->SetWindowX(window_x);
+        ctx->GetSettings()->SetWindowY(window_y);
+        if (window_height > 0)
+            ctx->GetSettings()->SetWindowHeight(window_height);
+        if (window_width)
+            ctx->GetSettings()->SetWindowWidth(window_width);
+    }
+    return true;
 }
 
 bool_t toggl_window_settings(
@@ -689,7 +698,16 @@ bool_t toggl_window_settings(
     int64_t *window_y,
     int64_t *window_height,
     int64_t *window_width) {
-    return false;
+    auto ctx = reinterpret_cast<Context*>(context);
+    if (ctx && window_x)
+        *window_x = ctx->GetSettings()->WindowX();
+    if (ctx && window_y)
+        *window_y = ctx->GetSettings()->WindowY();
+    if (ctx && window_height)
+        *window_height = ctx->GetSettings()->WindowHeight();
+    if (ctx && window_width)
+        *window_width = ctx->GetSettings()->WindowWidth();
+    return true;
 }
 
 void toggl_set_window_maximized(

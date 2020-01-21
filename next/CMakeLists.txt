@@ -46,6 +46,7 @@ set(NEXT_SOURCE_FILES
     context.cpp
     eventqueue.cpp
     userdata.cpp
+    settings.cpp
 
     legacy_api.cc
 )
