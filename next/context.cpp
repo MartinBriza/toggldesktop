@@ -3,6 +3,7 @@
 #include <json/json.h>
 
 #include "model/user.h"
+#include "model/country.h"
 #include "userdata.h"
 
 void Context::login(const std::string &username, const std::string &password) {
@@ -54,5 +55,17 @@ void Context::login(const std::string &username, const std::string &password) {
 
 void Context::getCountries() {
     auto result = api.v9_countries();
-    std::cout << result.first.String() << result.second << std::endl << std::flush;
+    //std::cout << result.first.String() << result.second << std::endl << std::flush;
+    Json::Value root;
+    Json::Reader reader;
+    reader.parse(result.second, root);
+    std::list<toggl::CountryModel*> countries;
+    for (auto i : root) {
+        toggl::CountryModel *c = new toggl::CountryModel();
+        c->LoadFromJSON(i);
+        countries.push_back(c);
+    }
+    for (auto i : countries) {
+        std::cout << i->Name() << " ";
+    }
 }

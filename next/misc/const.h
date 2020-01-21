@@ -100,6 +100,7 @@
 #define kModelProject "project"
 #define kModelSettings "settings"
 #define kModelTag "tag"
+#define kModelCountry "country"
 #define kModelTask "task"
 #define kModelTimeEntry "time_entry"
 #define kModelTimelineEvent "timeline_event"

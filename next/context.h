@@ -9,7 +9,6 @@
 
 class Context {
 public:
-
     struct Callbacks {
         std::function<void(const std::string&, bool)> OnError;
         std::function<void(bool)> OnShowApp;
