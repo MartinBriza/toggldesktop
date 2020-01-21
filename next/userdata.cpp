@@ -26,3 +26,7 @@ void UserData::dumpAll() {
     }
     std::cout << std::endl << std::flush;
 }
+
+const std::list<toggl::TimeEntryModel *> &UserData::timeEntries() {
+    return timeEntries_;
+}

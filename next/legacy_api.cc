@@ -154,7 +154,31 @@ void toggl_on_autotracker_notification(
 
 void toggl_on_time_entry_list(
     void *context,
-    TogglDisplayTimeEntryList cb) { }
+    TogglDisplayTimeEntryList cb) {
+    auto ctx = reinterpret_cast<Context*>(context);
+    ctx->GetCallbacks()->OnTimeEntryList = [cb](bool open, const std::list<toggl::TimeEntryModel*> &time_entries, bool show_load_more) {
+        TogglTimeEntryView *result = nullptr, *previous = nullptr;
+        for (auto i : time_entries) {
+            auto current = new TogglTimeEntryView;
+            memset(current, 0, sizeof(TogglTimeEntryView));
+            current->ID = i->ID();
+            current->Description = strdup(i->Description().c_str());
+            if (!result)
+                result = current;
+            if (previous)
+                previous->Next = current;
+            previous = current;
+        }
+        std::cerr << "Trying to call the callback (" << cb << ")" << std::endl;
+        cb(open, result, show_load_more);
+        while (result) {
+            auto next = reinterpret_cast<TogglTimeEntryView*>(result->Next);
+            free(result->Description);
+            delete result;
+            result = next;
+        }
+    };
+}
 
 void toggl_toggle_entries_group(
     void *context,

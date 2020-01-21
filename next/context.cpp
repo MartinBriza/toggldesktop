@@ -4,7 +4,6 @@
 
 #include "model/user.h"
 #include "model/country.h"
-#include "userdata.h"
 
 void Context::login(const std::string &username, const std::string &password) {
     api.setCredentials(username, password);
@@ -16,7 +15,10 @@ void Context::login(const std::string &username, const std::string &password) {
 
         std::cout << root.toStyledString() << std::endl << std::flush;
 
-        toggl::UserModel *user = toggl::UserModel::constructFromJSON(this, root["data"]);
+        if (user) {
+            delete user;
+        }
+        user = toggl::UserModel::constructFromJSON(this, root["data"]);
 
         if (user) {
             std::cout << "Logged in as user " << user->ID() << std::endl << std::flush;
@@ -37,12 +39,14 @@ void Context::login(const std::string &username, const std::string &password) {
             return;
         }
 
-        UserData *data = new UserData();
-        data->loadTags(root["data"]["tags"]);
-        data->loadClients(root["data"]["clients"]);
-        data->loadProjects(root["data"]["projects"]);
-        data->loadTimeEntries(root["data"]["time_entries"]);
-        data->dumpAll();
+        data.loadTags(root["data"]["tags"]);
+        data.loadClients(root["data"]["clients"]);
+        data.loadProjects(root["data"]["projects"]);
+        data.loadTimeEntries(root["data"]["time_entries"]);
+        data.dumpAll();
+
+        if (callbacks_.OnTimeEntryList)
+            callbacks_.OnTimeEntryList(true, data.timeEntries(), true);
     }
     else {
         std::cout << result.first.String() << std::endl << std::flush;

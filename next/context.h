@@ -6,8 +6,10 @@
 #include "misc/error.h"
 #include "togglapi.h"
 #include "eventqueue.h"
+#include "userdata.h"
 
 namespace toggl {
+    class UserModel;
     class CountryModel;
 }
 
@@ -29,7 +31,7 @@ public:
         std::function<void(const std::string&, const std::string&)> OnPomodoro;
         std::function<void(const std::string&, const std::string&)> OnPomodoroBreak;
         std::function<void(const std::string&, uint64_t, uint64_t)> OnAutotrackerNotification;
-        //std::function<void(bool, TogglTimeEntryView, bool)> OnTimeEntryList;
+        std::function<void(bool, const std::list<toggl::TimeEntryModel*>&, bool)> OnTimeEntryList;
         std::function<void(const std::string&)> OnToggleEntriesGroup;
         //std::function<void(bool, const std::string&, TogglTimelineChunkView*, TogglTimeEntryView*, OnTimeline;
         //std::function<void(TogglAutocompleteView*)> OnMinitimerAutocomplete;
@@ -84,6 +86,8 @@ private:
     Callbacks callbacks_;
 
     TogglApi api;
+    UserData data;
+    toggl::UserModel *user { nullptr };
 
     EventQueue eventQueue_;
 };

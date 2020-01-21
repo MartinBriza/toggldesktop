@@ -29,6 +29,8 @@ public:
 
     void dumpAll();
 
+    const std::list<TimeEntryModel*> &timeEntries();
+
     Error loadTags(const Json::Value &root) {
         std::scoped_lock<std::recursive_mutex> lock(tagsMutex_);
         return load<TagModel>(tags_, root);
