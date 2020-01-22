@@ -47,6 +47,7 @@ public:
         // below are callbacks that don't (or won't) reflect the original ones' arguments
         std::function<void()> OnTimeEntryList { defaultCallback("OnTimeEntryList") };
         std::function<void()> OnCountries { defaultCallback("OnCountries") };
+        //std::function<void(TogglTimeEntryView* first)> OnTimerState { defaultCallback("OnTimerState") };
         //std::function<void(bool open, const std::string& date, TogglTimelineChunkView* first, TogglTimeEntryView* first_entry, long start_day, long end_day)> OnTimeline { defaultCallback("OnTimeline") };
         //std::function<void(TogglAutocompleteView* first)> OnMinitimerAutocomplete { defaultCallback("OnMinitimerAutocomplete") };
         //std::function<void(TogglHelpArticleView* first)> OnHelpArticles { defaultCallback("OnHelpArticles") };
@@ -57,7 +58,6 @@ public:
         //std::function<void(TogglGenericView* first)> OnTags { defaultCallback("OnTags") };
         //std::function<void(bool open, TogglTimeEntryView* time_entry, const std::string& focused_field)> OnTimeEntryEditor { defaultCallback("OnTimeEntryEditor") };
         //std::function<void(bool open, TogglSettingsView* settings)> OnSettings { defaultCallback("OnSettings") };
-        //std::function<void(TogglTimeEntryView* first)> OnTimerState { defaultCallback("OnTimerState") };
         //std::function<void(TogglAutotrackerRuleView* first, const std::list<std::string>& title_list)> OnAutotrackerRules { defaultCallback("OnAutotrackerRules") };
 
         // below are completely new callbacks

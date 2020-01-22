@@ -170,6 +170,8 @@ void toggl_on_time_entry_list(
         auto TEs = ctx->GetData()->TimeEntries();
         TogglTimeEntryView *result = nullptr, *previous = nullptr;
         for (auto i : *TEs) {
+            if (i->IsTracking())
+                continue;
             auto current = new TogglTimeEntryView;
             memset(current, 0, sizeof(TogglTimeEntryView));
             current->ID = i->ID();
