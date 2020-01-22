@@ -239,7 +239,23 @@ void toggl_on_settings(
 
 void toggl_on_timer_state(
     void *context,
-    TogglDisplayTimerState cb) { }
+    TogglDisplayTimerState cb) {
+    auto ctx = reinterpret_cast<Context*>(context);
+    ctx->GetCallbacks()->OnTimerState= [ctx, cb]() {
+        auto runningTE = ctx->GetData()->RunningTimeEntry();
+        if (runningTE) {
+            auto view = new TogglTimeEntryView();
+            view->ID = runningTE->ID();
+            view->Description = copy_string(runningTE->Description());
+            cb(view);
+            free(view->Description);
+            delete view;
+        }
+        else {
+            cb(nullptr);
+        }
+    };
+}
 
 void toggl_on_idle_notification(
     void *context,

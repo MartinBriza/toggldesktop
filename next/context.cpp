@@ -13,8 +13,6 @@ void Context::login(const std::string &username, const std::string &password) {
         Json::Reader reader;
         reader.parse(result.second, root);
 
-        std::cout << root.toStyledString() << std::endl << std::flush;
-
         if (user) {
             delete user;
         }
@@ -36,6 +34,7 @@ void Context::login(const std::string &username, const std::string &password) {
         data.dumpAll();
 
         callbacks_.OnTimeEntryList();
+        callbacks_.OnTimerState();
     }
     else {
         std::cout << result.first.String() << std::endl << std::flush;

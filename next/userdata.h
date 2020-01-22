@@ -36,6 +36,16 @@ public:
     ProtectedModel<TimeEntryModel> TimeEntries;
     ProtectedModel<CountryModel> Countries;
 
+    // TODO move this somewhere else?
+    locked<TimeEntryModel> RunningTimeEntry() {
+        auto TEs = TimeEntries();
+        for (auto i : *TEs) {
+            if (i->IsTracking())
+                return TimeEntries.make_locked(i);
+        }
+        return locked<TimeEntryModel>();
+    }
+
     void dumpAll();
 
     // TODO boilerplate

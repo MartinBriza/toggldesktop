@@ -47,7 +47,7 @@ public:
         // below are callbacks that don't (or won't) reflect the original ones' arguments
         std::function<void()> OnTimeEntryList { defaultCallback("OnTimeEntryList") };
         std::function<void()> OnCountries { defaultCallback("OnCountries") };
-        //std::function<void(TogglTimeEntryView* first)> OnTimerState { defaultCallback("OnTimerState") };
+        std::function<void()> OnTimerState { defaultCallback("OnTimerState") };
         //std::function<void(bool open, const std::string& date, TogglTimelineChunkView* first, TogglTimeEntryView* first_entry, long start_day, long end_day)> OnTimeline { defaultCallback("OnTimeline") };
         //std::function<void(TogglAutocompleteView* first)> OnMinitimerAutocomplete { defaultCallback("OnMinitimerAutocomplete") };
         //std::function<void(TogglHelpArticleView* first)> OnHelpArticles { defaultCallback("OnHelpArticles") };
@@ -85,7 +85,8 @@ public:
         eventQueue_.start();
         callbacks_.OnShowApp(true);
         // TODO
-        eventQueue_.schedule([this](){callbacks_.OnLogin(true, 0); });
+        eventQueue_.schedule([this](){ callbacks_.OnLogin(true, 0); });
+        eventQueue_.schedule([this](){ callbacks_.OnTimerState(); });
     }
 
     void Login(const std::string &username, const std::string &password) {
