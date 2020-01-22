@@ -1,5 +1,7 @@
 #include "country.h"
 
+#include <sstream>
+
 namespace toggl {
 
 std::string CountryModel::String() const {
