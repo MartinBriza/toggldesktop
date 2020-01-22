@@ -21,8 +21,12 @@ void EventQueue::schedule(std::chrono::time_point<std::chrono::system_clock> tim
     cv.notify_all();
 }
 
+void EventQueue::schedule(std::chrono::seconds after, std::function<void ()> event) {
+    schedule(std::chrono::system_clock::now() + after, event);
+}
+
 void EventQueue::schedule(std::function<void ()> event) {
-    schedule({}, event);
+    schedule(std::chrono::time_point<std::chrono::system_clock> {}, event);
 }
 
 void EventQueue::threadLoop() {

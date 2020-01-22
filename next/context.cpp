@@ -35,6 +35,8 @@ void Context::login(const std::string &username, const std::string &password) {
 
         callbacks_.OnTimeEntryList();
         callbacks_.OnTimerState();
+
+        eventQueue_.schedule(std::chrono::seconds(5), std::bind(&Context::sync, this));
     }
     else {
         std::cout << result.first.String() << std::endl << std::flush;
@@ -50,4 +52,26 @@ void Context::getCountries() {
     reader.parse(result.second, root);
     data.loadCountries(root);
     callbacks_.OnCountries();
+}
+
+void Context::sync() {
+    std::cerr << "SYNCING" << std::endl;
+
+    auto result = api.v8_me(true, 0);
+    if (result.first == Error::NO_ERROR) {
+        Json::Value root;
+        Json::Reader reader;
+        reader.parse(result.second, root);
+
+        data.loadTags(root["data"]["tags"]);
+        data.loadClients(root["data"]["clients"]);
+        data.loadProjects(root["data"]["projects"]);
+        data.loadTimeEntries(root["data"]["time_entries"]);
+        data.dumpAll();
+
+        callbacks_.OnTimeEntryList();
+        callbacks_.OnTimerState();
+    }
+
+    eventQueue_.schedule(std::chrono::seconds(5), std::bind(&Context::sync, this));
 }
