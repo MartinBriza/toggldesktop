@@ -23,19 +23,9 @@ void Context::login(const std::string &username, const std::string &password) {
         if (user) {
             std::cout << "Logged in as user " << user->ID() << std::endl << std::flush;
             api.setCredentials(user->APIToken(), "api_token");
-            /*
-            if (callbacks_.OnLogin)
-                callbacks_.OnLogin(true, user->ID());
-            */
         }
         else {
-            if (callbacks_.OnError) {
-                std::cerr << "CALLING ONERROR\n";
-                callbacks_.OnError("Login failed: " + result.first.String(), true);
-            }
-            else {
-                std::cerr << "ONERROR IS MIA\n";
-            }
+            callbacks_.OnError("Login failed: " + result.first.String(), true);
             return;
         }
 
@@ -45,15 +35,11 @@ void Context::login(const std::string &username, const std::string &password) {
         data.loadTimeEntries(root["data"]["time_entries"]);
         data.dumpAll();
 
-        if (callbacks_.OnTimeEntryList)
-            callbacks_.OnTimeEntryList(true, data.timeEntries(), true);
+        callbacks_.OnTimeEntryList(true, data.timeEntries(), true);
     }
     else {
         std::cout << result.first.String() << std::endl << std::flush;
-        if (callbacks_.OnError) {
-            std::cerr << "CALLING ONERROR\n";
-            callbacks_.OnError("Login failed: " + result.first.String(), true);
-        }
+        callbacks_.OnError("Login failed: " + result.first.String(), true);
     }
 }
 
@@ -69,8 +55,7 @@ void Context::getCountries() {
         c->LoadFromJSON(i);
         countries.push_back(c);
     }
-    if (callbacks_.OnCountries)
-        callbacks_.OnCountries(countries);
+    callbacks_.OnCountries(countries);
     for (auto i : countries) {
         delete i;
     }
