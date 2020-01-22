@@ -2,31 +2,23 @@
 
 void UserData::dumpAll() {
     {
-        std::unique_lock<std::recursive_mutex> lock(tagsMutex_);
+        auto tags = Tags();
         std::cout << "==== Tags ====" << std::endl << std::flush;
-        dump(tags_);
-        lock.unlock();
+        dump(tags);
     }{
-        std::unique_lock<std::recursive_mutex> lock(clientsMutex_);
+        auto clients = Clients();
         std::cout << "==== Clients ====" << std::endl << std::flush;
-        dump(clients_);
-        lock.unlock();
+        dump(clients);
     }{
-        std::unique_lock<std::recursive_mutex> lock(projectsMutex_);
+        auto projects = Projects();
         std::cout << "==== Projects ====" << std::endl << std::flush;
-        dump(projects_);
-        lock.unlock();
+        dump(projects);
     }{
-        std::unique_lock<std::recursive_mutex> lock(timeEntriesMutex_);
+        auto TEs = TimeEntries();
         std::cout << "==== Time Entries ====" << std::endl << std::flush;
-        for (auto i : timeEntries_) {
+        for (auto i : *TEs) {
             std::cout << i->Description() << ", ";
         }
-        lock.unlock();
     }
     std::cout << std::endl << std::flush;
-}
-
-const std::list<toggl::TimeEntryModel *> &UserData::timeEntries() {
-    return timeEntries_;
 }

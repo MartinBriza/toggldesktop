@@ -166,9 +166,10 @@ void toggl_on_time_entry_list(
     void *context,
     TogglDisplayTimeEntryList cb) {
     auto ctx = reinterpret_cast<Context*>(context);
-    ctx->GetCallbacks()->OnTimeEntryList = [cb](bool open, const std::list<toggl::TimeEntryModel*> &time_entries, bool show_load_more) {
+    ctx->GetCallbacks()->OnTimeEntryList = [ctx, cb]() {
+        auto TEs = ctx->GetData()->TimeEntries();
         TogglTimeEntryView *result = nullptr, *previous = nullptr;
-        for (auto i : time_entries) {
+        for (auto i : *TEs) {
             auto current = new TogglTimeEntryView;
             memset(current, 0, sizeof(TogglTimeEntryView));
             current->ID = i->ID();
@@ -180,7 +181,7 @@ void toggl_on_time_entry_list(
             previous = current;
         }
         std::cerr << "Trying to call the callback (" << cb << ")" << std::endl;
-        cb(open, result, show_load_more);
+        cb(true, result, true);
         while (result) {
             auto next = reinterpret_cast<TogglTimeEntryView*>(result->Next);
             free(result->Description);
@@ -253,9 +254,11 @@ void toggl_on_project_colors(
 void toggl_on_countries(
     void *context,
     TogglDisplayCountries cb) {
-    reinterpret_cast<Context*>(context)->GetCallbacks()->OnCountries = [cb](const std::list<toggl::CountryModel*> &countries) {
+    auto ctx = reinterpret_cast<Context*>(context);
+    ctx->GetCallbacks()->OnCountries = [ctx, cb]() {
+        auto countries = ctx->GetData()->Countries();
         TogglCountryView *result = nullptr, *previous = nullptr;
-        for (auto i : countries) {
+        for (auto i : *countries) {
             auto current = new TogglCountryView;
             current->ID = i->ID();
             current->Name = copy_string(i->Name());

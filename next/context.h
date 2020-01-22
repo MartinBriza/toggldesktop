@@ -23,6 +23,7 @@ inline auto defaultCallback(const std::string &name) {
 class Context {
 public:
     struct Callbacks {
+        // below are callbacks that reflect the legacy ones (but will change, probably)
         std::function<void(const std::string& message, bool user_error)> OnError { defaultCallback("OnError") };
         std::function<void(bool open)> OnShowApp { defaultCallback("OnShowApp") };
         std::function<void(int64_t state)> OnSyncState { defaultCallback("OnSyncState") };
@@ -38,8 +39,14 @@ public:
         std::function<void(const std::string& title, const std::string& informative_text)> OnPomodoro { defaultCallback("OnPomodoro") };
         std::function<void(const std::string& title, const std::string& informative_text)> OnPomodoroBreak { defaultCallback("OnPomodoroBreak") };
         std::function<void(const std::string& project_name, uint64_t project_id, uint64_t task_id)> OnAutotrackerNotification { defaultCallback("OnAutotrackerNotification") };
-        std::function<void(bool open, const std::list<toggl::TimeEntryModel*>& time_entries, bool show_load_more)> OnTimeEntryList { defaultCallback("OnTimeEntryList") };
         std::function<void(const std::string& name)> OnToggleEntriesGroup { defaultCallback("OnToggleEntriesGroup") };
+        std::function<void(const std::string& guid, const std::string& since, const std::string& duration, int64_t started, const std::string& description)> OnIdleNotification { defaultCallback("OnIdleNotification") };
+        std::function<void(const std::list<std::string>& colors)> OnProjectColors { defaultCallback("OnProjectColors") };
+        std::function<void(int64_t promotion_type)> OnPromotion { defaultCallback("OnPromotion") };
+
+        // below are callbacks that don't (or won't) reflect the original ones' arguments
+        std::function<void()> OnTimeEntryList { defaultCallback("OnTimeEntryList") };
+        std::function<void()> OnCountries { defaultCallback("OnCountries") };
         //std::function<void(bool open, const std::string& date, TogglTimelineChunkView* first, TogglTimeEntryView* first_entry, long start_day, long end_day)> OnTimeline { defaultCallback("OnTimeline") };
         //std::function<void(TogglAutocompleteView* first)> OnMinitimerAutocomplete { defaultCallback("OnMinitimerAutocomplete") };
         //std::function<void(TogglHelpArticleView* first)> OnHelpArticles { defaultCallback("OnHelpArticles") };
@@ -51,11 +58,9 @@ public:
         //std::function<void(bool open, TogglTimeEntryView* time_entry, const std::string& focused_field)> OnTimeEntryEditor { defaultCallback("OnTimeEntryEditor") };
         //std::function<void(bool open, TogglSettingsView* settings)> OnSettings { defaultCallback("OnSettings") };
         //std::function<void(TogglTimeEntryView* first)> OnTimerState { defaultCallback("OnTimerState") };
-        std::function<void(const std::string& guid, const std::string& since, const std::string& duration, int64_t started, const std::string& description)> OnIdleNotification { defaultCallback("OnIdleNotification") };
         //std::function<void(TogglAutotrackerRuleView* first, const std::list<std::string>& title_list)> OnAutotrackerRules { defaultCallback("OnAutotrackerRules") };
-        std::function<void(const std::list<std::string>& colors)> OnProjectColors { defaultCallback("OnProjectColors") };
-        std::function<void(const std::list<toggl::CountryModel*>& countries)> OnCountries { defaultCallback("OnCountries") };
-        std::function<void(int64_t promotion_type)> OnPromotion { defaultCallback("OnPromotion") };
+
+        // below are completely new callbacks
     };
 
     Context(const std::string &app_name, Callbacks callbacks)
@@ -69,9 +74,11 @@ public:
     Callbacks *GetCallbacks() {
         return &callbacks_;
     }
-
     Settings *GetSettings() {
         return &settings_;
+    }
+    UserData *GetData() {
+        return &data;
     }
 
     void Start() {

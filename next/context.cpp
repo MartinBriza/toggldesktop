@@ -35,7 +35,7 @@ void Context::login(const std::string &username, const std::string &password) {
         data.loadTimeEntries(root["data"]["time_entries"]);
         data.dumpAll();
 
-        callbacks_.OnTimeEntryList(true, data.timeEntries(), true);
+        callbacks_.OnTimeEntryList();
     }
     else {
         std::cout << result.first.String() << std::endl << std::flush;
@@ -49,14 +49,6 @@ void Context::getCountries() {
     Json::Value root;
     Json::Reader reader;
     reader.parse(result.second, root);
-    std::list<toggl::CountryModel*> countries;
-    for (auto i : root) {
-        toggl::CountryModel *c = new toggl::CountryModel();
-        c->LoadFromJSON(i);
-        countries.push_back(c);
-    }
-    callbacks_.OnCountries(countries);
-    for (auto i : countries) {
-        delete i;
-    }
+    data.loadCountries(root);
+    callbacks_.OnCountries();
 }
