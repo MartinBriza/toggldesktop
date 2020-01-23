@@ -106,6 +106,8 @@ private:
 
     Callbacks callbacks_;
 
+    Logger logger { "Context" };
+
     TogglApi api;
     UserData data;
     toggl::UserModel *user { nullptr };

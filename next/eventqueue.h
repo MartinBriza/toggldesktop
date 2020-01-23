@@ -10,6 +10,8 @@
 #include <chrono>
 #include <functional>
 
+#include "misc/logger.h"
+
 class Context;
 
 class EventQueue
@@ -33,6 +35,7 @@ private:
     std::mutex cvMutex;
 
     Context *parent { nullptr };
+    Logger logger { "EventQueue" };
 
     std::thread workThread;
 };

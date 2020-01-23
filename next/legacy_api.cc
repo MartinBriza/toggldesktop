@@ -182,7 +182,6 @@ void toggl_on_time_entry_list(
                 previous->Next = current;
             previous = current;
         }
-        std::cerr << "Trying to call the callback (" << cb << ")" << std::endl;
         cb(true, result, true);
         while (result) {
             auto next = reinterpret_cast<TogglTimeEntryView*>(result->Next);
@@ -291,7 +290,6 @@ void toggl_on_countries(
                 previous->Next = current;
             previous = current;
         }
-        std::cerr << "Trying to call the callback (" << cb << ")" << std::endl;
         cb(result);
         while (result) {
             auto next = reinterpret_cast<TogglCountryView*>(result->Next);

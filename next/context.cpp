@@ -19,7 +19,7 @@ void Context::login(const std::string &username, const std::string &password) {
         user = toggl::UserModel::constructFromJSON(this, root["data"]);
 
         if (user) {
-            std::cout << "Logged in as user " << user->ID() << std::endl << std::flush;
+            logger.log("Logged in as user", user->ID());
             api.setCredentials(user->APIToken(), "api_token");
         }
         else {
@@ -39,7 +39,7 @@ void Context::login(const std::string &username, const std::string &password) {
         eventQueue_.schedule(std::chrono::seconds(5), std::bind(&Context::sync, this));
     }
     else {
-        std::cout << result.first.String() << std::endl << std::flush;
+        logger.log(result.first.String());
         callbacks_.OnError("Login failed: " + result.first.String(), true);
     }
 }
@@ -55,7 +55,7 @@ void Context::getCountries() {
 }
 
 void Context::sync() {
-    std::cerr << "SYNCING" << std::endl;
+    logger.log("Syncing...");
 
     auto result = api.v8_me(true, 0);
     if (result.first == Error::NO_ERROR) {
