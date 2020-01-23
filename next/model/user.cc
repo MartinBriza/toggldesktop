@@ -312,13 +312,13 @@ std::string UserModel::generateKey(const std::string &password) {
 error UserModel::SetAPITokenFromOfflineData(const std::string &password) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (Email().empty()) {
-        return error("cannot decrypt offline data without an e-mail");
+        return Error::CANNOT_DECRYPT_WITHOUT_EMAIL;
     }
     if (password.empty()) {
-        return error("cannot decrypt offline data without a password");
+        return Error::CANNOT_DECRYPT_WITHOUT_PASSWORD;
     }
     if (OfflineData().empty()) {
-        return error("cannot decrypt empty string");
+        return Error::CANNOT_DECRYPT_EMPTY_STRING;
     }
     try {
         Poco::Crypto::CipherFactory& factory =
@@ -329,7 +329,7 @@ error UserModel::SetAPITokenFromOfflineData(const std::string &password) {
         Json::Value data;
         Json::Reader reader;
         if (!reader.parse(OfflineData(), data)) {
-            return error("failed to parse offline data");
+            return Error::OFFLINE_DATA_BROKEN;
         }
 
         std::istringstream istr(data["salt"].asString());
@@ -349,11 +349,11 @@ error UserModel::SetAPITokenFromOfflineData(const std::string &password) {
 
         SetAPIToken(decrypted);
     } catch(const Poco::Exception& exc) {
-        return exc.displayText();
+        return Error::POCO_EXCEPTION;
     } catch(const std::exception& ex) {
-        return ex.what();
+        return Error::STD_EXCEPTION;
     } catch(const std::string & ex) {
-        return ex;
+        return Error::STD_STRING_EXCEPTION;
     }
     return noError;
 }
@@ -362,13 +362,13 @@ error UserModel::EnableOfflineLogin(
     const std::string &password) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (Email().empty()) {
-        return error("cannot enable offline login without an e-mail");
+        return Error::CANNOT_ENCRYPT_WITHOUT_EMAIL;
     }
     if (password.empty()) {
-        return error("cannot enable offline login without a password");
+        return Error::CANNOT_ENCRYPT_WITHOUT_PASSWORD;
     }
     if (APIToken().empty()) {
-        return error("cannot enable offline login without an API token");
+        return Error::CANNOT_ENCRYPT_WITHOUT_API_TOKEN;
     }
     try {
         Poco::Crypto::CipherFactory& factory =
@@ -407,14 +407,14 @@ error UserModel::EnableOfflineLogin(
             return err;
         }
         if (token != APIToken()) {
-            return error("offline login encryption failed");
+            return Error::OFFLINE_ENCRYPTION_FAILED;
         }
     } catch(const Poco::Exception& exc) {
-        return exc.displayText();
+        return Error::POCO_EXCEPTION;
     } catch(const std::exception& ex) {
-        return ex.what();
+        return Error::STD_EXCEPTION;
     } catch(const std::string & ex) {
-        return ex;
+        return Error::STD_STRING_EXCEPTION;
     }
     return noError;
 }

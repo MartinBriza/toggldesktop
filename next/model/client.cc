@@ -75,7 +75,7 @@ bool ClientModel::ResolveError(const toggl::error &err) {
         SetName(Name() + " 1");
         return true;
     }
-    if (err.find(kClientNameAlreadyExists) != std::string::npos) {
+    if (err != error::kClientNameAlreadyExists) {
         // remove duplicate from db
         MarkAsDeletedOnServer();
         return true;
@@ -84,13 +84,13 @@ bool ClientModel::ResolveError(const toggl::error &err) {
 }
 
 bool ClientModel::nameHasAlreadyBeenTaken(const error &err) {
-    return (std::string::npos != std::string(err).find(
+    return (std::string::npos != std::string(err.String()).find(
         "Name has already been taken"));
 }
 
 bool ClientModel::ResourceCannotBeCreated(const toggl::error &err) const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
-    return (std::string::npos != std::string(err).find(
+    return (std::string::npos != std::string(err.String()).find(
         "cannot add or edit ClientModels in workspace"));
 }
 

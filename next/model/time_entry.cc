@@ -76,50 +76,50 @@ bool TimeEntryModel::ResolveError(const error &err) {
 
 bool TimeEntryModel::isNotFound(const error &err) const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
-    return std::string::npos != std::string(err).find(
+    return std::string::npos != std::string(err.thisWillGetRemoved()).find(
         "Time entry not found");
 }
 bool TimeEntryModel::isMissingCreatedWith(const error &err) const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
-    return std::string::npos != std::string(err).find(
+    return std::string::npos != std::string(err.thisWillGetRemoved()).find(
         "created_with needs to be provided an a valid string");
 }
 
 bool TimeEntryModel::userCannotAccessTheSelectedProject(
     const error &err) const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
-    return (std::string::npos != std::string(err).find(
+    return (std::string::npos != std::string(err.thisWillGetRemoved()).find(
         "User cannot access the selected project"));
 }
 
 bool TimeEntryModel::userCannotAccessSelectedTask(
     const error &err) const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
-    return (std::string::npos != std::string(err).find(
+    return (std::string::npos != std::string(err.thisWillGetRemoved()).find(
         "User cannot access selected task"));
 }
 
 bool TimeEntryModel::durationTooLarge(const error &err) const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
-    return (std::string::npos != std::string(err).find(
+    return (std::string::npos != std::string(err.thisWillGetRemoved()).find(
         "Max allowed duration per 1 time entry is 999 hours"));
 }
 
 bool TimeEntryModel::startTimeWrongYear(const error &err) const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
-    return (std::string::npos != std::string(err).find(
+    return (std::string::npos != std::string(err.thisWillGetRemoved()).find(
         "Start time year must be between 2006 and 2030"));
 }
 
 bool TimeEntryModel::stopTimeMustBeAfterStartTime(const error &err) const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
-    return (std::string::npos != std::string(err).find(
+    return (std::string::npos != std::string(err.thisWillGetRemoved()   ).find(
         "Stop time must be after start time"));
 }
 
 bool TimeEntryModel::billableIsAPremiumFeature(const error &err) const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
-    return (std::string::npos != std::string(err).find(
+    return (std::string::npos != std::string(err.thisWillGetRemoved()).find(
         "Billable is a premium feature"));
 }
 

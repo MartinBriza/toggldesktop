@@ -22,7 +22,7 @@ bool BaseModel::NeedsPush() const {
     // pushed again unless the error is somehow fixed by user.
     // We will assume that if user modifies the model, the error
     // will go away. But until then, don't push the errored data.
-    return ValidationError().empty() &&
+    return ValidationError().noError() &&
            (NeedsPOST() || NeedsPUT() || NeedsDELETE());
 }
 
@@ -59,10 +59,10 @@ void BaseModel::EnsureGUID() {
 
 void BaseModel::ClearValidationError() {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
-    SetValidationError(noError);
+    SetValidationError(toggl::noError);
 }
 
-void BaseModel::SetValidationError(const std::string &value) {
+void BaseModel::SetValidationError(const error &value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (validation_error_ != value) {
         validation_error_ = value;
@@ -128,7 +128,7 @@ error BaseModel::LoadFromDataString(const std::string &data_string) {
     Json::Value root;
     Json::Reader reader;
     if (!reader.parse(data_string, root)) {
-        return error("Failed to parse data string");
+        return error::MALFORMED_DATA;
     }
     LoadFromJSON(root["data"]);
     return noError;
@@ -150,8 +150,8 @@ error BaseModel::ApplyBatchUpdateResult(
         return noError;
     }
 
-    toggl::error err = update->Error();
-    if (err != toggl::noError) {
+    toggl::error err = update->GetError();
+    if (err != error::NO_ERROR) {
         if (DuplicateResource(err) || ResourceCannotBeCreated(err)) {
             MarkAsDeletedOnServer();
             return noError;
@@ -165,15 +165,14 @@ error BaseModel::ApplyBatchUpdateResult(
         return err;
     }
 
-    SetValidationError(noError);
+    SetValidationError(error::NO_ERROR);
 
     return LoadFromDataString(update->Body);
 }
 
 bool BaseModel::userCannotAccessWorkspace(const error &err) const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
-    return (std::string::npos != std::string(err).find(
-        kCannotAccessWorkspaceError));
+    return (err == error::kCannotAccessWorkspaceError);
 }
 
 std::string BaseModel::batchUpdateRelativeURL() const {
@@ -204,7 +203,7 @@ std::string BaseModel::batchUpdateMethod() const {
 error BaseModel::BatchUpdateJSON(Json::Value *result) const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (GUID().empty()) {
-        return error("Cannot export model to batch update without a GUID");
+        return error(error::BATCH_UPDATE_WITHOUT_GUID);
     }
 
     Json::Value body;

@@ -9,12 +9,22 @@ std::string Error::String() const {
     }
 }
 
-bool Error::operator==(const Error::Code &c) { return code_ == c; }
-bool Error::operator!=(const Error::Code &c) { return code_ != c; }
+bool Error::operator==(const Error::Code &c) const { return code_ == c; }
+bool Error::operator!=(const Error::Code &c) const { return code_ != c; }
+bool Error::operator==(const Error &o) const { return code_ == o.code_; }
+bool Error::operator!=(const Error &o) const { return code_ != o.code_; }
+
+bool Error::operator<(const Error &rhs) const {
+    return code_ < rhs.code_;
+}
 
 Error &Error::operator=(Error::Code &c) {
     code_ = c;
     return *this;
+}
+
+bool Error::noError() const {
+    return code_ == NO_ERROR;
 }
 
 Error Error::fromHttpStatus(Poco::Net::HTTPResponse::HTTPStatus http_status) {

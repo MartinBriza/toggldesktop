@@ -578,13 +578,8 @@ error Formatter::CollectErrors(std::vector<error> * const errors) {
     std::stringstream ss;
     ss << "Errors encountered while syncing data: ";
     std::set<error> unique;
-    for (std::vector<error>::const_iterator it = errors->begin();
-            it != errors->end();
-            ++it) {
-        error err = *it;
-        if (!err.empty() && err[err.size() - 1] == '\n') {
-            err[err.size() - 1] = '.';
-        }
+    for (auto it = errors->begin(); it != errors->end(); it++) {
+        auto err = *it;
         // skip error if not unique
         if (unique.end() != unique.find(err)) {
             continue;
@@ -592,7 +587,7 @@ error Formatter::CollectErrors(std::vector<error> * const errors) {
         if (it != errors->begin()) {
             ss << " ";
         }
-        ss << err;
+        ss << err.String();
         unique.insert(err);
     }
     return error(ss.str());

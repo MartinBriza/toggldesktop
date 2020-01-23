@@ -179,27 +179,27 @@ Json::Value ProjectModel::SaveToJSON() const {
 bool ProjectModel::DuplicateResource(const toggl::error &err) const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return (std::string::npos !=
-            std::string(err).find("Name has already been taken"));
+            std::string(err.String()).find("Name has already been taken"));
 }
 
 bool ProjectModel::ResourceCannotBeCreated(const toggl::error &err) const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
-    return (std::string::npos != std::string(err).find(
+    return (std::string::npos != std::string(err.String()).find(
         "User cannot add or edit projects in workspace"));
 }
 
 bool ProjectModel::clientIsInAnotherWorkspace(const toggl::error &err) const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
-    return (std::string::npos != std::string(err).find(
+    return (std::string::npos != std::string(err.String()).find(
         "client is in another workspace")
-            || (std::string::npos != std::string(err).find("Client with the ID")
-                && std::string::npos != std::string(err).find("isn't present in workspace")));
+            || (std::string::npos != std::string(err.String()).find("Client with the ID")
+                && std::string::npos != std::string(err.String()).find("isn't present in workspace")));
 }
 
 bool ProjectModel::onlyAdminsCanChangeProjectVisibility(
     const toggl::error &err) const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
-    return (std::string::npos != std::string(err).find(
+    return (std::string::npos != std::string(err.String()).find(
         "Only admins can change project visibility"));
 }
 
@@ -217,7 +217,7 @@ bool ProjectModel::ResolveError(const toggl::error &err) {
         SetPrivate(true);
         return true;
     }
-    if (err.find(kProjectNameAlready) != std::string::npos) {
+    if (err == Error::kProjectNameAlready) {
         // remove duplicate from db
         MarkAsDeletedOnServer();
         return true;

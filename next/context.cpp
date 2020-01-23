@@ -42,6 +42,8 @@ void Context::login(const std::string &username, const std::string &password) {
         logger.log(result.first.String());
         callbacks_.OnError("Login failed: " + result.first.String(), true);
     }
+
+    logger.warn("SIZEOF:", sizeof(TimeEntryModel));
 }
 
 void Context::getCountries() {

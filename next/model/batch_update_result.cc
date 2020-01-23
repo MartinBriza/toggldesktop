@@ -1,6 +1,6 @@
 // Copyright 2014 Toggl Desktop developers.
 
-#include "../src/batch_update_result.h"
+#include "batch_update_result.h"
 
 #include <sstream>
 #include <cstring>
@@ -11,7 +11,7 @@
 
 namespace toggl {
 
-error BatchUpdateResult::Error() const {
+toggl::error BatchUpdateResult::GetError() const {
     if (StatusCode >= 200 && StatusCode < 300) {
         return noError;
     }

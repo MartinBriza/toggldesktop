@@ -30,7 +30,7 @@ class TOGGL_INTERNAL_EXPORT BatchUpdateResult {
     std::string ContentType;
     std::string Method;
 
-    error Error() const;
+    toggl::error GetError() const;
     std::string String() const;
     bool ResourceIsGone() const;
 

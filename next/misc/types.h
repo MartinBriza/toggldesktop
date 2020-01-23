@@ -5,13 +5,16 @@
 
 #include <string>
 
+#include "misc/error.h"
+
 namespace toggl {
 
-typedef std::string error;
+    typedef uint64_t id_t;
+    typedef std::string guid_t;
 
-const error noError = "";
-
-typedef std::string guid;
+    // TODO
+    typedef Error error;
+    const error noError = Error::NO_ERROR;
 }
 
 #if defined(_WIN32) || defined(WIN32)
