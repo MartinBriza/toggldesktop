@@ -19,9 +19,9 @@
 #include "Poco/LocalDateTime.h"
 #include "Poco/Types.h"
 
-class Context;
-
 namespace toggl {
+
+class Context;
 
 class TOGGL_INTERNAL_EXPORT UserModel : public BaseModel {
  public:

@@ -12,6 +12,8 @@
 
 #include "misc/logger.h"
 
+namespace toggl {
+
 class Context;
 
 class EventQueue
@@ -39,5 +41,7 @@ private:
 
     std::thread workThread;
 };
+
+} // namespace toggl
 
 #endif // EVENTQUEUE_H

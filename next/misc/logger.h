@@ -1,47 +1,75 @@
+// Copyright 2020 Toggl Desktop developers.
+
 #ifndef SRC_LOGGER_H_
 #define SRC_LOGGER_H_
 
 #include <Poco/Logger.h>
 #include <string>
 #include <utility>
-#include <iostream>
-#include <iostream>
+#include <sstream>
 
-#define LOGGER Poco::Logger::get(__PRETTY_FUNCTION__)
+namespace toggl {
 
+/*
+ * Beware, template black magic ahead
+ *
+ * Use Logger like this:
+ *  Logger logger("myclass");
+ *  logger.log("Running sync", foo, bar, "baz", 123);
+ * and as long as all of the used types have a stringstream conversion, it'll run.
+ * You can also declare your own stringstream << operator if you want to debug custom classes.
+ */
 class Logger {
 public:
-    enum Level {
-        LOG,
-        WARN,
-        ERROR,
-        CRITICAL
-    };
     Logger(const std::string &context)
         : context_(context)
     {}
-    template <typename Arg, typename... Args>
-    void log(Arg&& arg, Args&&... args)
-    {
-        logWithContext(LOG, context_, arg, &args...);
+
+    template <typename... Args>
+    void trace(Args&&... args) const {
+        std::stringstream ss;
+        prepareOutput(ss, std::forward<Args>(args)...);
+        Poco::Logger::get(context_).trace(ss.str());
+    }
+    template <typename... Args>
+    void log(Args&&... args) const {
+        std::stringstream ss;
+        prepareOutput(ss, std::forward<Args>(args)...);
+        Poco::Logger::get(context_).log(ss.str());
+    }
+    template <typename... Args>
+    void debug(Args&&... args) const {
+        std::stringstream ss;
+        prepareOutput(ss, std::forward<Args>(args)...);
+        Poco::Logger::get(context_).debug(ss.str());
+    }
+    template <typename... Args>
+    void warning(Args&&... args) const {
+        std::stringstream ss;
+        prepareOutput(ss, std::forward<Args>(args)...);
+        Poco::Logger::get(context_).warning(ss.str());
+    }
+    template <typename... Args>
+    void error(Args&&... args) const {
+        std::stringstream ss;
+        prepareOutput(ss, std::forward<Args>(args)...);
+        Poco::Logger::get(context_).error(ss.str());
+    }
+
+private:
+    template <typename Arg>
+    void prepareOutput(std::stringstream &ss, Arg&& arg) const {
+        ss << std::forward<Arg>(arg);
     }
     template <typename Arg, typename... Args>
-    void warn(Arg&& arg, Args&&... args)
-    {
-        logWithContext(WARN, context_, arg, &args...);
-    }
-    template <typename Arg, typename... Args>
-    static void logWithContext(Level level, const std::string &context, Arg&& arg, Args&&... args)
-    {
-        std::ostream &out {level == LOG ? std::cout : std::cerr};
-        out << context << ": " << std::forward<Arg>(arg);
-        ((out << ' ' << std::forward<Args>(args)), ...);
-        out << std::endl << std::flush;
+    void prepareOutput(std::stringstream &ss, Arg&& arg, Args&&... args) const {
+        ss << std::forward<Arg>(arg);
+        prepareOutput(ss, std::forward<Args>(args)...);
     }
 private:
     std::string context_;
 };
 
-
+} // namespace toggl
 
 #endif // SRC_LOGGER_H_

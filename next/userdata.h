@@ -18,11 +18,7 @@
 #include "model/time_entry.h"
 #include "model/country.h"
 
-using toggl::TagModel;
-using toggl::ClientModel;
-using toggl::ProjectModel;
-using toggl::TimeEntryModel;
-using toggl::CountryModel;
+namespace toggl {
 
 class UserData {
 public:
@@ -97,5 +93,7 @@ private:
         return Error::NO_ERROR;
     }
 };
+
+} // namespace toggl
 
 #endif // USERDATA_H

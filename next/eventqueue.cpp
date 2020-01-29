@@ -1,5 +1,6 @@
 #include "eventqueue.h"
 
+namespace toggl {
 
 EventQueue::EventQueue(Context *parent)
     : parent(parent)
@@ -11,7 +12,7 @@ void EventQueue::start() {
     if (workThread.get_id() == std::thread::id())
         workThread = std::thread(&EventQueue::threadLoop, this);
     else
-        logger.warn("A worker thread is already running!");
+        logger.warning("A worker thread is already running!");
 }
 
 void EventQueue::schedule(std::chrono::time_point<std::chrono::system_clock> time, std::function<void ()> event) {
@@ -54,3 +55,5 @@ void EventQueue::threadLoop() {
         }
     }
 }
+
+} // namespace toggl

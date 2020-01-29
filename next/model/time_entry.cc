@@ -75,52 +75,35 @@ bool TimeEntryModel::ResolveError(const error &err) {
 }
 
 bool TimeEntryModel::isNotFound(const error &err) const {
-    std::scoped_lock<std::recursive_mutex> lock(mutex_);
-    return std::string::npos != std::string(err.thisWillGetRemoved()).find(
-        "Time entry not found");
+    return err == error::TIME_ENTRY_NOT_FOUMD;
 }
+
 bool TimeEntryModel::isMissingCreatedWith(const error &err) const {
-    std::scoped_lock<std::recursive_mutex> lock(mutex_);
-    return std::string::npos != std::string(err.thisWillGetRemoved()).find(
-        "created_with needs to be provided an a valid string");
+    return err == error::INVALID_INPUT;
 }
 
-bool TimeEntryModel::userCannotAccessTheSelectedProject(
-    const error &err) const {
-    std::scoped_lock<std::recursive_mutex> lock(mutex_);
-    return (std::string::npos != std::string(err.thisWillGetRemoved()).find(
-        "User cannot access the selected project"));
+bool TimeEntryModel::userCannotAccessTheSelectedProject(const error &err) const {
+    return err == error::ACCESS_PROHIBITED;
 }
 
-bool TimeEntryModel::userCannotAccessSelectedTask(
-    const error &err) const {
-    std::scoped_lock<std::recursive_mutex> lock(mutex_);
-    return (std::string::npos != std::string(err.thisWillGetRemoved()).find(
-        "User cannot access selected task"));
+bool TimeEntryModel::userCannotAccessSelectedTask(const error &err) const {
+    return err == error::ACCESS_PROHIBITED;
 }
 
 bool TimeEntryModel::durationTooLarge(const error &err) const {
-    std::scoped_lock<std::recursive_mutex> lock(mutex_);
-    return (std::string::npos != std::string(err.thisWillGetRemoved()).find(
-        "Max allowed duration per 1 time entry is 999 hours"));
+    return err == error::DURATION_TOO_LONG;
 }
 
 bool TimeEntryModel::startTimeWrongYear(const error &err) const {
-    std::scoped_lock<std::recursive_mutex> lock(mutex_);
-    return (std::string::npos != std::string(err.thisWillGetRemoved()).find(
-        "Start time year must be between 2006 and 2030"));
+    return err == error::START_TIME_OUT_OF_RANGE;
 }
 
 bool TimeEntryModel::stopTimeMustBeAfterStartTime(const error &err) const {
-    std::scoped_lock<std::recursive_mutex> lock(mutex_);
-    return (std::string::npos != std::string(err.thisWillGetRemoved()   ).find(
-        "Stop time must be after start time"));
+    return err == error::END_TIME_BEFORE_START_TIME;
 }
 
 bool TimeEntryModel::billableIsAPremiumFeature(const error &err) const {
-    std::scoped_lock<std::recursive_mutex> lock(mutex_);
-    return (std::string::npos != std::string(err.thisWillGetRemoved()).find(
-        "Billable is a premium feature"));
+    return err == error::PREMIUM_FEATURE;
 }
 
 void TimeEntryModel::DiscardAt(const Poco::Int64 at) {

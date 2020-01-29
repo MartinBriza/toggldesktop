@@ -33,13 +33,13 @@ void OnError(const std::string &error, bool user_error) {
     std::cerr << "An error occurred: " << error << std::endl << std::flush;
 }
 
-static Context::Callbacks callbacks {
+static toggl::Context::Callbacks callbacks {
     OnError
 };
 
 
 int main(void) {
-    Context *ctx = new Context("linux_native_app", callbacks);
+    toggl::Context *ctx = new toggl::Context("linux_native_app", callbacks);
     ctx->Start();
 
     std::this_thread::sleep_for(std::chrono::seconds(1));

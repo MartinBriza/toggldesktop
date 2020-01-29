@@ -574,7 +574,7 @@ std::string Formatter::EscapeJSONString(const std::string &input) {
     return ss.str();
 }
 
-error Formatter::CollectErrors(std::vector<error> * const errors) {
+std::string Formatter::CollectErrors(std::vector<error> * const errors) {
     std::stringstream ss;
     ss << "Errors encountered while syncing data: ";
     std::set<error> unique;
@@ -590,7 +590,7 @@ error Formatter::CollectErrors(std::vector<error> * const errors) {
         ss << err.String();
         unique.insert(err);
     }
-    return error(ss.str());
+    return ss.str();
 }
 
 bool CompareClientByName(ClientModel *a, ClientModel *b) {

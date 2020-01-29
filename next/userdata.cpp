@@ -1,5 +1,7 @@
 #include "userdata.h"
 
+namespace toggl {
+
 void UserData::dumpAll() {
     {
         auto tags = Tags();
@@ -22,3 +24,5 @@ void UserData::dumpAll() {
     }
     std::cout << std::endl << std::flush;
 }
+
+} // namespace toggl

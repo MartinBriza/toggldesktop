@@ -17,6 +17,8 @@ using Poco::Net::HTTPRequest;
 using Poco::Net::HTTPResponse;
 using Poco::Net::HTTPClientSession;
 
+namespace toggl {
+
 class HttpClient {
 public:
     HttpClient(const std::string &username, const std::string &password, bool ignoreCert = false);
@@ -49,5 +51,7 @@ private:
 
     Poco::Int64 timeout_seconds_ { 64 };
 };
+
+} // namespace toggl
 
 #endif // HTTPCLIENT_H

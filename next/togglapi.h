@@ -3,6 +3,8 @@
 
 #include "httpclient.h"
 
+namespace toggl {
+
 class TogglApi {
 public:
     TogglApi(const std::string &app_name, const std::string &username = {}, const std::string &password = {});
@@ -33,4 +35,7 @@ private:
     HttpClient client_;
     std::string app_name_;
 };
+
+} // namespace toggl
+
 #endif // TOGGLAPI_H

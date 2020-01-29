@@ -10,9 +10,10 @@
 #include "settings.h"
 
 namespace toggl {
-    class UserModel;
-    class CountryModel;
-}
+
+class UserModel;
+class CountryModel;
+
 
 inline auto defaultCallback(const std::string &name) {
     return [name](auto...) -> void {
@@ -115,5 +116,7 @@ private:
 
     EventQueue eventQueue_;
 };
+
+} // namespace toggl
 
 #endif // CONTEXT_H

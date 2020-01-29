@@ -37,7 +37,7 @@ set(NEXT_SOURCE_FILES
 
     misc/formatter.cc
     misc/logger.cc
-    misc/error.cpp
+    misc/error.cc
     misc/memory.cpp
 
     entity/user.cpp

@@ -16,12 +16,9 @@ toggl::error BatchUpdateResult::GetError() const {
         return noError;
     }
     if ("null" != Body) {
-        return Body;
+        return Error::fromServerError(Body);
     }
-    std::stringstream ss;
-    ss  << "Request failed with status code "
-        << StatusCode;
-    return ss.str();
+    return Error::fromHttpStatus(StatusCode);
 }
 
 std::string BatchUpdateResult::String() const {
@@ -105,7 +102,7 @@ error BatchUpdateResult::ParseResponseArray(
     Json::Value root;
     Json::Reader reader;
     if (!reader.parse(response_body, root)) {
-        return error("error parsing batch update response");
+        return error(error::MALFORMED_DATA, __PRETTY_FUNCTION__);
     }
 
     for (unsigned int i = 0; i < root.size(); i++) {

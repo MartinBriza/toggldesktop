@@ -5,6 +5,8 @@
 
 #include "model/country.h"
 
+using namespace toggl;
+
 char_t *copy_string(const std::string &s) {
 #if defined(_WIN32) || defined(WIN32)
     std::wstring ws;

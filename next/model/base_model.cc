@@ -22,7 +22,7 @@ bool BaseModel::NeedsPush() const {
     // pushed again unless the error is somehow fixed by user.
     // We will assume that if user modifies the model, the error
     // will go away. But until then, don't push the errored data.
-    return ValidationError().noError() &&
+    return ValidationError().IsNoError() &&
            (NeedsPOST() || NeedsPUT() || NeedsDELETE());
 }
 

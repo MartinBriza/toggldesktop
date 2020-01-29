@@ -74,7 +74,7 @@ class TOGGL_INTERNAL_EXPORT Formatter {
     static std::string FormatTimeForTimeEntryEditor(
         const std::time_t date);
 
-    static error CollectErrors(
+    static std::string CollectErrors(
         std::vector<error> * const errors);
 
     // Time

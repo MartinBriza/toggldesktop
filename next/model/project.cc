@@ -217,7 +217,7 @@ bool ProjectModel::ResolveError(const toggl::error &err) {
         SetPrivate(true);
         return true;
     }
-    if (err == Error::kProjectNameAlready) {
+    if (err == Error::kProjectNameAlreadyExists) {
         // remove duplicate from db
         MarkAsDeletedOnServer();
         return true;

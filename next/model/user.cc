@@ -195,7 +195,7 @@ error UserModel::LoadUserAndRelatedDataFromJSONString(
     Json::Value root;
     Json::Reader reader;
     if (!reader.parse(json, root)) {
-        return error("Failed to LoadUserAndRelatedDataFromJSONString");
+        return error(error::MALFORMED_DATA, __PRETTY_FUNCTION__);
     }
 
     SetSince(root["since"].asInt64());
@@ -251,7 +251,7 @@ error UserModel::UserID(
     Json::Reader reader;
     bool ok = reader.parse(json_data_string, root);
     if (!ok) {
-        return error("error parsing UserID JSON");
+        return error(error::MALFORMED_DATA, __PRETTY_FUNCTION__);
     }
     *result = root["data"]["id"].asUInt64();
     return noError;
@@ -265,7 +265,7 @@ error UserModel::LoginToken(
     Json::Reader reader;
     bool ok = reader.parse(json_data_string, root);
     if (!ok) {
-        return error("error parsing UserID JSON");
+        return error(error::MALFORMED_DATA, __PRETTY_FUNCTION__);
     }
     *result = root["login_token"].asString();
     return noError;

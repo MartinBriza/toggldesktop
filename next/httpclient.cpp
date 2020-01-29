@@ -9,6 +9,8 @@
 
 #include <json/json.h>
 
+namespace toggl {
+
 HttpClient::HttpClient(const std::string &username, const std::string &password, bool ignoreCert)
     : username_(username)
     , password_(password)
@@ -187,3 +189,5 @@ std::pair<Poco::Net::HTTPResponse::HTTPStatus, std::string> HttpClient::receiveR
     }
     return { response.getStatus(), responseBody };
 }
+
+} // namespace toggl

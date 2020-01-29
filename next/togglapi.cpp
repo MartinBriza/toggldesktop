@@ -1,5 +1,7 @@
 #include "togglapi.h"
 
+namespace toggl {
+
 TogglApi::TogglApi(const std::string &app_name, const std::string &username, const std::string &password)
     : client_(HttpClient(username, password, true))
     , app_name_(app_name)
@@ -29,3 +31,5 @@ std::pair<Error, std::string> TogglApi::v9_status() {
 std::pair<Error, std::string> TogglApi::v9_countries() {
     return client_.Get("https://toggl.space", "/api/v9/countries");
 }
+
+} // namespace toggl
