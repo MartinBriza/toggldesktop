@@ -380,7 +380,7 @@ error Database::last_error(const std::string &was_doing) {
     return noError;
 }
 
-std::string Database::GenerateGUID() {
+uuid_t Database::GenerateGUID() {
     Poco::UUIDGenerator& generator = Poco::UUIDGenerator::defaultGenerator();
     Poco::UUID uuid(generator.createRandom());
     return uuid.toString();
@@ -1348,9 +1348,9 @@ error Database::loadClients(
                 model->SetUID(rs[2].convert<Poco::UInt64>());
                 model->SetName(rs[3].convert<std::string>());
                 if (rs[4].isEmpty()) {
-                    model->SetGUID("");
+                    model->SetGUID({});
                 } else {
-                    model->SetGUID(rs[4].convert<std::string>());
+                    model->SetGUID(rs[4].convert<uuid_t>());
                 }
                 model->SetWID(rs[5].convert<Poco::UInt64>());
                 model->ClearDirty();
@@ -1416,9 +1416,9 @@ error Database::loadProjects(
                 model->SetUID(rs[2].convert<Poco::UInt64>());
                 model->SetName(rs[3].convert<std::string>());
                 if (rs[4].isEmpty()) {
-                    model->SetGUID("");
+                    model->SetGUID({});
                 } else {
-                    model->SetGUID(rs[4].convert<std::string>());
+                    model->SetGUID(rs[4].convert<uuid_t>());
                 }
                 model->SetWID(rs[5].convert<Poco::UInt64>());
                 if (rs[6].isEmpty()) {
@@ -1434,9 +1434,9 @@ error Database::loadProjects(
                 model->SetActive(rs[8].convert<bool>());
                 model->SetBillable(rs[9].convert<bool>());
                 if (rs[10].isEmpty()) {
-                    model->SetClientGUID("");
+                    model->SetClientGUID({});
                 } else {
-                    model->SetClientGUID(rs[10].convert<std::string>());
+                    model->SetClientGUID(rs[10].convert<uuid_t>());
                 }
                 if (rs[11].isEmpty()) {
                     model->SetClientName("");
@@ -1562,9 +1562,9 @@ error Database::loadTags(
                 model->SetName(rs[3].convert<std::string>());
                 model->SetWID(rs[4].convert<Poco::UInt64>());
                 if (rs[5].isEmpty()) {
-                    model->SetGUID("");
+                    model->SetGUID({});
                 } else {
-                    model->SetGUID(rs[5].convert<std::string>());
+                    model->SetGUID(rs[5].convert<uuid_t>());
                 }
                 model->ClearDirty();
                 list->push_back(model);
@@ -1682,7 +1682,7 @@ error Database::loadTimelineEvents(
                 model->SetIdle(rs[5].convert<bool>());
                 model->SetUploaded(rs[6].convert<bool>());
                 model->SetChunked(rs[7].convert<bool>());
-                model->SetGUID(rs[8].convert<std::string>());
+                model->SetGUID(rs[8].convert<uuid_t>());
 
                 model->SetUID(UID);
 
@@ -1792,7 +1792,7 @@ error Database::loadTimeEntriesFromSQLStatement(
                     model->SetDescription(rs[3].convert<std::string>());
                 }
                 model->SetWID(rs[4].convert<Poco::UInt64>());
-                model->SetGUID(rs[5].convert<std::string>());
+                model->SetGUID(rs[5].convert<uuid_t>());
                 if (rs[6].isEmpty()) {
                     model->SetPID(0);
                 } else {
@@ -1838,9 +1838,9 @@ error Database::loadTimeEntriesFromSQLStatement(
                     model->SetUpdatedAt(rs[17].convert<Poco::Int64>());
                 }
                 if (rs[18].isEmpty()) {
-                    model->SetProjectGUID("");
+                    model->SetProjectGUID({});
                 } else {
-                    model->SetProjectGUID(rs[18].convert<std::string>());
+                    model->SetProjectGUID(rs[18].convert<uuid_t>());
                 }
                 if (rs[19].isEmpty()) {
                     model->SetValidationError(error::kNoError);
@@ -3458,7 +3458,7 @@ error Database::EnsureTimelineGUIDS() {
             if (!local_id_without_guid) {
                 return noError;
             }
-            std::string guid = GenerateGUID();
+            uuid_t guid = GenerateGUID();
 
             Poco::Mutex::ScopedLock lock(session_m_);
 

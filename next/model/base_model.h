@@ -41,7 +41,7 @@ class TOGGL_INTERNAL_EXPORT BaseModel {
 
     virtual ~BaseModel() {}
 
-    static std::string GenerateGUID();
+    static uuid_t GenerateGUID();
 
     const Poco::Int64 &LocalID() const {
         std::scoped_lock<std::recursive_mutex> lock(mutex_);
@@ -68,11 +68,11 @@ class TOGGL_INTERNAL_EXPORT BaseModel {
         SetUIModifiedAt(time(nullptr));
     }
 
-    const std::string &GUID() const {
+    const uuid_t &GUID() const {
         std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return guid_;
     }
-    void SetGUID(const std::string &value);
+    void SetGUID(const uuid_t &value);
 
     const Poco::UInt64 &UID() const {
         std::scoped_lock<std::recursive_mutex> lock(mutex_);
@@ -188,7 +188,7 @@ class TOGGL_INTERNAL_EXPORT BaseModel {
 
     id_t local_id_;
     id_t id_;
-    guid_t guid_;
+    uuid_t guid_;
     Poco::Int64 ui_modified_at_;
     id_t uid_;
     Poco::Int64 deleted_at_;

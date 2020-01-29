@@ -2,12 +2,12 @@
 
 #include "batch_update_result.h"
 
+#include "base_model.h"
+
 #include <sstream>
 #include <cstring>
 
-#include "./base_model.h"
-
-#include "Poco/Logger.h"
+#include <Poco/Logger.h>
 
 namespace toggl {
 

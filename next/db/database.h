@@ -236,7 +236,7 @@ class TOGGL_INTERNAL_EXPORT Database {
         const Poco::UInt64 &uid);
     error ClearCurrentAPIToken();
 
-    static std::string GenerateGUID();
+    static uuid_t GenerateGUID();
 
     std::string DesktopID() const {
         return desktop_id_;

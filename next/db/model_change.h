@@ -3,11 +3,12 @@
 #ifndef SRC_MODEL_CHANGE_H_
 #define SRC_MODEL_CHANGE_H_
 
+#include "const.h"
+#include "misc/types.h"
+
 #include <string>
 
 #include <Poco/Types.h>
-
-#include "const.h"
 
 namespace toggl {
 
@@ -17,13 +18,13 @@ class ModelChange {
         const std::string &model_type,
         const std::string &change_type,
         const Poco::UInt64 model_id,
-        const std::string &GUID)
+        const uuid_t &GUID)
         : model_type_(model_type)
     , change_type_(change_type)
     , model_id_(model_id)
     , GUID_(GUID) {}
 
-    std::string GUID() const {
+    uuid_t GUID() const {
         return GUID_;
     }
     std::string ModelType() const {
@@ -43,7 +44,7 @@ class ModelChange {
     std::string model_type_;
     std::string change_type_;
     Poco::UInt64 model_id_;
-    std::string GUID_;
+    uuid_t GUID_;
 };
 
 }  // namespace toggl

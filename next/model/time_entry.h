@@ -117,11 +117,11 @@ class TOGGL_INTERNAL_EXPORT TimeEntryModel : public BaseModel, public TimedEvent
 
     bool IsToday() const;
 
-    const std::string &ProjectGUID() const {
+    const uuid_t &ProjectGUID() const {
         std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return project_guid_;
     }
-    void SetProjectGUID(const std::string &);
+    void SetProjectGUID(const uuid_t &);
 
     // User-triggered changes to timer:
     void SetDurationUserInput(const std::string &);
@@ -168,7 +168,7 @@ class TOGGL_INTERNAL_EXPORT TimeEntryModel : public BaseModel, public TimedEvent
     std::string description_;
     bool duronly_;
     std::string created_with_;
-    std::string project_guid_;
+    uuid_t project_guid_;
     bool unsynced_;
     Poco::Int64 last_start_at_;
 

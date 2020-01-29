@@ -1,8 +1,12 @@
-#ifndef MEMORY_H
-#define MEMORY_H
+#ifndef SRC_MEMORY_H_
+#define SRC_MEMORY_H_
+
+#include "misc/types.h"
 
 #include <mutex>
 #include <vector>
+
+namespace toggl {
 
 /**
  * @class locked
@@ -144,7 +148,7 @@ public:
      * @param guid - GUID to look for
      * @return - valid @ref locked object containing a pointer to the instance if found, invalid @ref locked object if not found
      */
-    locked<T> findByGUID(const std::string &guid) {
+    locked<T> findByGUID(const uuid_t &guid) {
         auto lockedContainer = (*this)();
         for (auto i : *lockedContainer) {
             if (i->GUID() == guid)
@@ -157,7 +161,7 @@ public:
      * @param guid - GUID to look for
      * @return - valid @ref locked object containing a pointer to the instance if found, invalid @ref locked object if not found
      */
-    locked<const T> findByGUID(const std::string &guid) const {
+    locked<const T> findByGUID(const uuid_t &guid) const {
         auto lockedContainer = (*this)();
         for (auto i : *lockedContainer) {
             if (i->GUID() == guid)
@@ -170,5 +174,6 @@ private:
     mutable std::recursive_mutex mutex_;
 };
 
+} // namespace toggl
 
-#endif // MEMORY_H
+#endif // SRC_MEMORY_H_

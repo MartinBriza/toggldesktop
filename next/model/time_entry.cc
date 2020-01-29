@@ -349,7 +349,7 @@ void TimeEntryModel::SetDurationUserInput(const std::string &value) {
     }
 }
 
-void TimeEntryModel::SetProjectGUID(const std::string &value) {
+void TimeEntryModel::SetProjectGUID(const uuid_t &value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (project_guid_ != value) {
         project_guid_ = value;

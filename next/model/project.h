@@ -37,10 +37,10 @@ class TOGGL_INTERNAL_EXPORT ProjectModel : public BaseModel {
     }
     void SetCID(const Poco::UInt64 value);
 
-    const std::string &ClientGUID() const {
+    const uuid_t &ClientGUID() const {
         return client_guid_;
     }
-    void SetClientGUID(const std::string &);
+    void SetClientGUID(const uuid_t &);
 
     const std::string &Name() const {
         return name_;
@@ -100,7 +100,7 @@ class TOGGL_INTERNAL_EXPORT ProjectModel : public BaseModel {
     bool active_;
     bool private_;
     bool billable_;
-    std::string client_guid_;
+    uuid_t client_guid_;
     std::string client_name_;
 };
 

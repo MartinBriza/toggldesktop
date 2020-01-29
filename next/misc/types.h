@@ -10,7 +10,7 @@
 namespace toggl {
 
     typedef uint64_t id_t;
-    typedef std::string guid_t;
+    typedef std::string uuid_t;
 
     // TODO
     typedef Error error;

@@ -3,15 +3,13 @@
 #ifndef SRC_BATCH_UPDATE_RESULT_H_
 #define SRC_BATCH_UPDATE_RESULT_H_
 
+#include "misc/types.h"
+
 #include <string>
 #include <vector>
 #include <map>
 
-#include "./types.h"
-
 #include <json/json.h>  // NOLINT
-
-#include "Poco/Types.h"
 
 namespace toggl {
 
@@ -26,7 +24,7 @@ class TOGGL_INTERNAL_EXPORT BatchUpdateResult {
     , ContentType("") {}
     Poco::Int64 StatusCode;
     std::string Body;
-    std::string GUID;  // must match the BatchUpdate GUID
+    uuid_t GUID;  // must match the BatchUpdate GUID
     std::string ContentType;
     std::string Method;
 

@@ -51,7 +51,7 @@ std::string ProjectModel::FullName() const {
     return ss.str();
 }
 
-void ProjectModel::SetClientGUID(const std::string &value) {
+void ProjectModel::SetClientGUID(const uuid_t &value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (client_guid_ != value) {
         client_guid_ = value;

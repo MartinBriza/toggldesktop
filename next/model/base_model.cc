@@ -86,7 +86,7 @@ void BaseModel::SetUpdatedAt(const Poco::Int64 value) {
     }
 }
 
-void BaseModel::SetGUID(const std::string &value) {
+void BaseModel::SetGUID(const uuid_t &value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (guid_ != value) {
         guid_ = value;
@@ -232,7 +232,7 @@ void BaseModel::SetUnsynced() {
     unsynced_ = true;
 }
 
-std::string BaseModel::GenerateGUID() {
+uuid_t BaseModel::GenerateGUID() {
     Poco::UUIDGenerator& generator = Poco::UUIDGenerator::defaultGenerator();
     Poco::UUID uuid(generator.createRandom());
     return uuid.toString();
