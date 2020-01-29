@@ -42,12 +42,15 @@ set(NEXT_SOURCE_FILES
 
     entity/user.cpp
 
+    db/migrations.cc
+    db/model_change.cc
+    db/database.cc
+
     httpclient.cpp
     togglapi.cpp
     context.cpp
     eventqueue.cpp
     userdata.cpp
-    settings.cpp
 
     legacy_api.cc
 )

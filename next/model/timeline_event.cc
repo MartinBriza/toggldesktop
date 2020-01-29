@@ -7,9 +7,9 @@
 
 namespace toggl {
 
-std::string TimelineEvent::String() const {
+std::string TimelineEventModel::String() const {
     std::stringstream ss;
-    ss << "TimelineEvent"
+    ss << "TimelineEventModel"
        << " guid=" << GUID()
        << " local_id=" << LocalID()
        << " start_time=" << Start()
@@ -20,22 +20,22 @@ std::string TimelineEvent::String() const {
     return ss.str();
 }
 
-std::string TimelineEvent::ModelName() const {
+std::string TimelineEventModel::ModelName() const {
     return kModelTimelineEvent;
 }
 
-std::string TimelineEvent::ModelURL() const {
+std::string TimelineEventModel::ModelURL() const {
     return "";
 }
 
-void TimelineEvent::SetTitle(const std::string &value) {
+void TimelineEventModel::SetTitle(const std::string &value) {
     if (title_ != value) {
         title_ = value;
         SetDirty();
     }
 }
 
-void TimelineEvent::SetStart(const Poco::Int64 value) {
+void TimelineEventModel::SetStart(const Poco::Int64 value) {
     if (start_time_ != value) {
         start_time_ = value;
         updateDuration();
@@ -43,7 +43,7 @@ void TimelineEvent::SetStart(const Poco::Int64 value) {
     }
 }
 
-void TimelineEvent::SetEndTime(const Poco::Int64 value) {
+void TimelineEventModel::SetEndTime(const Poco::Int64 value) {
     if (end_time_ != value) {
         end_time_ = value;
         updateDuration();
@@ -51,35 +51,35 @@ void TimelineEvent::SetEndTime(const Poco::Int64 value) {
     }
 }
 
-void TimelineEvent::SetIdle(const bool value) {
+void TimelineEventModel::SetIdle(const bool value) {
     if (idle_ != value) {
         idle_ = value;
         SetDirty();
     }
 }
 
-void TimelineEvent::SetFilename(const std::string &value) {
+void TimelineEventModel::SetFilename(const std::string &value) {
     if (filename_ != value) {
         filename_ = value;
         SetDirty();
     }
 }
 
-void TimelineEvent::SetChunked(const bool value) {
+void TimelineEventModel::SetChunked(const bool value) {
     if (chunked_ != value) {
         chunked_ = value;
         SetDirty();
     }
 }
 
-void TimelineEvent::SetUploaded(const bool value) {
+void TimelineEventModel::SetUploaded(const bool value) {
     if (uploaded_ != value) {
         uploaded_ = value;
         SetDirty();
     }
 }
 
-Json::Value TimelineEvent::SaveToJSON() const {
+Json::Value TimelineEventModel::SaveToJSON() const {
     Json::Value n;
     n["guid"] = GUID();
     n["filename"] = Filename();
@@ -90,7 +90,7 @@ Json::Value TimelineEvent::SaveToJSON() const {
     return n;
 }
 
-void TimelineEvent::updateDuration() {
+void TimelineEventModel::updateDuration() {
     Poco::Int64 value = end_time_ - start_time_;
     duration_ = value < 0 ? 0 : value;
 }

@@ -14,7 +14,10 @@
 
 namespace toggl {
 
+class Database;
+
 class TOGGL_INTERNAL_EXPORT SettingsModel : public BaseModel {
+    friend class Database;
  public:
     SettingsModel()
         : use_idle_detection(false)
@@ -49,6 +52,23 @@ class TOGGL_INTERNAL_EXPORT SettingsModel : public BaseModel {
 
     virtual ~SettingsModel() {}
 
+    int64_t WindowX() const;
+    void SetWindowX(int64_t value);
+    int64_t WindowY() const;
+    void SetWindowY(int64_t value);
+    int64_t WindowHeight() const;
+    void SetWindowHeight(int64_t value);
+    int64_t WindowWidth() const;
+    void SetWindowWidth(int64_t value);
+
+private:
+    // new
+    int64_t window_x_ { 100 };
+    int64_t window_y_ { 100 };
+    int64_t window_height_ { 300 };
+    int64_t window_width_ { 100 };
+
+    // old
     bool use_idle_detection;
     bool menubar_timer;
     bool menubar_project;

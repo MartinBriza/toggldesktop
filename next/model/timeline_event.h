@@ -13,9 +13,9 @@
 
 namespace toggl {
 
-class TOGGL_INTERNAL_EXPORT TimelineEvent : public BaseModel, public TimedEvent {
+class TOGGL_INTERNAL_EXPORT TimelineEventModel : public BaseModel, public TimedEvent {
  public:
-    TimelineEvent()
+    TimelineEventModel()
         : BaseModel()
     , title_("")
     , filename_("")
@@ -26,7 +26,7 @@ class TOGGL_INTERNAL_EXPORT TimelineEvent : public BaseModel, public TimedEvent 
     , chunked_(false)
     , uploaded_(false) {}
 
-    virtual ~TimelineEvent() {}
+    virtual ~TimelineEventModel() {}
 
     const std::string &Title() const {
         return title_;

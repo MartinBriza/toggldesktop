@@ -24,7 +24,7 @@ class TOGGL_INTERNAL_EXPORT AutotrackerRuleModel : public BaseModel {
 
     virtual ~AutotrackerRuleModel() {}
 
-    bool Matches(const TimelineEvent &event) const;
+    bool Matches(const TimelineEventModel &event) const;
 
     const std::string &Term() const;
     void SetTerm(const std::string &value);

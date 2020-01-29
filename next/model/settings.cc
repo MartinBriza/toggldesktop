@@ -118,4 +118,36 @@ std::string SettingsModel::ModelURL() const {
     return "";
 }
 
+int64_t SettingsModel::WindowX() const {
+    return window_x_;
+}
+
+void SettingsModel::SetWindowX(int64_t value) {
+    window_x_ = value;
+}
+
+int64_t SettingsModel::WindowY() const {
+    return window_y_;
+}
+
+void SettingsModel::SetWindowY(int64_t value) {
+    window_y_ = value;
+}
+
+int64_t SettingsModel::WindowHeight() const {
+    return window_height_;
+}
+
+void SettingsModel::SetWindowHeight(int64_t value) {
+    window_height_ = value;
+}
+
+int64_t SettingsModel::WindowWidth() const {
+    return window_width_;
+}
+
+void SettingsModel::SetWindowWidth(int64_t value) {
+    window_width_ = value;
+}
+
 }   // namespace toggl

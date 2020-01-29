@@ -8,6 +8,7 @@
 #include "eventqueue.h"
 #include "userdata.h"
 #include "settings.h"
+#include "db/database.h"
 
 namespace toggl {
 
@@ -75,7 +76,7 @@ public:
     Callbacks *GetCallbacks() {
         return &callbacks_;
     }
-    Settings *GetSettings() {
+    SettingsModel *GetSettings() {
         return &settings_;
     }
     UserData *GetData() {
@@ -111,8 +112,8 @@ private:
 
     TogglApi api;
     UserData data;
-    toggl::UserModel *user { nullptr };
-    Settings settings_;
+    UserModel *user { nullptr };
+    SettingsModel settings_;
 
     EventQueue eventQueue_;
 };
