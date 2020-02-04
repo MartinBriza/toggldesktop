@@ -7,6 +7,17 @@
 
 namespace toggl {
 
+
+void Context::testContainer() {
+    std::cerr << "Creating" << std::endl;
+    ProtectedModel<TimeEntryModel> model;
+    std::cerr << "Created, size = " << model.size() << std::endl;
+    auto item = model.create();
+    std::cerr << "Inserted, size = " << model.size() << std::endl;
+    model.remove(item->GUID());
+    std::cerr << "Removed, size = " << model.size() << std::endl;
+}
+
 void Context::login(const std::string &username, const std::string &password) {
     api.setCredentials(username, password);
     auto result = api.v8_me(true, 0);

@@ -169,9 +169,8 @@ void toggl_on_time_entry_list(
     TogglDisplayTimeEntryList cb) {
     auto ctx = reinterpret_cast<Context*>(context);
     ctx->GetCallbacks()->OnTimeEntryList = [ctx, cb]() {
-        auto TEs = ctx->GetData()->TimeEntries();
         TogglTimeEntryView *result = nullptr, *previous = nullptr;
-        for (auto i : *TEs) {
+        for (auto i : ctx->GetData()->TimeEntries) {
             if (i->IsTracking())
                 continue;
             auto current = new TogglTimeEntryView;
@@ -275,9 +274,8 @@ void toggl_on_countries(
     TogglDisplayCountries cb) {
     auto ctx = reinterpret_cast<Context*>(context);
     ctx->GetCallbacks()->OnCountries = [ctx, cb]() {
-        auto countries = ctx->GetData()->Countries();
         TogglCountryView *result = nullptr, *previous = nullptr;
-        for (auto i : *countries) {
+        for (auto i : ctx->GetData()->Countries) {
             auto current = new TogglCountryView;
             current->ID = i->ID();
             current->Name = copy_string(i->Name());

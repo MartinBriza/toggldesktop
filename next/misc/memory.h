@@ -32,9 +32,7 @@ public:
         : std::unique_lock<std::recursive_mutex>(mutex)
         , data_(data)
     {}
-    T* data() { return data_; }
     T *operator->() { return data_; }
-    T &operator*() { return *data_; }
     /**
      * @brief operator bool - Returns true if the mutex is locked and the pointer is not null
      */
@@ -52,34 +50,131 @@ private:
  * This class is intended to be used especially with BaseModel-based objects (TimeEntry, Project, etc.)
  * It also provides facilities to lock other objects using the internal mutex.
  */
-template <typename T>
+template <class T>
 class ProtectedModel {
 public:
-    /**
-     * @brief operator () - Convenience method to access the internal locked container directly
-     * @return A @ref locked object containing a map of <typename T> types
-     */
-    locked<std::vector<T*>> operator()() {
-        return { mutex_, &container_ };
-    }
-    /**
-     * @brief operator () - Convenience method to access the internal locked container directly
-     * @return A @ref locked object containing a map of <typename T> types
-     */
-    locked<const std::vector<T*>> operator()() const {
-        return { mutex_, &container_ };
-    }
+    class iterator {
+    public:
+        typedef std::forward_iterator_tag iterator_category;
+
+        iterator(ProtectedModel &model, size_t position = SIZE_MAX)
+            : lock(model.mutex_)
+            , model(model)
+            , position(position)
+        { }
+        iterator(const iterator &o)
+            : lock(o.model.mutex_)
+            , model(o.model)
+            , position(o.position)
+        { }
+        ~iterator() {}
+
+        iterator& operator=(const iterator &o) {
+            model = o.model;
+            position = o.position;
+        }
+        bool operator==(const iterator &o) const {
+            return model == o.model && realPosition() == o.realPosition();
+        }
+        bool operator!=(const iterator &o) const {
+            return !(*this == o);
+        }
+
+        iterator& operator++() {
+            position++;
+            return *this;
+        }
+        locked<T> operator*() const {
+            return { model.mutex_, model.container_[position]};
+        }
+        T* operator->() const {
+            return model.container_[position];
+        }
+
+    private:
+        size_t realPosition() const {
+            if (model.size() <= position)
+                return SIZE_MAX;
+            return position;
+        }
+        std::unique_lock<std::recursive_mutex> lock;
+        ProtectedModel &model;
+        size_t position;
+    };
+    class const_iterator {
+    public:
+        typedef std::forward_iterator_tag iterator_category;
+
+        const_iterator(const ProtectedModel &model, size_t position = SIZE_MAX)
+            : lock(model.mutex_)
+            , model(model)
+            , position(position)
+        { }
+        const_iterator(const const_iterator &o)
+            : lock(o.model.mutex_)
+            , model(o.model)
+            , position(o.position)
+        { }
+        const_iterator(const iterator &o)
+            : lock(o.model.mutex_)
+            , model(o.model)
+            , position(o.position)
+        { }
+        ~const_iterator();
+
+        const_iterator& operator=(const const_iterator &o) {
+            model = o.model;
+            position = o.position;
+        }
+        bool operator==(const const_iterator &o) const {
+            return model == o.model && realPosition() == o.realPosition();
+        }
+        bool operator!=(const const_iterator &o) const {
+            return !(*this == o);
+        }
+
+        const_iterator& operator++() {
+            position++;
+            return *this;
+        }
+        locked<T> operator*() const {
+            return { model.mutex_, model.container_[position]};
+        }
+        T* operator->() const {
+            return model.container_[position];
+        }
+
+    private:
+        size_t realPosition() const {
+            if (model.size() <= position)
+                return SIZE_MAX;
+            return position;
+        }
+        std::unique_lock<std::recursive_mutex> lock;
+        const ProtectedModel &model;
+        size_t position;
+    };
+
+    friend class iterator;
+    friend class const_iterator;
+
+    iterator begin() { return iterator(*this, 0); }
+    const_iterator begin() const { return const_iterator(*this, 0); }
+    const_iterator cbegin() const { return const_iterator(*this, 0); }
+    iterator end() { return iterator(*this); }
+    const_iterator end() const { return const_iterator(*this); }
+    const_iterator cend() const { return const_iterator(*this); }
+
     /**
      * @brief clear - Clear the @ref container_
      * @param deleteItems - Set to true if the pointers contained in the @ref container_ should be deleted, too
      */
-    void clear(bool deleteItems = true) {
-        auto lockedContainer = (*this)();
-        if (deleteItems) {
-            for (auto i : *lockedContainer)
-                delete i;
-        }
-        lockedContainer->clear();
+    void clear() {
+        std::unique_lock<std::recursive_mutex> lock(mutex_);
+        for (auto i : container_)
+            delete i;
+        container_.clear();
+        uuidMap_.clear();
     }
     /**
      * @brief create - Allocate a new instance of <typename T>
@@ -87,17 +182,39 @@ public:
      * OVERHAUL TODO: this could be more efficient
      */
     locked<T> create() {
+        std::unique_lock<std::recursive_mutex> lock(mutex_);
         T *val = new T();
-        (*this)()->push_back(val);
+        container_.push_back(val);
+        uuidMap_[val->GUID()] = val;
         return { mutex_, val };
+    }
+    /**
+     * @brief remove - Remove one instance of <typename T>
+     * @param guid - guid of the item to delete
+     * @return - true if found and deleted
+     */
+    bool remove(const uuid_t &guid) {
+        std::unique_lock<std::recursive_mutex> lock(mutex_);
+        T* ptr { nullptr };
+        try {
+            ptr = uuidMap_.at(guid);
+        }
+        catch (std::out_of_range &) {
+            return false;
+        }
+        if (!ptr)
+            return false;
+        container_.erase(std::find(container_.begin(), container_.end(), ptr));
+        uuidMap_.erase(guid);
+        return true;
     }
     /**
      * @brief size - Get how many items are contained inside
      * @return - number of items inside the container
      */
     size_t size() {
-        auto lockedContainer = (*this)();
-        return lockedContainer->size();
+        std::unique_lock<std::recursive_mutex> lock(mutex_);
+        return container_.size();
     }
     /**
      * @brief make_locked - Makes pointer to any type locked by the internal mutex
@@ -117,60 +234,39 @@ public:
     template<typename U> locked<const U> make_locked(const U *val) const {
         return { mutex_, val };
     }
-    /**
-     * @brief findByID - Finds a contained BaseModel instance by looking for its ID
-     * @param id - ID to look for
-     * @return - valid @ref locked object containing a pointer to the instance if found, invalid @ref locked object if not found
-     */
-    locked<T> findByID(uint64_t id) {
-        auto lockedContainer = (*this)();
-        for (auto i : *lockedContainer) {
-            if (i->ID() == id)
-                return { mutex_, i };
-        }
+
+    locked<T> operator[](size_t position) {
+        if (container_.size() <= position)
+            return { mutex_, container_[position] };
         return {};
     }
-    /**
-     * @brief findByID - Finds a contained BaseModel instance by looking for its ID
-     * @param id - ID to look for
-     * @return - valid @ref locked object containing a pointer to the instance if found, invalid @ref locked object if not found
-     */
-    locked<const T> findByID(uint64_t id) const {
-        auto lockedContainer = (*this)();
-        for (auto i : *lockedContainer) {
-            if (i->ID() == id)
-                return { mutex_, i };
-        }
+    locked<const T> operator[](size_t position) const {
+        if (container_.size() <= position)
+            return { mutex_, container_[position] };
         return {};
     }
-    /**
-     * @brief findByID - Finds a contained BaseModel instance by looking for its GUID
-     * @param guid - GUID to look for
-     * @return - valid @ref locked object containing a pointer to the instance if found, invalid @ref locked object if not found
-     */
-    locked<T> findByGUID(const uuid_t &guid) {
-        auto lockedContainer = (*this)();
-        for (auto i : *lockedContainer) {
-            if (i->GUID() == guid)
-                return { mutex_, i };
+
+    locked<T> operator[](const uuid_t &uuid) {
+        try {
+            return { mutex_, uuidMap_.at(uuid) };
         }
-        return {};
-    }
-    /**
-     * @brief findByID - Finds a contained BaseModel instance by looking for its GUID
-     * @param guid - GUID to look for
-     * @return - valid @ref locked object containing a pointer to the instance if found, invalid @ref locked object if not found
-     */
-    locked<const T> findByGUID(const uuid_t &guid) const {
-        auto lockedContainer = (*this)();
-        for (auto i : *lockedContainer) {
-            if (i->GUID() == guid)
-                return { mutex_, i };
+        catch (std::out_of_range &) {
+            return {};
         }
-        return {};
     }
+    locked<const T> operator[](const uuid_t &uuid) const {
+        try {
+            return { mutex_, uuidMap_.at(uuid) };
+        }
+        catch (std::out_of_range &) {
+            return {};
+        }
+    }
+
+    bool operator==(const ProtectedModel &o) { return this == &o; }
 private:
     std::vector<T*> container_;
+    std::map<uuid_t, T*> uuidMap_;
     mutable std::recursive_mutex mutex_;
 };
 

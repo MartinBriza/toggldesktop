@@ -34,10 +34,9 @@ public:
 
     // TODO move this somewhere else?
     locked<TimeEntryModel> RunningTimeEntry() {
-        auto TEs = TimeEntries();
-        for (auto i : *TEs) {
+        for (auto i : TimeEntries) {
             if (i->IsTracking())
-                return TimeEntries.make_locked(i);
+                return i;
         }
         return locked<TimeEntryModel>();
     }
@@ -46,30 +45,25 @@ public:
 
     // TODO boilerplate
     Error loadTags(const Json::Value &root) {
-        auto tags = Tags();
-        return load<TagModel>(tags, root);
+        return load<TagModel>(Tags, root);
     }
     Error loadClients(const Json::Value &root) {
-        auto clients = Clients();
-        return load<ClientModel>(clients, root);
+        return load<ClientModel>(Clients, root);
     }
     Error loadProjects(const Json::Value &root) {
-        auto projects = Projects();
-        return load<ProjectModel>(projects, root);
+        return load<ProjectModel>(Projects, root);
     }
     Error loadTimeEntries(const Json::Value &root) {
-        auto TEs = TimeEntries();
-        return load<TimeEntryModel>(TEs, root);
+        return load<TimeEntryModel>(TimeEntries, root);
     }
     Error loadCountries(const Json::Value &root) {
-        auto countries = Countries();
-        return load<CountryModel>(countries, root);
+        return load<CountryModel>(Countries, root);
     }
 
 private:
     template <typename T>
-    void dump(locked<std::vector<T*>> &list) {
-        for (auto i : *list) {
+    void dump(ProtectedModel<T> &list) {
+        for (auto i : list) {
             std::cout << i->Name() << ", ";
         }
         std::cout << std::endl << std::flush;
@@ -81,14 +75,13 @@ private:
         list->clear();
     }
     template <typename T>
-    Error load(locked<std::vector<T*>> &list, const Json::Value &root) {
-        clear(list);
+    Error load(ProtectedModel<T> &list, const Json::Value &root) {
+        list.clear();
         if (!root.isArray())
             return Error::MALFORMED_DATA;
         for (auto i : root) {
-            T *item = new T();
+            auto item = list.create();
             item->LoadFromJSON(i);
-            list->push_back(item);
         }
         return Error::NO_ERROR;
     }

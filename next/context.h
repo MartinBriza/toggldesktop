@@ -70,8 +70,11 @@ public:
         , api(app_name)
         , eventQueue_(this)
     {
-
+        testContainer();
     }
+
+    void testContainer();
+
 
     Callbacks *GetCallbacks() {
         return &callbacks_;

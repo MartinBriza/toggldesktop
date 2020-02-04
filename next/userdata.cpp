@@ -4,21 +4,17 @@ namespace toggl {
 
 void UserData::dumpAll() {
     {
-        auto tags = Tags();
         std::cout << "==== Tags ====" << std::endl << std::flush;
-        dump(tags);
+        dump(Tags);
     }{
-        auto clients = Clients();
         std::cout << "==== Clients ====" << std::endl << std::flush;
-        dump(clients);
+        dump(Clients);
     }{
-        auto projects = Projects();
         std::cout << "==== Projects ====" << std::endl << std::flush;
-        dump(projects);
+        dump(Projects);
     }{
-        auto TEs = TimeEntries();
         std::cout << "==== Time Entries ====" << std::endl << std::flush;
-        for (auto i : *TEs) {
+        for (auto i : TimeEntries) {
             std::cout << i->Description() << ", ";
         }
     }
