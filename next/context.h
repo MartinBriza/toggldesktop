@@ -68,6 +68,7 @@ public:
     Context(const std::string &app_name, Callbacks callbacks)
         : callbacks_(callbacks)
         , api(app_name)
+        , data(this)
         , eventQueue_(this)
     {}
 
@@ -110,7 +111,6 @@ private:
 
     TogglApi api;
     UserData data;
-    ProtectedModel<UserModel> user;
     SettingsModel settings_;
 
     EventQueue eventQueue_;

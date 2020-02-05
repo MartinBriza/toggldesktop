@@ -16,16 +16,20 @@
 #include "model/project.h"
 #include "model/tag.h"
 #include "model/time_entry.h"
+#include "model/user.h"
 #include "model/country.h"
 
 namespace toggl {
 
 class UserData {
 public:
-    UserData() {
+    UserData(Context *context)
+        : context_(context)
+    {
 
     }
 
+    ProtectedModel<UserModel> User;
     ProtectedContainer<TagModel> Tags;
     ProtectedContainer<ClientModel> Clients;
     ProtectedContainer<ProjectModel> Projects;
@@ -41,10 +45,19 @@ public:
         return locked<TimeEntryModel>();
     }
 
+    void clear() {
+        User.clear();
+        Tags.clear();
+        Clients.clear();
+        Projects.clear();
+        TimeEntries.clear();
+        Countries.clear();
+    }
+
     void dumpAll();
 
-    Error loadAll(const std::string &json);
-    Error loadAll(const Json::Value &root);
+    Error loadAll(const std::string &json, bool with_user = false);
+    Error loadAll(const Json::Value &root, bool with_user = false);
 
     // TODO boilerplate
     Error loadTags(const Json::Value &root) {
@@ -64,6 +77,8 @@ public:
     }
 
 private:
+    Context *context_;
+
     template <typename T>
     void dump(ProtectedContainer<T> &list) {
         for (auto i : list) {

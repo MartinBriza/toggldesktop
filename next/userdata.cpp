@@ -21,15 +21,24 @@ void UserData::dumpAll() {
     std::cout << std::endl << std::flush;
 }
 
-Error UserData::loadAll(const std::string &json) {
+Error UserData::loadAll(const std::string &json, bool with_user) {
     Json::Value root;
     Json::Reader reader;
     reader.parse(json, root);
-    return loadAll(root);
+    return loadAll(root, with_user);
 }
 
-Error UserData::loadAll(const Json::Value &root) {
+Error UserData::loadAll(const Json::Value &root, bool with_user) {
     Error err;
+
+    if (with_user) {
+        if (User) {
+            User.clear();
+        }
+        User.create(context_);
+        User->LoadFromJSON(root["data"]);
+    }
+
     err = loadTags(root["data"]["tags"]);
     if (!err.IsNoError())
         return err;

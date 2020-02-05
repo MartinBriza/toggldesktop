@@ -12,27 +12,17 @@ void Context::login(const std::string &username, const std::string &password) {
     api.setCredentials(username, password);
     auto result = api.v8_me(true, 0);
     if (result.first == Error::NO_ERROR) {
-        Json::Value root;
-        Json::Reader reader;
-        reader.parse(result.second, root);
+        data.loadAll(result.second, true);
+        data.dumpAll();
 
-        if (user) {
-            user.clear();
-        }
-        user.create(this);
-        user->LoadFromJSON(root["data"]);
-
-        if (user) {
-            logger.log("Logged in as user", user->ID());
-            api.setCredentials(user->APIToken(), "api_token");
+        if (data.User) {
+            api.setCredentials(data.User->APIToken(), "api_token");
         }
         else {
+            data.clear();
             callbacks_.OnError("Login failed: " + result.first.String(), true);
             return;
         }
-
-        data.loadAll(root);
-        data.dumpAll();
 
         callbacks_.OnTimeEntryList();
         callbacks_.OnTimerState();
