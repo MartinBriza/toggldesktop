@@ -280,7 +280,7 @@ public:
         { kWebsocketClosedConnection, "WebSocket closed the connection" },
     };
 
-    Error(Code c, const std::string &details = {}) : code_(c), details_(details) {}
+    Error(Code c = kInvalidError, const std::string &details = {}) : code_(c), details_(details) {}
     bool operator==(const Code &c) const;
     bool operator!=(const Code &c) const;
     bool operator==(const Error &o) const;

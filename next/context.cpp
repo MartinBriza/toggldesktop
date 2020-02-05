@@ -40,10 +40,7 @@ void Context::login(const std::string &username, const std::string &password) {
             return;
         }
 
-        data.loadTags(root["data"]["tags"]);
-        data.loadClients(root["data"]["clients"]);
-        data.loadProjects(root["data"]["projects"]);
-        data.loadTimeEntries(root["data"]["time_entries"]);
+        data.loadAll(root);
         data.dumpAll();
 
         callbacks_.OnTimeEntryList();
@@ -62,10 +59,7 @@ void Context::login(const std::string &username, const std::string &password) {
 void Context::getCountries() {
     auto result = api.v9_countries();
     //std::cout << result.first.String() << result.second << std::endl << std::flush;
-    Json::Value root;
-    Json::Reader reader;
-    reader.parse(result.second, root);
-    data.loadCountries(root);
+    data.loadCountries(result.second);
     callbacks_.OnCountries();
 }
 
@@ -74,14 +68,7 @@ void Context::sync() {
 
     auto result = api.v8_me(true, 0);
     if (result.first == Error::NO_ERROR) {
-        Json::Value root;
-        Json::Reader reader;
-        reader.parse(result.second, root);
-
-        data.loadTags(root["data"]["tags"]);
-        data.loadClients(root["data"]["clients"]);
-        data.loadProjects(root["data"]["projects"]);
-        data.loadTimeEntries(root["data"]["time_entries"]);
+        data.loadAll(result.second);
         data.dumpAll();
 
         callbacks_.OnTimeEntryList();

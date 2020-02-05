@@ -43,6 +43,9 @@ public:
 
     void dumpAll();
 
+    Error loadAll(const std::string &json);
+    Error loadAll(const Json::Value &root);
+
     // TODO boilerplate
     Error loadTags(const Json::Value &root) {
         return load<TagModel>(Tags, root);
