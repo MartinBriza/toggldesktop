@@ -69,12 +69,7 @@ public:
         : callbacks_(callbacks)
         , api(app_name)
         , eventQueue_(this)
-    {
-        testContainer();
-    }
-
-    void testContainer();
-
+    {}
 
     Callbacks *GetCallbacks() {
         return &callbacks_;
@@ -115,7 +110,7 @@ private:
 
     TogglApi api;
     UserData data;
-    UserModel *user { nullptr };
+    ProtectedModel<UserModel> user;
     SettingsModel settings_;
 
     EventQueue eventQueue_;

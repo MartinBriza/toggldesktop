@@ -43,21 +43,55 @@ private:
     T *data_;
 };
 
+template <class T>
+class ProtectedModel {
+public:
+    void clear() {
+        std::unique_lock<std::recursive_mutex> lock(mutex_);
+        value_ = nullptr;
+    }
+    template <typename ...Args>
+    locked<T> create(Args&&... args) {
+        std::unique_lock<std::recursive_mutex> lock(mutex_);
+        value_ = new T(std::forward<Args>(args)...);
+        return { mutex_, value_ };
+    }
+    template<typename U> locked<U> make_locked(U *val) {
+        return { mutex_, val };
+    }
+    template<typename U> locked<const U> make_locked(const U *val) const {
+        return { mutex_, val };
+    }
+    locked<T> operator*() {
+        return { mutex_, value_ };
+    }
+    locked<const T> operator*() const {
+        return { mutex_, value_ };
+    }
+    operator bool() const {
+        std::unique_lock<std::recursive_mutex> lock(mutex_);
+        return value_;
+    }
+private:
+    T *value_;
+    mutable std::recursive_mutex mutex_;
+};
+
 /**
- * @class ProtectedModel
+ * @class ProtectedContainer
  * \brief Contains convenience methods and a set of data to be protected with a single mutex.
  *
  * This class is intended to be used especially with BaseModel-based objects (TimeEntry, Project, etc.)
  * It also provides facilities to lock other objects using the internal mutex.
  */
 template <class T>
-class ProtectedModel {
+class ProtectedContainer {
 public:
     class iterator {
     public:
         typedef std::forward_iterator_tag iterator_category;
 
-        iterator(ProtectedModel &model, size_t position = SIZE_MAX)
+        iterator(ProtectedContainer &model, size_t position = SIZE_MAX)
             : lock(model.mutex_)
             , model(model)
             , position(position)
@@ -98,14 +132,14 @@ public:
             return position;
         }
         std::unique_lock<std::recursive_mutex> lock;
-        ProtectedModel &model;
+        ProtectedContainer &model;
         size_t position;
     };
     class const_iterator {
     public:
         typedef std::forward_iterator_tag iterator_category;
 
-        const_iterator(const ProtectedModel &model, size_t position = SIZE_MAX)
+        const_iterator(const ProtectedContainer &model, size_t position = SIZE_MAX)
             : lock(model.mutex_)
             , model(model)
             , position(position)
@@ -151,7 +185,7 @@ public:
             return position;
         }
         std::unique_lock<std::recursive_mutex> lock;
-        const ProtectedModel &model;
+        const ProtectedContainer &model;
         size_t position;
     };
 
@@ -263,7 +297,7 @@ public:
         }
     }
 
-    bool operator==(const ProtectedModel &o) { return this == &o; }
+    bool operator==(const ProtectedContainer &o) { return this == &o; }
 private:
     std::vector<T*> container_;
     std::map<uuid_t, T*> uuidMap_;

@@ -26,11 +26,11 @@ public:
 
     }
 
-    ProtectedModel<TagModel> Tags;
-    ProtectedModel<ClientModel> Clients;
-    ProtectedModel<ProjectModel> Projects;
-    ProtectedModel<TimeEntryModel> TimeEntries;
-    ProtectedModel<CountryModel> Countries;
+    ProtectedContainer<TagModel> Tags;
+    ProtectedContainer<ClientModel> Clients;
+    ProtectedContainer<ProjectModel> Projects;
+    ProtectedContainer<TimeEntryModel> TimeEntries;
+    ProtectedContainer<CountryModel> Countries;
 
     // TODO move this somewhere else?
     locked<TimeEntryModel> RunningTimeEntry() {
@@ -65,7 +65,7 @@ public:
 
 private:
     template <typename T>
-    void dump(ProtectedModel<T> &list) {
+    void dump(ProtectedContainer<T> &list) {
         for (auto i : list) {
             std::cout << i->Name() << ", ";
         }
@@ -78,7 +78,7 @@ private:
         list->clear();
     }
     template <typename T>
-    Error load(ProtectedModel<T> &list, const Json::Value &root) {
+    Error load(ProtectedContainer<T> &list, const Json::Value &root) {
         list.clear();
         if (!root.isArray())
             return Error::MALFORMED_DATA;

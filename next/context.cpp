@@ -8,16 +8,6 @@
 namespace toggl {
 
 
-void Context::testContainer() {
-    std::cerr << "Creating" << std::endl;
-    ProtectedModel<TimeEntryModel> model;
-    std::cerr << "Created, size = " << model.size() << std::endl;
-    auto item = model.create();
-    std::cerr << "Inserted, size = " << model.size() << std::endl;
-    model.remove(item->GUID());
-    std::cerr << "Removed, size = " << model.size() << std::endl;
-}
-
 void Context::login(const std::string &username, const std::string &password) {
     api.setCredentials(username, password);
     auto result = api.v8_me(true, 0);
@@ -27,13 +17,14 @@ void Context::login(const std::string &username, const std::string &password) {
         reader.parse(result.second, root);
 
         if (user) {
-            delete user;
+            user.clear();
         }
-        user = UserModel::constructFromJSON(this, root["data"]);
+        user.create(this);
+        (*user)->LoadFromJSON(root["data"]);
 
         if (user) {
-            logger.log("Logged in as user", user->ID());
-            api.setCredentials(user->APIToken(), "api_token");
+            logger.log("Logged in as user", (*user)->ID());
+            api.setCredentials((*user)->APIToken(), "api_token");
         }
         else {
             callbacks_.OnError("Login failed: " + result.first.String(), true);
