@@ -68,6 +68,12 @@ public:
     locked<const T> operator*() const {
         return { mutex_, value_ };
     }
+    locked<T> operator->() {
+        return { mutex_, value_ };
+    }
+    locked<const T> operator->() const {
+        return { mutex_, value_ };
+    }
     operator bool() const {
         std::unique_lock<std::recursive_mutex> lock(mutex_);
         return value_;

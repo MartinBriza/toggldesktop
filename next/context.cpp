@@ -20,11 +20,11 @@ void Context::login(const std::string &username, const std::string &password) {
             user.clear();
         }
         user.create(this);
-        (*user)->LoadFromJSON(root["data"]);
+        user->LoadFromJSON(root["data"]);
 
         if (user) {
-            logger.log("Logged in as user", (*user)->ID());
-            api.setCredentials((*user)->APIToken(), "api_token");
+            logger.log("Logged in as user", user->ID());
+            api.setCredentials(user->APIToken(), "api_token");
         }
         else {
             callbacks_.OnError("Login failed: " + result.first.String(), true);
