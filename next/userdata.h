@@ -26,7 +26,7 @@ public:
     UserData(Context *context)
         : context_(context)
     {
-
+        User.create(context);
     }
 
     ProtectedModel<UserModel> User;

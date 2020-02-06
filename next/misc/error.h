@@ -169,6 +169,7 @@ public:
         kLastErrorCode
     };
     inline static const std::map<Code, std::string> values {
+        { kInvalidError, "<INVALID ERROR>" },
         { NO_ERROR, "" },
         { UNAUTHORIZED, "Please log in again" },
         { BAD_REQUEST, "BAD_REQUEST" },

@@ -13,6 +13,10 @@ std::string Error::String() const {
     }
 }
 
+Error Error::fromString(const std::string &message) {
+    return kNoError;
+}
+
 bool Error::operator==(const Error::Code &c) const { return code_ == c; }
 bool Error::operator!=(const Error::Code &c) const { return code_ != c; }
 bool Error::operator==(const Error &o) const { return code_ == o.code_; }
@@ -90,6 +94,11 @@ Error Error::fromServerError(const std::string &message) {
             return i;
     }
     return kNoError;
+}
+
+std::ostream &operator<<(std::ostream &out, const Error &t) {
+    out << t.String();
+    return out;
 }
 
 } // namespace toggl

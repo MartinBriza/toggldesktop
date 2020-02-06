@@ -43,7 +43,6 @@ Database::Database(const std::string &db_path)
     : session_("SQLite", db_path)
     , desktop_id_("")
     , analytics_client_id_("") {
-    Poco::Data::SQLite::Connector::registerConnector();
 
     {
         int is_sqlite_threadsafe = Poco::Data::SQLite::Utility::isThreadSafe();
@@ -350,7 +349,7 @@ uuid_t Database::GenerateGUID() {
     return uuid.toString();
 }
 
-error Database::LoadCurrentUser(UserModel *user) {
+error Database::LoadCurrentUser(locked<UserModel> &user) {
     poco_check_ptr(user);
 
     logger.debug("LoadCurrentUser");
@@ -358,6 +357,8 @@ error Database::LoadCurrentUser(UserModel *user) {
     std::string api_token("");
     Poco::UInt64 uid(0);
     error err = CurrentAPIToken(&api_token, &uid);
+    logger.debug("Got a token! ", api_token, " for user ", uid);
+    logger.debug("Error is ", err);
     if (err != noError) {
         return err;
     }
@@ -966,9 +967,7 @@ error Database::SaveUpdateChannel(
     return setSettingsValue("update_channel", update_channel);
 }
 
-error Database::LoadUserByEmail(
-    const std::string &email,
-    UserModel *model) {
+error Database::LoadUserByEmail(const std::string &email, locked<UserModel> &model) {
 
     if (email.empty()) {
         return error::kMissingArgument;
@@ -1062,9 +1061,7 @@ error Database::loadUsersRelatedData(UserModel *user) {
 }
 */
 
-error Database::LoadUserByID(
-    const Poco::UInt64 &UID,
-    UserModel *user) {
+error Database::LoadUserByID(const Poco::UInt64 &UID, locked<UserModel> &user) {
 
     if (!UID) {
         return error::kMissingArgument;

@@ -39,7 +39,14 @@ static toggl::Context::Callbacks callbacks {
 
 
 int main(void) {
-    toggl::Context *ctx = new toggl::Context("linux_native_app", callbacks);
+    toggl::Context *ctx;
+    try {
+        ctx = new toggl::Context("linux_native_app", callbacks);
+    }
+    catch (Poco::NotFoundException &e) {
+        std::cerr << e.message() << std::endl << e.displayText() << std::endl;
+    }
+
     ctx->Start();
 
     std::this_thread::sleep_for(std::chrono::seconds(1));

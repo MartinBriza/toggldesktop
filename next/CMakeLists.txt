@@ -34,11 +34,13 @@ set(NEXT_SOURCE_FILES
     model/user.cc
     model/workspace.cc
     model/country.cc
+    model/timeline_event.cc
 
     misc/formatter.cc
     misc/logger.cc
     misc/error.cc
     misc/memory.cpp
+    misc/random.cc
 
     entity/user.cpp
 
@@ -63,7 +65,7 @@ add_library(NextLibrary ${NEXT_SOURCE_FILES})
 target_link_libraries(NextLibrary PRIVATE
     ${JSONCPP_LIBRARIES}
     ${LUA_LIBRARIES}
-    PocoFoundation PocoCrypto PocoDataSQLite PocoNet PocoNetSSL
+    PocoFoundation PocoCrypto PocoDataSQLite PocoNet PocoNetSSL PocoData
     pthread
 )
 

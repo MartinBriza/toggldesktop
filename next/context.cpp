@@ -7,6 +7,19 @@
 
 namespace toggl {
 
+Context::Context(const std::string &app_name, Context::Callbacks callbacks)
+    : callbacks_(callbacks)
+    , api(app_name)
+    , data(this)
+    , eventQueue_(this)
+{
+    Poco::Data::SQLite::Connector::registerConnector();
+    db_ = new Database("/home/mbriza/code/build-mb-toggldesktop-Desktop-Debug/toggldesktop.db");
+    auto user = *data.User;
+    logger.log("Before loading, the user email is ", user->Email());
+    db_->LoadCurrentUser(user);
+    logger.log("HERE WE GO! User is: ", user->Email());
+}
 
 void Context::login(const std::string &username, const std::string &password) {
     api.setCredentials(username, password);

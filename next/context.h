@@ -65,12 +65,7 @@ public:
         // below are completely new callbacks
     };
 
-    Context(const std::string &app_name, Callbacks callbacks)
-        : callbacks_(callbacks)
-        , api(app_name)
-        , data(this)
-        , eventQueue_(this)
-    {}
+    Context(const std::string &app_name, Callbacks callbacks);
 
     Callbacks *GetCallbacks() {
         return &callbacks_;
@@ -112,6 +107,7 @@ private:
     TogglApi api;
     UserData data;
     SettingsModel settings_;
+    Database *db_;
 
     EventQueue eventQueue_;
 };

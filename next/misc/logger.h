@@ -7,6 +7,7 @@
 #include <string>
 #include <utility>
 #include <sstream>
+#include <iostream>
 
 namespace toggl {
 
@@ -29,31 +30,36 @@ public:
     void trace(Args&&... args) const {
         std::stringstream ss;
         prepareOutput(ss, std::forward<Args>(args)...);
-        Poco::Logger::get(context_).trace(ss.str());
+        std::cerr << ss.str() << std::endl;
+        //Poco::Logger::get(context_).trace(ss.str());
     }
     template <typename... Args>
     void log(Args&&... args) const {
         std::stringstream ss;
         prepareOutput(ss, std::forward<Args>(args)...);
-        Poco::Logger::get(context_).log(ss.str());
+        std::cerr << ss.str() << std::endl;
+        //Poco::Logger::get(context_).log(ss.str());
     }
     template <typename... Args>
     void debug(Args&&... args) const {
         std::stringstream ss;
         prepareOutput(ss, std::forward<Args>(args)...);
-        Poco::Logger::get(context_).debug(ss.str());
+        std::cerr << ss.str() << std::endl;
+        //Poco::Logger::get(context_).debug(ss.str());
     }
     template <typename... Args>
     void warning(Args&&... args) const {
         std::stringstream ss;
         prepareOutput(ss, std::forward<Args>(args)...);
-        Poco::Logger::get(context_).warning(ss.str());
+        std::cerr << ss.str() << std::endl;
+        //Poco::Logger::get(context_).warning(ss.str());
     }
     template <typename... Args>
     void error(Args&&... args) const {
         std::stringstream ss;
         prepareOutput(ss, std::forward<Args>(args)...);
-        Poco::Logger::get(context_).error(ss.str());
+        std::cerr << ss.str() << std::endl;
+        //Poco::Logger::get(context_).error(ss.str());
     }
 
 private:

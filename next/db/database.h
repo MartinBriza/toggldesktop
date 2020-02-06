@@ -19,6 +19,7 @@
 #include "model/timeline_event.h"
 #include "misc/types.h"
 #include "misc/logger.h"
+#include "misc/memory.h"
 
 namespace Poco {
     namespace Data {
@@ -54,15 +55,13 @@ class TOGGL_INTERNAL_EXPORT Database {
         UserModel *model,
         const bool with_related_data);
 
-    error LoadUserByID(
-        const Poco::UInt64 &UID,
-        UserModel *user);
+    error LoadUserByID(const Poco::UInt64 &UID,
+        locked<UserModel> &user);
 
-    error LoadUserByEmail(
-        const std::string &email,
-        UserModel *model);
+    error LoadUserByEmail(const std::string &email,
+        locked<UserModel> &model);
 
-    error LoadCurrentUser(UserModel *user);
+    error LoadCurrentUser(locked<UserModel> &user);
 
     error LoadSettings(SettingsModel *settings);
 

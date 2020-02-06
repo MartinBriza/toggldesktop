@@ -106,6 +106,7 @@ void UserModel::SetEmail(const std::string &value) {
 
 void UserModel::SetAPIToken(const std::string &value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
+    logger().debug("Setting user API token to ", value);
     // API token is not saved into DB, so no
     // no dirty checking needed for it.
     api_token_ = value;
