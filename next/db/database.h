@@ -13,6 +13,7 @@
 #include <vector>
 
 #include <Poco/Data/SQLite/Connector.h>
+#include <Poco/Data/Session.h>
 
 #include "model_change.h"
 #include "model/timeline_event.h"
@@ -387,8 +388,7 @@ class TOGGL_INTERNAL_EXPORT Database {
 
     Logger logger { "database" };
 
-    Poco::Mutex session_m_;
-    Poco::Data::Session *session_;
+    Poco::Data::Session session_;
 
     std::string desktop_id_;
     std::string analytics_client_id_;
