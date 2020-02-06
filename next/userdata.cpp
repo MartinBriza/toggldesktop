@@ -35,7 +35,7 @@ Error UserData::loadAll(const Json::Value &root, bool with_user) {
         if (User) {
             User.clear();
         }
-        User.create(context_);
+        User.create();
         User->LoadFromJSON(root["data"]);
     }
 

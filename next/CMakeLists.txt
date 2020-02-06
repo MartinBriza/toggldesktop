@@ -55,6 +55,7 @@ set(NEXT_SOURCE_FILES
     userdata.cpp
 
     legacy_api.cc
+    legacy_api_tools.cc
 )
 
 set(NEXT_APP_SOURCE_FILES

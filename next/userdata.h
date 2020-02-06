@@ -30,21 +30,21 @@ public:
     UserData(Context *context)
         : context_(context)
     {
-        User.create(context);
+        User.create();
         Settings.create();
     }
 
-    ProtectedModel<UserModel> User;
-    ProtectedModel<SettingsModel> Settings;
-    ProtectedContainer<TagModel> Tags;
-    ProtectedContainer<ClientModel> Clients;
-    ProtectedContainer<ProjectModel> Projects;
-    ProtectedContainer<TimeEntryModel> TimeEntries;
-    ProtectedContainer<CountryModel> Countries;
-    ProtectedContainer<WorkspaceModel> Workspaces;
-    ProtectedContainer<TaskModel> Tasks;
-    ProtectedContainer<AutotrackerRuleModel> AutotrackerRules;
-    ProtectedContainer<TimelineEventModel> TimelineEvents;
+    ProtectedModel<UserModel> User { this };
+    ProtectedModel<SettingsModel> Settings { this };
+    ProtectedContainer<TagModel> Tags { this };
+    ProtectedContainer<ClientModel> Clients { this };
+    ProtectedContainer<ProjectModel> Projects { this };
+    ProtectedContainer<TimeEntryModel> TimeEntries { this };
+    ProtectedContainer<CountryModel> Countries { this };
+    ProtectedContainer<WorkspaceModel> Workspaces { this };
+    ProtectedContainer<TaskModel> Tasks { this };
+    ProtectedContainer<AutotrackerRuleModel> AutotrackerRules { this };
+    ProtectedContainer<TimelineEventModel> TimelineEvents { this };
 
     // TODO move this somewhere else?
     locked<TimeEntryModel> RunningTimeEntry() {
