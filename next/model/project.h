@@ -12,9 +12,9 @@
 #include "Poco/Types.h"
 
 namespace toggl {
+template<typename T> class ProtectedContainer;
 
 class TOGGL_INTERNAL_EXPORT ProjectModel : public BaseModel {
- public:
     ProjectModel()
         : BaseModel()
     , wid_(0)
@@ -26,6 +26,8 @@ class TOGGL_INTERNAL_EXPORT ProjectModel : public BaseModel {
     , billable_(false)
     , client_guid_("")
     , client_name_("") {}
+public:
+    friend class ProtectedContainer<ProjectModel>;
 
     const Poco::UInt64 &WID() const {
         return wid_;

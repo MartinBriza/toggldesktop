@@ -12,9 +12,9 @@
 #include "formatter.h"
 
 namespace toggl {
+template<typename T> class ProtectedContainer;
 
 class TOGGL_INTERNAL_EXPORT TimelineEventModel : public BaseModel, public TimedEvent {
- public:
     TimelineEventModel()
         : BaseModel()
     , title_("")
@@ -25,6 +25,8 @@ class TOGGL_INTERNAL_EXPORT TimelineEventModel : public BaseModel, public TimedE
     , idle_(false)
     , chunked_(false)
     , uploaded_(false) {}
+public:
+    friend class ProtectedContainer<TimelineEventModel>;
 
     virtual ~TimelineEventModel() {}
 

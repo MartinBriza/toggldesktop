@@ -16,6 +16,7 @@
 #include "model/user.h"
 #include "model/workspace.h"
 #include "net/proxy.h"
+#include "context.h"
 
 #include <limits>
 #include <string>
@@ -1005,61 +1006,51 @@ error Database::LoadUserByEmail(const std::string &email, locked<UserModel> &mod
     return LoadUserByID(uid, model);
 }
 
-/*
-error Database::loadUsersRelatedData(UserModel *user) {
-    error err = loadWorkspaces(user->ID(), &user->related.Workspaces);
+error Database::loadUsersRelatedData(locked<UserModel> &user) {
+    auto data = user->Context()->GetData();
+
+    error err = loadWorkspaces(user->ID(), data->Workspaces);
     if (err != noError) {
         return err;
     }
 
-    err = loadClients(user->ID(), &user->related.Clients);
+    err = loadClients(user->ID(), data->Clients);
     if (err != noError) {
         return err;
     }
 
-    err = loadProjects(user->ID(), &user->related.Projects);
+    err = loadProjects(user->ID(), data->Projects);
     if (err != noError) {
         return err;
     }
 
-    err = loadTasks(user->ID(), &user->related.Tasks);
+    err = loadTasks(user->ID(), data->Tasks);
     if (err != noError) {
         return err;
     }
 
-    err = loadTags(user->ID(), &user->related.Tags);
+    err = loadTags(user->ID(), data->Tags);
     if (err != noError) {
         return err;
     }
 
-    err = loadTimeEntries(user->ID(), &user->related.TimeEntries);
+    err = loadTimeEntries(user->ID(), data->TimeEntries);
     if (err != noError) {
         return err;
     }
 
-    err = loadAutotrackerRules(user->ID(), &user->related.AutotrackerRules);
+    err = loadAutotrackerRules(user->ID(), data->AutotrackerRules);
     if (err != noError) {
         return err;
     }
 
-    err = loadTimelineEvents(user->ID(), &user->related.TimelineEvents);
-    if (err != noError) {
-        return err;
-    }
-
-    err = loadObmActions(user->ID(), &user->related.ObmActions);
-    if (err != noError) {
-        return err;
-    }
-
-    err = loadObmExperiments(user->ID(), &user->related.ObmExperiments);
+    err = loadTimelineEvents(user->ID(), data->TimelineEvents);
     if (err != noError) {
         return err;
     }
 
     return noError;
 }
-*/
 
 error Database::LoadUserByID(const Poco::UInt64 &UID, locked<UserModel> &user) {
 
@@ -1143,11 +1134,11 @@ error Database::LoadUserByID(const Poco::UInt64 &UID, locked<UserModel> &user) {
     } catch(const std::string & ex) {
         return error::REMOVE_LATER_EXCEPTION_HANDLER;
     }
-    // TODO TODO TODO
-    //error err = loadUsersRelatedData(user);
-    //if (err != noError) {
-    //    return err;
-    //}
+
+    error err = loadUsersRelatedData(user);
+    if (err != noError) {
+        return err;
+    }
 
     stopwatch.stop();
     logger.debug("User loaded in ", stopwatch.elapsed() / 1000, " ms");
@@ -1155,18 +1146,13 @@ error Database::LoadUserByID(const Poco::UInt64 &UID, locked<UserModel> &user) {
     return noError;
 }
 
-error Database::loadWorkspaces(
-    const Poco::UInt64 &UID,
-    std::vector<WorkspaceModel *> *list) {
-
+error Database::loadWorkspaces(const Poco::UInt64 &UID, ProtectedContainer<WorkspaceModel> &list) {
     if (!UID) {
         return error::kMissingArgument;
     }
 
     try {
-        poco_check_ptr(list);
-
-        list->clear();
+        list.clear();
 
         Poco::Data::Statement select(session_);
         select <<
@@ -1187,7 +1173,7 @@ error Database::loadWorkspaces(
             select.execute();
             bool more = rs.moveFirst();
             while (more) {
-                WorkspaceModel *model = new WorkspaceModel();
+                locked<WorkspaceModel> model = list.create();
                 model->SetLocalID(rs[0].convert<Poco::Int64>());
                 model->SetID(rs[1].convert<Poco::UInt64>());
                 model->SetUID(rs[2].convert<Poco::UInt64>());
@@ -1199,7 +1185,6 @@ error Database::loadWorkspaces(
                 model->SetBusiness(rs[8].convert<bool>());
                 model->SetLockedTime(rs[9].convert<time_t>());
                 model->ClearDirty();
-                list->push_back(model);
                 more = rs.moveNext();
             }
         }
@@ -1213,17 +1198,14 @@ error Database::loadWorkspaces(
     return last_error("loadWorkspaces");
 }
 
-error Database::loadClients(
-    const Poco::UInt64 &UID,
-    std::vector<ClientModel *> *list) {
+error Database::loadClients(const Poco::UInt64 &UID, ProtectedContainer<ClientModel> &list) {
 
     if (!UID) {
         return error::kMissingArgument;
     }
 
     try {
-        poco_check_ptr(list);
-        list->clear();
+        list.clear();
 
         Poco::Data::Statement select(session_);
         select <<
@@ -1242,7 +1224,7 @@ error Database::loadClients(
             select.execute();
             bool more = rs.moveFirst();
             while (more) {
-                ClientModel *model = new ClientModel();
+                locked<ClientModel> model = list.create();
                 model->SetLocalID(rs[0].convert<Poco::Int64>());
                 if (rs[1].isEmpty()) {
                     model->SetID(0);
@@ -1258,7 +1240,6 @@ error Database::loadClients(
                 }
                 model->SetWID(rs[5].convert<Poco::UInt64>());
                 model->ClearDirty();
-                list->push_back(model);
                 more = rs.moveNext();
             }
         }
@@ -1272,17 +1253,13 @@ error Database::loadClients(
     return last_error("loadClients");
 }
 
-error Database::loadProjects(
-    const Poco::UInt64 &UID,
-    std::vector<ProjectModel *> *list) {
-
+error Database::loadProjects(const Poco::UInt64 &UID, ProtectedContainer<ProjectModel> &list) {
     if (!UID) {
         return error::kMissingArgument;
     }
 
     try {
-        poco_check_ptr(list);
-        list->clear();
+        list.clear();
 
         Poco::Data::Statement select(session_);
         select <<
@@ -1307,7 +1284,7 @@ error Database::loadProjects(
             select.execute();
             bool more = rs.moveFirst();
             while (more) {
-                ProjectModel *model = new ProjectModel();
+                locked<ProjectModel> model = list.create();
                 model->SetLocalID(rs[0].convert<Poco::Int64>());
                 if (rs[1].isEmpty()) {
                     model->SetID(0);
@@ -1345,7 +1322,6 @@ error Database::loadProjects(
                     model->SetClientName(rs[11].convert<std::string>());
                 }
                 model->ClearDirty();
-                list->push_back(model);
                 more = rs.moveNext();
             }
         }
@@ -1359,17 +1335,13 @@ error Database::loadProjects(
     return last_error("loadProjects");
 }
 
-error Database::loadTasks(
-    const Poco::UInt64 &UID,
-    std::vector<TaskModel *> *list) {
-
+error Database::loadTasks(const Poco::UInt64 &UID, ProtectedContainer<TaskModel> &list) {
     if (!UID) {
         return error::kMissingArgument;
     }
 
     try {
-        poco_check_ptr(list);
-        list->clear();
+        list.clear();
 
         Poco::Data::Statement select(session_);
         select <<
@@ -1387,7 +1359,7 @@ error Database::loadTasks(
             select.execute();
             bool more = rs.moveFirst();
             while (more) {
-                TaskModel *model = new TaskModel();
+                locked<TaskModel> model = list.create();
                 model->SetLocalID(rs[0].convert<Poco::Int64>());
                 if (rs[1].isEmpty()) {
                     model->SetID(0);
@@ -1404,7 +1376,6 @@ error Database::loadTasks(
                 }
                 model->SetActive(rs[6].convert<bool>());
                 model->ClearDirty();
-                list->push_back(model);
                 more = rs.moveNext();
             }
         }
@@ -1418,17 +1389,13 @@ error Database::loadTasks(
     return last_error("loadTasks");
 }
 
-error Database::loadTags(
-    const Poco::UInt64 &UID,
-    std::vector<TagModel *> *list) {
-
+error Database::loadTags(const Poco::UInt64 &UID, ProtectedContainer<TagModel> &list) {
     if (!UID) {
         return error::kMissingArgument;
     }
 
     try {
-        poco_check_ptr(list);
-        list->clear();
+        list.clear();
 
         Poco::Data::Statement select(session_);
         select <<
@@ -1446,7 +1413,7 @@ error Database::loadTags(
             select.execute();
             bool more = rs.moveFirst();
             while (more) {
-                TagModel *model = new TagModel();
+                locked<TagModel> model = list.create();
                 model->SetLocalID(rs[0].convert<Poco::Int64>());
                 if (rs[1].isEmpty()) {
                     model->SetID(0);
@@ -1462,7 +1429,6 @@ error Database::loadTags(
                     model->SetGUID(rs[5].convert<uuid_t>());
                 }
                 model->ClearDirty();
-                list->push_back(model);
                 more = rs.moveNext();
             }
         }
@@ -1476,17 +1442,13 @@ error Database::loadTags(
     return last_error("loadTags");
 }
 
-error Database::loadAutotrackerRules(
-    const Poco::UInt64 &UID,
-    std::vector<AutotrackerRuleModel *> *list) {
-
+error Database::loadAutotrackerRules(const Poco::UInt64 &UID, ProtectedContainer<AutotrackerRuleModel> &list) {
     if (!UID) {
         return error::kMissingArgument;
     }
 
     try {
-        poco_check_ptr(list);
-        list->clear();
+        list.clear();
 
         Poco::Data::Statement select(session_);
         select <<
@@ -1504,7 +1466,7 @@ error Database::loadAutotrackerRules(
             select.execute();
             bool more = rs.moveFirst();
             while (more) {
-                AutotrackerRuleModel *model = new AutotrackerRuleModel();
+                locked<AutotrackerRuleModel> model = list.create();
                 model->SetLocalID(rs[0].convert<Poco::Int64>());
                 model->SetUID(rs[1].convert<Poco::UInt64>());
                 model->SetTerm(rs[2].convert<std::string>());
@@ -1513,7 +1475,6 @@ error Database::loadAutotrackerRules(
                     model->SetTID(rs[4].convert<Poco::UInt64>());
                 }
                 model->ClearDirty();
-                list->push_back(model);
                 more = rs.moveNext();
             }
         }
@@ -1527,17 +1488,13 @@ error Database::loadAutotrackerRules(
     return last_error("loadAutotrackerRules");
 }
 
-error Database::loadTimelineEvents(
-    const Poco::UInt64 &UID,
-    std::vector<TimelineEventModel *> *list) {
-
+error Database::loadTimelineEvents(const Poco::UInt64 &UID, ProtectedContainer<TimelineEventModel> &list) {
     if (!UID) {
         return error::kMissingArgument;
     }
 
     try {
-        poco_check_ptr(list);
-        list->clear();
+        list.clear();
 
         Poco::Data::Statement select(session_);
         select <<
@@ -1556,7 +1513,7 @@ error Database::loadTimelineEvents(
             select.execute();
             bool more = rs.moveFirst();
             while (more) {
-                TimelineEventModel *model = new TimelineEventModel();
+                locked<TimelineEventModel> model = list.create();
                 model->SetLocalID(rs[0].convert<unsigned int>());
                 if (!rs[1].isEmpty()) {
                     model->SetTitle(rs[1].convert<std::string>());
@@ -1577,18 +1534,13 @@ error Database::loadTimelineEvents(
 
                 model->ClearDirty();
 
-                list->push_back(model);
-
                 more = rs.moveNext();
             }
         }
 
         // Ensure all timeline events have a GUID.
-        for (std::vector<TimelineEventModel *>::iterator it = list->begin();
-                it != list->end();
-                ++it) {
-            TimelineEventModel *model = *it;
-            model->EnsureGUID();
+        for (auto i : list) {
+            i->EnsureGUID();
         }
     } catch(const Poco::Exception& exc) {
         return error::REMOVE_LATER_EXCEPTION_HANDLER;
@@ -1600,17 +1552,13 @@ error Database::loadTimelineEvents(
     return noError;
 }
 
-error Database::loadTimeEntries(
-    const Poco::UInt64 &UID,
-    std::vector<TimeEntryModel *> *list) {
-
+error Database::loadTimeEntries(const Poco::UInt64 &UID, ProtectedContainer<TimeEntryModel> &list) {
     if (!UID) {
         return error::kMissingArgument;
     }
 
     try {
-        poco_check_ptr(list);
-        list->clear();
+        list.clear();
 
         Poco::Data::Statement select(session_);
         select <<
@@ -1632,13 +1580,10 @@ error Database::loadTimeEntries(
         }
 
         // Ensure all time entries have a GUID.
-        for (std::vector<TimeEntryModel *>::iterator it = list->begin();
-                it != list->end();
-                ++it) {
-            TimeEntryModel *te = *it;
-            te->EnsureGUID();
-            if (te->Dirty()) {
-                te->SetUIModified();
+        for (auto i : list) {
+            i->EnsureGUID();
+            if (i->Dirty()) {
+                i->SetUIModified();
             }
         }
     } catch(const Poco::Exception& exc) {
@@ -1651,12 +1596,8 @@ error Database::loadTimeEntries(
     return noError;
 }
 
-error Database::loadTimeEntriesFromSQLStatement(
-    Poco::Data::Statement *select,
-    std::vector<TimeEntryModel *> *list) {
-
+error Database::loadTimeEntriesFromSQLStatement(Poco::Data::Statement *select, ProtectedContainer<TimeEntryModel> &list) {
     poco_check_ptr(select);
-    poco_check_ptr(list);
 
     try {
         Poco::Data::RecordSet rs(*select);
@@ -1664,7 +1605,7 @@ error Database::loadTimeEntriesFromSQLStatement(
             select->execute();
             bool more = rs.moveFirst();
             while (more) {
-                TimeEntryModel *model = new TimeEntryModel();
+                locked<TimeEntryModel> model = list.create();
                 model->SetLocalID(rs[0].convert<Poco::Int64>());
                 if (rs[1].isEmpty()) {
                     model->SetID(0);
@@ -1735,7 +1676,6 @@ error Database::loadTimeEntriesFromSQLStatement(
                 }
                 model->ClearDirty();
 
-                list->push_back(model);
                 more = rs.moveNext();
             }
         }
@@ -1759,7 +1699,6 @@ error Database::saveRelatedModels(
     if (!UID) {
         return error::kMissingArgument;
     }
-
     poco_check_ptr(list);
     poco_check_ptr(changes);
 

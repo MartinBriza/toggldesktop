@@ -10,9 +10,9 @@
 #include "./base_model.h"
 
 namespace toggl {
+template<typename T> class ProtectedContainer;
 
 class TOGGL_INTERNAL_EXPORT WorkspaceModel : public BaseModel {
- public:
     WorkspaceModel()
         : BaseModel()
     , name_("")
@@ -22,6 +22,8 @@ class TOGGL_INTERNAL_EXPORT WorkspaceModel : public BaseModel {
     , projects_billable_by_default_(false)
     , business_(false)
     , locked_time_(0) {}
+public:
+    friend class ProtectedContainer<WorkspaceModel>;
 
     const std::string &Name() const {
         return name_;

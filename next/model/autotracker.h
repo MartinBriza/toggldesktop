@@ -13,16 +13,16 @@
 #include "timeline_event.h"
 
 namespace toggl {
+template<typename T> class ProtectedContainer;
 
 class TOGGL_INTERNAL_EXPORT AutotrackerRuleModel : public BaseModel {
- public:
     AutotrackerRuleModel()
         : BaseModel()
     , term_("")
     , pid_(0)
     , tid_(0) {}
-
-    virtual ~AutotrackerRuleModel() {}
+public:
+    friend class ProtectedContainer<AutotrackerRuleModel>;
 
     bool Matches(const TimelineEventModel &event) const;
 

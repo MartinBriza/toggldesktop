@@ -70,9 +70,6 @@ public:
     Callbacks *GetCallbacks() {
         return &callbacks_;
     }
-    SettingsModel *GetSettings() {
-        return &settings_;
-    }
     UserData *GetData() {
         return &data;
     }
@@ -81,8 +78,10 @@ public:
         eventQueue_.start();
         callbacks_.OnShowApp(true);
         // TODO
-        eventQueue_.schedule([this](){ callbacks_.OnLogin(true, 0); });
-        eventQueue_.schedule([this](){ callbacks_.OnTimerState(); });
+        if (data.User->ID() <= 0) {
+            eventQueue_.schedule([this](){ callbacks_.OnLogin(true, 0); });
+            eventQueue_.schedule([this](){ callbacks_.OnTimerState(); });
+        }
     }
 
     void Login(const std::string &username, const std::string &password) {
@@ -106,7 +105,6 @@ private:
 
     TogglApi api;
     UserData data;
-    SettingsModel settings_;
     Database *db_;
 
     EventQueue eventQueue_;

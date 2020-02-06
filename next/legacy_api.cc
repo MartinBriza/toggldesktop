@@ -701,12 +701,12 @@ bool_t toggl_set_window_settings(
     const int64_t window_width) {
     auto ctx = reinterpret_cast<Context*>(context);
     if (ctx) {
-        ctx->GetSettings()->SetWindowX(window_x);
-        ctx->GetSettings()->SetWindowY(window_y);
+        ctx->GetData()->Settings->SetWindowX(window_x);
+        ctx->GetData()->Settings->SetWindowY(window_y);
         if (window_height > 0)
-            ctx->GetSettings()->SetWindowHeight(window_height);
+            ctx->GetData()->Settings->SetWindowHeight(window_height);
         if (window_width)
-            ctx->GetSettings()->SetWindowWidth(window_width);
+            ctx->GetData()->Settings->SetWindowWidth(window_width);
     }
     return true;
 }
@@ -719,13 +719,13 @@ bool_t toggl_window_settings(
     int64_t *window_width) {
     auto ctx = reinterpret_cast<Context*>(context);
     if (ctx && window_x)
-        *window_x = ctx->GetSettings()->WindowX();
+        *window_x = ctx->GetData()->Settings->WindowX();
     if (ctx && window_y)
-        *window_y = ctx->GetSettings()->WindowY();
+        *window_y = ctx->GetData()->Settings->WindowY();
     if (ctx && window_height)
-        *window_height = ctx->GetSettings()->WindowHeight();
+        *window_height = ctx->GetData()->Settings->WindowHeight();
     if (ctx && window_width)
-        *window_width = ctx->GetSettings()->WindowWidth();
+        *window_width = ctx->GetData()->Settings->WindowWidth();
     return true;
 }
 

@@ -13,12 +13,9 @@
 #include "Poco/Types.h"
 
 namespace toggl {
-
-class Database;
+template<typename T> class ProtectedModel;
 
 class TOGGL_INTERNAL_EXPORT SettingsModel : public BaseModel {
-    friend class Database;
- public:
     SettingsModel()
         : use_idle_detection(false)
     , menubar_timer(false)
@@ -49,6 +46,8 @@ class TOGGL_INTERNAL_EXPORT SettingsModel : public BaseModel {
     , pomodoro_break_minutes(0)
     , stop_entry_on_shutdown_sleep(false)
     , show_touch_bar(true) {}
+public:
+    friend class ProtectedModel<SettingsModel>;
 
     virtual ~SettingsModel() {}
 
@@ -68,7 +67,8 @@ private:
     int64_t window_height_ { 300 };
     int64_t window_width_ { 100 };
 
-    // old
+    // old... and public:
+public:
     bool use_idle_detection;
     bool menubar_timer;
     bool menubar_project;

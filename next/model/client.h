@@ -14,13 +14,15 @@
 #include "./base_model.h"
 
 namespace toggl {
+template<typename T> class ProtectedContainer;
 
 class TOGGL_INTERNAL_EXPORT ClientModel : public BaseModel {
- public:
     ClientModel()
         : BaseModel()
     , wid_(0)
     , name_("") {}
+public:
+    friend class ProtectedContainer<ClientModel>;
 
     const Poco::UInt64 &WID() const {
         std::scoped_lock<std::recursive_mutex> lock(mutex_);

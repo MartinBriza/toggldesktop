@@ -12,15 +12,17 @@
 #include "./base_model.h"
 
 namespace toggl {
+template<typename T> class ProtectedContainer;
 
 class TOGGL_INTERNAL_EXPORT TaskModel : public BaseModel {
- public:
     TaskModel()
         : BaseModel()
     , name_("")
     , wid_(0)
     , pid_(0)
     , active_(false) {}
+public:
+    friend class ProtectedContainer<TaskModel>;
 
     const std::string &Name() const {
         std::scoped_lock<std::recursive_mutex> lock(mutex_);

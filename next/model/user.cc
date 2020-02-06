@@ -36,7 +36,11 @@ namespace toggl {
 UserModel::~UserModel() {
 }
 
-UserModel *UserModel::constructFromJSON(Context *ctx, const Json::Value &root) {
+toggl::Context *UserModel::Context() {
+    return context_;
+}
+
+UserModel *UserModel::constructFromJSON(toggl::Context *ctx, const Json::Value &root) {
     UserModel *user = new UserModel(ctx);
     user->LoadFromJSON(root);
     if (user->ID() == 0) {

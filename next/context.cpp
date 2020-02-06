@@ -14,11 +14,15 @@ Context::Context(const std::string &app_name, Context::Callbacks callbacks)
     , eventQueue_(this)
 {
     Poco::Data::SQLite::Connector::registerConnector();
-    db_ = new Database("/home/mbriza/code/build-mb-toggldesktop-Desktop-Debug/toggldesktop.db");
+    db_ = new Database("/home/mbriza/toggldesktop.db");
     auto user = *data.User;
     logger.log("Before loading, the user email is ", user->Email());
     db_->LoadCurrentUser(user);
     logger.log("HERE WE GO! User is: ", user->Email());
+    logger.log("We have loaded ", data.TimeEntries.size(), " time entries.");
+
+    eventQueue_.schedule([this](){ callbacks_.OnTimeEntryList(); });
+    eventQueue_.schedule([this](){ callbacks_.OnTimerState(); });
 }
 
 void Context::login(const std::string &username, const std::string &password) {

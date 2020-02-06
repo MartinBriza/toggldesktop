@@ -8,12 +8,14 @@
 #include "./base_model.h"
 
 namespace toggl {
+template<typename T> class ProtectedContainer;
 
 class TOGGL_INTERNAL_EXPORT CountryModel : public BaseModel {
- public:
     CountryModel()
         : BaseModel()
     , name_("") {}
+public:
+    friend class ProtectedContainer<CountryModel>;
 
     const std::string &Name() const {
         return name_;

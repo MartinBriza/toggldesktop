@@ -18,6 +18,10 @@
 #include "model/time_entry.h"
 #include "model/user.h"
 #include "model/country.h"
+#include "model/workspace.h"
+#include "model/timeline_event.h"
+#include "model/autotracker.h"
+#include "model/settings.h"
 
 namespace toggl {
 
@@ -27,14 +31,20 @@ public:
         : context_(context)
     {
         User.create(context);
+        Settings.create();
     }
 
     ProtectedModel<UserModel> User;
+    ProtectedModel<SettingsModel> Settings;
     ProtectedContainer<TagModel> Tags;
     ProtectedContainer<ClientModel> Clients;
     ProtectedContainer<ProjectModel> Projects;
     ProtectedContainer<TimeEntryModel> TimeEntries;
     ProtectedContainer<CountryModel> Countries;
+    ProtectedContainer<WorkspaceModel> Workspaces;
+    ProtectedContainer<TaskModel> Tasks;
+    ProtectedContainer<AutotrackerRuleModel> AutotrackerRules;
+    ProtectedContainer<TimelineEventModel> TimelineEvents;
 
     // TODO move this somewhere else?
     locked<TimeEntryModel> RunningTimeEntry() {
@@ -46,12 +56,18 @@ public:
     }
 
     void clear() {
+        // TODO clearing User is probably a mistake
         User.clear();
+        Settings.clear();
         Tags.clear();
         Clients.clear();
         Projects.clear();
         TimeEntries.clear();
         Countries.clear();
+        Workspaces.clear();
+        Tasks.clear();
+        AutotrackerRules.clear();
+        TimelineEvents.clear();
     }
 
     void dumpAll();

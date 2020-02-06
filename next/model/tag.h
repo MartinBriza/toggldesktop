@@ -10,13 +10,15 @@
 #include "./base_model.h"
 
 namespace toggl {
+template<typename T> class ProtectedContainer;
 
 class TOGGL_INTERNAL_EXPORT TagModel : public BaseModel {
- public:
     TagModel()
         : BaseModel()
     , wid_(0)
     , name_("") {}
+public:
+    friend class ProtectedContainer<TagModel>;
 
     const Poco::UInt64 &WID() const {
         return wid_;

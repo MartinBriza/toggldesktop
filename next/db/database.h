@@ -284,43 +284,16 @@ class TOGGL_INTERNAL_EXPORT Database {
     error journalMode(std::string *);
     error setJournalMode(const std::string &);
 
-    //error loadUsersRelatedData(UserModel *user);
-
-    error loadWorkspaces(
-        const Poco::UInt64 &UID,
-        std::vector<WorkspaceModel *> *list);
-
-    error loadClients(
-        const Poco::UInt64 &UID,
-        std::vector<ClientModel *> *list);
-
-    error loadProjects(
-        const Poco::UInt64 &UID,
-        std::vector<ProjectModel *> *list);
-
-    error loadTasks(
-        const Poco::UInt64 &UID,
-        std::vector<TaskModel *> *list);
-
-    error loadTags(
-        const Poco::UInt64 &UID,
-        std::vector<TagModel *> *list);
-
-    error loadAutotrackerRules(
-        const Poco::UInt64 &UID,
-        std::vector<AutotrackerRuleModel *> *list);
-
-    error loadTimeEntries(
-        const Poco::UInt64 &UID,
-        std::vector<TimeEntryModel *> *list);
-
-    error loadTimelineEvents(
-        const Poco::UInt64 &UID,
-        std::vector<TimelineEventModel *> *list);
-
-    error loadTimeEntriesFromSQLStatement(
-        Poco::Data::Statement *select,
-        std::vector<TimeEntryModel *> *list);
+    error loadUsersRelatedData(locked<UserModel> &user);
+    error loadWorkspaces(const Poco::UInt64 &UID, ProtectedContainer<WorkspaceModel> &list);
+    error loadClients(const Poco::UInt64 &UID, ProtectedContainer<ClientModel> &list);
+    error loadProjects(const Poco::UInt64 &UID, ProtectedContainer<ProjectModel> &list);
+    error loadTasks(const Poco::UInt64 &UID, ProtectedContainer<TaskModel> &list);
+    error loadTags(const Poco::UInt64 &UID, ProtectedContainer<TagModel> &list);
+    error loadAutotrackerRules(const Poco::UInt64 &UID, ProtectedContainer<AutotrackerRuleModel> &list);
+    error loadTimeEntries(const Poco::UInt64 &UID, ProtectedContainer<TimeEntryModel> &list);
+    error loadTimelineEvents(const Poco::UInt64 &UID, ProtectedContainer<TimelineEventModel> &list);
+    error loadTimeEntriesFromSQLStatement(Poco::Data::Statement *select, ProtectedContainer<TimeEntryModel> &list);
 
     template <typename T>
     error saveRelatedModels(

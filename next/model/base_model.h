@@ -25,7 +25,7 @@ namespace toggl {
 class BatchUpdateResult;
 
 class TOGGL_INTERNAL_EXPORT BaseModel {
- public:
+protected:
     BaseModel()
         : local_id_(0)
     , id_(0)
@@ -38,7 +38,7 @@ class TOGGL_INTERNAL_EXPORT BaseModel {
     , updated_at_(0)
     , validation_error_(noError)
     , unsynced_(false) {}
-
+public:
     virtual ~BaseModel() {}
 
     void EnsureGUID();
