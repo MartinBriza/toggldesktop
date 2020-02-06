@@ -151,9 +151,7 @@ class TOGGL_INTERNAL_EXPORT UserModel : public BaseModel {
 
     error LoadUserUpdateFromJSONString(const std::string &json);
 
-    error LoadUserAndRelatedDataFromJSONString(
-        const std::string &json,
-        const bool &including_related_data);
+    error LoadFromJSON(const Json::Value &json) override;
 
     error LoadWorkspacesFromJSONString(const std::string & json);
 
@@ -195,10 +193,6 @@ class TOGGL_INTERNAL_EXPORT UserModel : public BaseModel {
     void loadUserTagFromJSON(
         Json::Value data,
         std::set<Poco::UInt64> *alive = nullptr);
-
-    void loadUserAndRelatedDataFromJSON(
-        Json::Value node,
-        const bool &including_related_data);
 
     void loadUserUpdateFromJSON(
         Json::Value list);

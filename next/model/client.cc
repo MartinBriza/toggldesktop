@@ -49,11 +49,12 @@ void ClientModel::SetWID(const Poco::UInt64 value) {
     }
 }
 
-void ClientModel::LoadFromJSON(Json::Value data) {
+error ClientModel::LoadFromJSON(const Json::Value &data) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     SetID(data["id"].asUInt64());
     SetName(data["name"].asString());
     SetWID(data["wid"].asUInt64());
+    return noError;
 }
 
 Json::Value ClientModel::SaveToJSON() const {

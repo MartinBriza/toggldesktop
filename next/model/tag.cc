@@ -35,7 +35,7 @@ void TagModel::SetName(const std::string &value) {
     }
 }
 
-void TagModel::LoadFromJSON(Json::Value data) {
+error TagModel::LoadFromJSON(const Json::Value &data) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     SetID(data["id"].asUInt64());
     SetName(data["name"].asString());

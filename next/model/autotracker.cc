@@ -72,4 +72,12 @@ std::string AutotrackerRuleModel::ModelURL() const {
     return "";
 }
 
+Json::Value AutotrackerRuleModel::SaveToJSON() const {
+    return {};
+}
+
+error AutotrackerRuleModel::LoadFromJSON(const Json::Value &) {
+    return noError;
+}
+
 }  // namespace toggl

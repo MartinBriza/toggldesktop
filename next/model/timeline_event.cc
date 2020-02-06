@@ -95,4 +95,8 @@ void TimelineEventModel::updateDuration() {
     duration_ = value < 0 ? 0 : value;
 }
 
+toggl::error toggl::TimelineEventModel::LoadFromJSON(const Json::Value &) {
+    return noError;
+}
+
 }   // namespace toggl

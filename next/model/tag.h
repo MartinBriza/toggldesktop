@@ -32,7 +32,7 @@ class TOGGL_INTERNAL_EXPORT TagModel : public BaseModel {
     std::string String() const override;
     std::string ModelName() const override;
     std::string ModelURL() const override;
-    void LoadFromJSON(Json::Value data) override;
+    error LoadFromJSON(const Json::Value &data) override;
 
  private:
     Poco::UInt64 wid_;

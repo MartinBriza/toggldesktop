@@ -138,7 +138,7 @@ void ProjectModel::SetClientName(const std::string &value) {
     }
 }
 
-void ProjectModel::LoadFromJSON(Json::Value data) {
+error ProjectModel::LoadFromJSON(const Json::Value &data) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (data.isMember("hex_color")) {
         SetColor(data["hex_color"].asString());
@@ -152,6 +152,7 @@ void ProjectModel::LoadFromJSON(Json::Value data) {
     SetCID(data["cid"].asUInt64());
     SetActive(data["active"].asBool());
     SetBillable(data["billable"].asBool());
+    return noError;
 }
 
 Json::Value ProjectModel::SaveToJSON() const {

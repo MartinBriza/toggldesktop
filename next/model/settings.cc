@@ -41,6 +41,10 @@ Json::Value SettingsModel::SaveToJSON() const {
     return json;
 }
 
+error SettingsModel::LoadFromJSON(const Json::Value &) {
+    return noError;
+}
+
 std::string SettingsModel::String() const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     std::stringstream ss;

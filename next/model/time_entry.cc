@@ -417,7 +417,7 @@ bool TimeEntryModel::IsToday() const {
            today.day() == datetime.day();
 }
 
-void TimeEntryModel::LoadFromJSON(Json::Value data) {
+error TimeEntryModel::LoadFromJSON(const Json::Value &data) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     // No ui_modified_at in server responses.
     // Compare updated_at with ui_modified_at to see if ui has been changed
@@ -442,7 +442,8 @@ void TimeEntryModel::LoadFromJSON(Json::Value data) {
             << " with server data because we have a newer or same updated_at"
             << " [Server updated_at: " << updated_at << "]";
         logger().debug(ss.str());
-        return;
+        // TODO maybe probably actually an error
+        return noError;
     }
 
     if (data.isMember("tags")) {
@@ -479,6 +480,7 @@ void TimeEntryModel::LoadFromJSON(Json::Value data) {
 
     SetUIModifiedAt(0);
     ClearUnsynced();
+    return noError;
 }
 
 Json::Value TimeEntryModel::SaveToJSON() const {

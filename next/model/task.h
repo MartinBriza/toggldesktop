@@ -50,7 +50,7 @@ class TOGGL_INTERNAL_EXPORT TaskModel : public BaseModel {
     std::string String() const override;
     std::string ModelName() const override;
     std::string ModelURL() const override;
-    void LoadFromJSON(Json::Value value) override;
+    error LoadFromJSON(const Json::Value &value) override;
 
  private:
     std::string name_;

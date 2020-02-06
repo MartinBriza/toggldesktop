@@ -70,12 +70,34 @@ void BaseModel::SetValidationError(const error &value) {
     }
 }
 
+const error &BaseModel::ValidationError() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
+    return validation_error_;
+}
+
+bool BaseModel::DuplicateResource(const error &err) const {
+    return false;
+}
+
+bool BaseModel::ResourceCannotBeCreated(const error &err) const {
+    return false;
+}
+
+bool BaseModel::ResolveError(const error &err) {
+    return false;
+}
+
 void BaseModel::SetDeletedAt(const Poco::Int64 value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (deleted_at_ != value) {
         deleted_at_ = value;
         SetDirty();
     }
+}
+
+const Poco::Int64 &BaseModel::UpdatedAt() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
+    return updated_at_;
 }
 
 void BaseModel::SetUpdatedAt(const Poco::Int64 value) {
@@ -94,12 +116,27 @@ void BaseModel::SetGUID(const uuid_t &value) {
     }
 }
 
+const Poco::UInt64 &BaseModel::UID() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
+    return uid_;
+}
+
 void BaseModel::SetUIModifiedAt(const Poco::Int64 value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (ui_modified_at_ != value) {
         ui_modified_at_ = value;
         SetDirty();
     }
+}
+
+void BaseModel::SetUIModified() {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
+    SetUIModifiedAt(time(nullptr));
+}
+
+const uuid_t &BaseModel::GUID() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
+    return guid_;
 }
 
 void BaseModel::SetUID(const Poco::UInt64 value) {
@@ -118,9 +155,25 @@ void BaseModel::SetID(const Poco::UInt64 value) {
     }
 }
 
+const Poco::Int64 &BaseModel::UIModifiedAt() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
+    return ui_modified_at_;
+}
+
 void BaseModel::SetUpdatedAtString(const std::string &value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     SetUpdatedAt(Formatter::Parse8601(value));
+}
+
+bool BaseModel::IsMarkedAsDeletedOnServer() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
+    return is_marked_as_deleted_on_server_;
+}
+
+void BaseModel::MarkAsDeletedOnServer() {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
+    is_marked_as_deleted_on_server_ = true;
+    SetDirty();
 }
 
 error BaseModel::LoadFromDataString(const std::string &data_string) {
@@ -227,15 +280,55 @@ void BaseModel::SetDirty() {
     dirty_ = true;
 }
 
+const bool &BaseModel::Dirty() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
+    return dirty_;
+}
+
+void BaseModel::ClearDirty() {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
+    dirty_ = false;
+}
+
+const bool &BaseModel::Unsynced() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
+    return unsynced_;
+}
+
 void BaseModel::SetUnsynced() {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     unsynced_ = true;
+}
+
+void BaseModel::ClearUnsynced() {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
+    unsynced_ = false;
+}
+
+const Poco::Int64 &BaseModel::DeletedAt() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
+    return deleted_at_;
 }
 
 uuid_t BaseModel::GenerateGUID() {
     Poco::UUIDGenerator& generator = Poco::UUIDGenerator::defaultGenerator();
     Poco::UUID uuid(generator.createRandom());
     return uuid.toString();
+}
+
+const Poco::Int64 &BaseModel::LocalID() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
+    return local_id_;
+}
+
+void BaseModel::SetLocalID(const Poco::Int64 value) {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
+    local_id_ = value;
+}
+
+const Poco::UInt64 &BaseModel::ID() const {
+    std::scoped_lock<std::recursive_mutex> lock(mutex_);
+    return id_;
 }
 
 }   // namespace toggl

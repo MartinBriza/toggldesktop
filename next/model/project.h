@@ -81,7 +81,7 @@ class TOGGL_INTERNAL_EXPORT ProjectModel : public BaseModel {
     std::string String() const override;
     std::string ModelName() const override;
     std::string ModelURL() const override;
-    void LoadFromJSON(Json::Value value) override;
+    error LoadFromJSON(const Json::Value &value) override;
     Json::Value SaveToJSON() const override;
     bool DuplicateResource(const toggl::error &err) const override;
     bool ResourceCannotBeCreated(const toggl::error &err) const override;

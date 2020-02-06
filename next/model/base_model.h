@@ -41,77 +41,40 @@ class TOGGL_INTERNAL_EXPORT BaseModel {
 
     virtual ~BaseModel() {}
 
+    void EnsureGUID();
+
     static uuid_t GenerateGUID();
 
-    const Poco::Int64 &LocalID() const {
-        std::scoped_lock<std::recursive_mutex> lock(mutex_);
-        return local_id_;
-    }
-    void SetLocalID(const Poco::Int64 value) {
-        std::scoped_lock<std::recursive_mutex> lock(mutex_);
-        local_id_ = value;
-    }
+    const Poco::Int64 &LocalID() const;
+    void SetLocalID(const Poco::Int64 value);
 
-    const Poco::UInt64 &ID() const {
-        std::scoped_lock<std::recursive_mutex> lock(mutex_);
-        return id_;
-    }
+    const Poco::UInt64 &ID() const;
     void SetID(const Poco::UInt64 value);
 
-    const Poco::Int64 &UIModifiedAt() const {
-        std::scoped_lock<std::recursive_mutex> lock(mutex_);
-        return ui_modified_at_;
-    }
+    const Poco::Int64 &UIModifiedAt() const;
     void SetUIModifiedAt(const Poco::Int64 value);
-    void SetUIModified() {
-        std::scoped_lock<std::recursive_mutex> lock(mutex_);
-        SetUIModifiedAt(time(nullptr));
-    }
+    void SetUIModified();
 
-    const uuid_t &GUID() const {
-        std::scoped_lock<std::recursive_mutex> lock(mutex_);
-        return guid_;
-    }
+    const uuid_t &GUID() const;
     void SetGUID(const uuid_t &value);
 
-    const Poco::UInt64 &UID() const {
-        std::scoped_lock<std::recursive_mutex> lock(mutex_);
-        return uid_;
-    }
+    const Poco::UInt64 &UID() const;
     void SetUID(const Poco::UInt64 value);
 
     void SetDirty();
-    const bool &Dirty() const {
-        std::scoped_lock<std::recursive_mutex> lock(mutex_);
-        return dirty_;
-    }
-    void ClearDirty() {
-        std::scoped_lock<std::recursive_mutex> lock(mutex_);
-        dirty_ = false;
-    }
+    const bool &Dirty() const;
+    void ClearDirty();
 
-    const bool &Unsynced() const {
-        std::scoped_lock<std::recursive_mutex> lock(mutex_);
-        return unsynced_;
-    }
+    const bool &Unsynced() const;
     void SetUnsynced();
-    void ClearUnsynced() {
-        std::scoped_lock<std::recursive_mutex> lock(mutex_);
-        unsynced_ = false;
-    }
+    void ClearUnsynced();
 
     // Deleting a time entry hides it from
     // UI and flags it for removal from server:
-    const Poco::Int64 &DeletedAt() const {
-        std::scoped_lock<std::recursive_mutex> lock(mutex_);
-        return deleted_at_;
-    }
+    const Poco::Int64 &DeletedAt() const;
     void SetDeletedAt(const Poco::Int64 value);
 
-    const Poco::Int64 &UpdatedAt() const {
-        std::scoped_lock<std::recursive_mutex> lock(mutex_);
-        return updated_at_;
-    }
+    const Poco::Int64 &UpdatedAt() const;
     void SetUpdatedAt(const Poco::Int64 value);
 
     std::string UpdatedAtString() const;
@@ -120,51 +83,32 @@ class TOGGL_INTERNAL_EXPORT BaseModel {
     // When a model is deleted
     // on server, it will be removed from local
     // DB using this flag:
-    bool IsMarkedAsDeletedOnServer() const {
-        std::scoped_lock<std::recursive_mutex> lock(mutex_);
-        return is_marked_as_deleted_on_server_;
-    }
-    void MarkAsDeletedOnServer() {
-        std::scoped_lock<std::recursive_mutex> lock(mutex_);
-        is_marked_as_deleted_on_server_ = true;
-        SetDirty();
-    }
+    bool IsMarkedAsDeletedOnServer() const;
+    void MarkAsDeletedOnServer();
 
     bool NeedsPush() const;
     bool NeedsPOST() const;
     bool NeedsPUT() const;
     bool NeedsDELETE() const;
-
     bool NeedsToBeSaved() const;
-
-    void EnsureGUID();
 
     void ClearValidationError();
     void SetValidationError(const error &value);
-    const error &ValidationError() const {
-        std::scoped_lock<std::recursive_mutex> lock(mutex_);
-        return validation_error_;
-    }
+    const error &ValidationError() const;
 
     virtual std::string String() const = 0;
     virtual std::string ModelName() const = 0;
     virtual std::string ModelURL() const = 0;
 
-    virtual void LoadFromJSON(Json::Value value) {}
-    virtual Json::Value SaveToJSON() const {
-        std::scoped_lock<std::recursive_mutex> lock(mutex_);
-        return 0;
-    }
+    virtual error LoadFromJSON(const Json::Value &value) = 0;
+    virtual Json::Value SaveToJSON() const { return {}; }
 
-    virtual bool DuplicateResource(const toggl::error &err) const {
-        return false;
-    }
-    virtual bool ResourceCannotBeCreated(const toggl::error &err) const {
-        return false;
-    }
-    virtual bool ResolveError(const toggl::error &err) {
-        return false;
-    }
+    //virtual void LoadFromDatabase() = 0;
+    //virtual void SaveToDatabase() = 0;
+
+    virtual bool DuplicateResource(const toggl::error &err) const;
+    virtual bool ResourceCannotBeCreated(const toggl::error &err) const;
+    virtual bool ResolveError(const toggl::error &err);
 
     error LoadFromDataString(const std::string &);
 

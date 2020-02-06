@@ -31,11 +31,12 @@ void CountryModel::SetCountryCode(const std::string &value) {
     }
 }
 
-void CountryModel::LoadFromJSON(Json::Value data) {
+error CountryModel::LoadFromJSON(const Json::Value &data) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     SetID(data["id"].asUInt64());
     SetName(data["name"].asString());
     SetCountryCode(data["country_code"].asString());
+    return noError;
 }
 
 std::string CountryModel::ModelName() const {

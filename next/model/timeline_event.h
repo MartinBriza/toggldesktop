@@ -77,6 +77,7 @@ class TOGGL_INTERNAL_EXPORT TimelineEventModel : public BaseModel, public TimedE
     std::string ModelName() const override;
     std::string ModelURL() const override;
     Json::Value SaveToJSON() const override;
+    error LoadFromJSON(const Json::Value &root) override;
 
  private:
     std::string title_;

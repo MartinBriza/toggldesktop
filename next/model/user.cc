@@ -38,7 +38,7 @@ UserModel::~UserModel() {
 
 UserModel *UserModel::constructFromJSON(Context *ctx, const Json::Value &root) {
     UserModel *user = new UserModel(ctx);
-    user->loadUserAndRelatedDataFromJSON(root, false);
+    user->LoadFromJSON(root);
     if (user->ID() == 0) {
         delete user;
         return nullptr;
@@ -181,43 +181,13 @@ std::string UserModel::String() const {
     return ss.str();
 }
 
-error UserModel::LoadUserAndRelatedDataFromJSONString(
-    const std::string &json,
-    const bool &including_related_data) {
-    std::scoped_lock<std::recursive_mutex> lock(mutex_);
-
-    if (json.empty()) {
-        Poco::Logger &logger = Poco::Logger::get("json");
-        logger.warning("cannot load empty JSON");
-        return noError;
-    }
-
-    Json::Value root;
-    Json::Reader reader;
-    if (!reader.parse(json, root)) {
-        return error(error::MALFORMED_DATA, __PRETTY_FUNCTION__);
-    }
-
-    SetSince(root["since"].asInt64());
-
-    Poco::Logger &logger = Poco::Logger::get("json");
-    std::stringstream s;
-    s << "User data as of: " << Since();
-    logger.debug(s.str());
-
-    loadUserAndRelatedDataFromJSON(root["data"], including_related_data);
-
-    return noError;
-}
-
-void UserModel::loadUserAndRelatedDataFromJSON(
-    Json::Value data,
-    const bool &including_related_data) {
+error UserModel::LoadFromJSON(const Json::Value &data) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
 
     if (!data["id"].asUInt64()) {
         logger().error("Backend is sending invalid data: ignoring update without an ID");  // NOLINT
-        return;
+        // TODO very likely actually an error
+        return noError;
     }
 
     SetID(data["id"].asUInt64());
@@ -229,6 +199,8 @@ void UserModel::loadUserAndRelatedDataFromJSON(
     SetStoreStartAndStopTime(data["store_start_and_stop_time"].asBool());
     SetTimeOfDayFormat(data["timeofday_format"].asString());
     SetDurationFormat(data["duration_format"].asString());
+
+    return noError;
 }
 
 bool UserModel::LoadUserPreferencesFromJSON(

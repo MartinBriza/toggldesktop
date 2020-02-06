@@ -49,13 +49,14 @@ void TaskModel::SetActive(const bool value) {
     }
 }
 
-void TaskModel::LoadFromJSON(Json::Value data) {
+error TaskModel::LoadFromJSON(const Json::Value &data) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     SetID(data["id"].asUInt64());
     SetName(data["name"].asString());
     SetPID(data["pid"].asUInt64());
     SetWID(data["wid"].asUInt64());
     SetActive(data["active"].asBool());
+    return noError;
 }
 
 std::string TaskModel::ModelName() const {

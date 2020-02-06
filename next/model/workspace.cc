@@ -72,7 +72,7 @@ void WorkspaceModel::SetLockedTime(const time_t value) {
     }
 }
 
-void WorkspaceModel::LoadFromJSON(Json::Value n) {
+error WorkspaceModel::LoadFromJSON(const Json::Value &n) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     SetID(n["id"].asUInt64());
     SetName(n["name"].asString());
@@ -84,6 +84,7 @@ void WorkspaceModel::LoadFromJSON(Json::Value n) {
 
     auto profile = n["profile"].asUInt64();
     SetBusiness(profile > 13);
+    return noError;
 }
 
 void WorkspaceModel::LoadSettingsFromJson(Json::Value n) {

@@ -107,6 +107,7 @@ private:
     std::string ModelName() const override;
     std::string ModelURL() const override;
     Json::Value SaveToJSON() const override;
+    error LoadFromJSON(const Json::Value &root) override;
 };
 
 }  // namespace toggl
