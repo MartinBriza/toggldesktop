@@ -13,8 +13,8 @@ namespace toggl {
 template<typename T> class ProtectedContainer;
 
 class TOGGL_INTERNAL_EXPORT WorkspaceModel : public BaseModel {
-    WorkspaceModel()
-        : BaseModel()
+    WorkspaceModel(UserData *parent)
+        : BaseModel(parent)
     , name_("")
     , premium_(false)
     , only_admins_may_create_projects_(false)

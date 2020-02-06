@@ -1007,7 +1007,7 @@ error Database::LoadUserByEmail(const std::string &email, locked<UserModel> &mod
 }
 
 error Database::loadUsersRelatedData(locked<UserModel> &user) {
-    auto data = user->Context()->GetData();
+    auto data = user->Parent();
 
     error err = loadWorkspaces(user->ID(), data->Workspaces);
     if (err != noError) {

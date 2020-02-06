@@ -16,8 +16,9 @@ namespace toggl {
 template<typename T> class ProtectedModel;
 
 class TOGGL_INTERNAL_EXPORT SettingsModel : public BaseModel {
-    SettingsModel()
-        : use_idle_detection(false)
+    SettingsModel(UserData *parent)
+    : BaseModel(parent)
+    , use_idle_detection(false)
     , menubar_timer(false)
     , menubar_project(false)
     , dock_icon(false)

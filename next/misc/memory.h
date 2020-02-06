@@ -7,6 +7,7 @@
 #include <vector>
 
 namespace toggl {
+class UserData;
 
 /**
  * @class locked
@@ -46,6 +47,11 @@ private:
 template <class T>
 class ProtectedModel {
 public:
+    ProtectedModel(UserData *parent)
+        : userData_(parent)
+    {
+
+    }
     void clear() {
         std::unique_lock<std::recursive_mutex> lock(mutex_);
         value_ = nullptr;
@@ -53,7 +59,7 @@ public:
     template <typename ...Args>
     locked<T> create(Args&&... args) {
         std::unique_lock<std::recursive_mutex> lock(mutex_);
-        value_ = new T(std::forward<Args>(args)...);
+        value_ = new T(userData_, std::forward<Args>(args)...);
         return { mutex_, value_ };
     }
     template<typename U> locked<U> make_locked(U *val) {
@@ -79,6 +85,7 @@ public:
         return value_;
     }
 private:
+    UserData *userData_;
     T *value_;
     mutable std::recursive_mutex mutex_;
 };
@@ -198,6 +205,12 @@ public:
     friend class iterator;
     friend class const_iterator;
 
+    ProtectedContainer(UserData *parent)
+        : userData_(parent)
+    {
+
+    }
+
     iterator begin() { return iterator(*this, 0); }
     const_iterator begin() const { return const_iterator(*this, 0); }
     const_iterator cbegin() const { return const_iterator(*this, 0); }
@@ -221,9 +234,10 @@ public:
      * @return - a @ref locked new instance of T
      * OVERHAUL TODO: this could be more efficient
      */
-    locked<T> create() {
+    template <typename ...Args>
+    locked<T> create(Args&&... args) {
         std::unique_lock<std::recursive_mutex> lock(mutex_);
-        T *val = new T();
+        T *val = new T(userData_, std::forward<Args>(args)...);
         container_.push_back(val);
         uuidMap_[val->GUID()] = val;
         return { mutex_, val };
@@ -305,6 +319,7 @@ public:
 
     bool operator==(const ProtectedContainer &o) { return this == &o; }
 private:
+    UserData *userData_;
     std::vector<T*> container_;
     std::map<uuid_t, T*> uuidMap_;
     mutable std::recursive_mutex mutex_;

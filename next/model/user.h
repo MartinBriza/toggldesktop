@@ -25,8 +25,8 @@ template<typename T> class ProtectedModel;
 class Context;
 
 class TOGGL_INTERNAL_EXPORT UserModel : public BaseModel {
-    UserModel(toggl::Context *context)
-    : context_(context)
+    UserModel(UserData *parent)
+    : BaseModel(parent)
     , api_token_("")
     , default_wid_(0)
     , since_(0)
@@ -45,10 +45,6 @@ public:
     friend class ProtectedModel<UserModel>;
 
     ~UserModel();
-
-    toggl::Context *Context();
-
-    static UserModel *constructFromJSON(toggl::Context *ctx, const Json::Value &root);
 
     error EnableOfflineLogin(
         const std::string &password);
@@ -221,7 +217,6 @@ public:
 
     std::string generateKey(const std::string &password);
 
-    toggl::Context *context_;
     std::string api_token_;
     Poco::UInt64 default_wid_;
     // Unix timestamp of the user data; returned from API

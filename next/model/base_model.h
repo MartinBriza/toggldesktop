@@ -22,12 +22,14 @@ class Logger;
 
 namespace toggl {
 
+class UserData;
 class BatchUpdateResult;
 
 class TOGGL_INTERNAL_EXPORT BaseModel {
 protected:
-    BaseModel()
-        : local_id_(0)
+    BaseModel(UserData *parent)
+    : userData_(parent)
+    , local_id_(0)
     , id_(0)
     , guid_("")
     , ui_modified_at_(0)
@@ -40,6 +42,9 @@ protected:
     , unsynced_(false) {}
 public:
     virtual ~BaseModel() {}
+
+    toggl::UserData *Parent();
+    const toggl::UserData *Parent() const;
 
     void EnsureGUID();
 
@@ -129,6 +134,8 @@ public:
  private:
     std::string batchUpdateRelativeURL() const;
     std::string batchUpdateMethod() const;
+
+    toggl::UserData *userData_;
 
     id_t local_id_;
     id_t id_;

@@ -49,6 +49,14 @@ bool BaseModel::NeedsToBeSaved() const {
     return !local_id_ || dirty_;
 }
 
+toggl::UserData *BaseModel::Parent() {
+    return userData_;
+}
+
+const toggl::UserData *BaseModel::Parent() const {
+    return userData_;
+}
+
 void BaseModel::EnsureGUID() {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (!guid_.empty()) {

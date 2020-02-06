@@ -36,20 +36,6 @@ namespace toggl {
 UserModel::~UserModel() {
 }
 
-toggl::Context *UserModel::Context() {
-    return context_;
-}
-
-UserModel *UserModel::constructFromJSON(toggl::Context *ctx, const Json::Value &root) {
-    UserModel *user = new UserModel(ctx);
-    user->LoadFromJSON(root);
-    if (user->ID() == 0) {
-        delete user;
-        return nullptr;
-    }
-    return user;
-}
-
 void UserModel::SetFullname(const std::string &value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (fullname_ != value) {
