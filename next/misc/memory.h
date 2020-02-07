@@ -167,7 +167,7 @@ public:
             , model(o.model)
             , position(o.position)
         { }
-        ~const_iterator();
+        ~const_iterator() {}
 
         const_iterator& operator=(const const_iterator &o) {
             model = o.model;
@@ -184,7 +184,7 @@ public:
             position++;
             return *this;
         }
-        locked<T> operator*() const {
+        locked<const T> operator*() const {
             return { model.mutex_, model.container_[position]};
         }
         T* operator->() const {
@@ -266,7 +266,7 @@ public:
      * @brief size - Get how many items are contained inside
      * @return - number of items inside the container
      */
-    size_t size() {
+    size_t size() const {
         std::unique_lock<std::recursive_mutex> lock(mutex_);
         return container_.size();
     }
@@ -276,7 +276,7 @@ public:
      *
      * @warning beware of using pointers to non-static local variables with this method
      */
-    template<typename U> locked<U> make_locked(U *val) {
+    template<typename U> locked<U> make_locked(U *val) const {
         return { mutex_, val };
     }
     /**
@@ -317,7 +317,7 @@ public:
         }
     }
 
-    bool operator==(const ProtectedContainer &o) { return this == &o; }
+    bool operator==(const ProtectedContainer &o) const { return this == &o; }
 private:
     UserData *userData_;
     std::vector<T*> container_;

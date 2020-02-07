@@ -11,13 +11,14 @@
 //#include "proxy.h"
 #include "model/settings.h"
 #include "misc/logger.h"
+#include "misc/memory.h"
 
 #include "legacy_api.h"
 
 namespace toggl {
 class Client;
 class Context;
-class TimeEntry;
+class TimeEntryModel;
 class Workspace;
 namespace view {
 class AutotrackerRule;
@@ -52,7 +53,7 @@ void country_item_clear(TogglCountryView *item);
 void country_list_clear(TogglCountryView *first);
 TogglCountryView *country_view_item_init(const Json::Value v);
 
-TogglTimeEntryView *time_entry_view_item_init(const toggl::view::TimeEntry &te);
+TogglTimeEntryView *time_entry_view_item_init(locked<const toggl::TimeEntryModel> &te);
 void time_entry_view_item_clear(TogglTimeEntryView *item);
 void time_entry_view_list_clear(TogglTimeEntryView *first);
 

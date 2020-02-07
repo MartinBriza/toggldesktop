@@ -4,18 +4,10 @@
 #include "context.h"
 
 #include "model/country.h"
+#include "misc/error.h"
+#include "legacy_api_tools.h"
 
 using namespace toggl;
-
-char_t *copy_string(const std::string &s) {
-#if defined(_WIN32) || defined(WIN32)
-    std::wstring ws;
-    Poco::UnicodeConverter::toUTF16(s, ws);
-    return wcsdup(ws.c_str());
-#else
-    return strdup(s.c_str());
-#endif
-}
 
 // Initialize/destroy an instance of the app
 
@@ -170,13 +162,12 @@ void toggl_on_time_entry_list(
     auto ctx = reinterpret_cast<Context*>(context);
     ctx->GetCallbacks()->OnTimeEntryList = [ctx, cb]() {
         TogglTimeEntryView *result = nullptr, *previous = nullptr;
-        for (auto i : ctx->GetData()->TimeEntries) {
+        // TODO try cleaning this up, why doesn't foreach work with const_iterator?
+        for (auto it = ctx->GetData()->TimeEntries.cbegin(); it != ctx->GetData()->TimeEntries.cend(); ++it) {
+            auto i = *it;
             if (i->IsTracking())
                 continue;
-            auto current = new TogglTimeEntryView;
-            memset(current, 0, sizeof(TogglTimeEntryView));
-            current->ID = i->ID();
-            current->Description = copy_string(i->Description());
+            auto current = time_entry_view_item_init(i);
             if (!result)
                 result = current;
             if (previous)
