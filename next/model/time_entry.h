@@ -9,11 +9,13 @@
 #include "./base_model.h"
 #include "./formatter.h"
 #include "./types.h"
+#include "misc/memory.h"
 
 #include "Poco/Types.h"
 
 namespace toggl {
 template<typename T> class ProtectedContainer;
+class UserModel;
 
 class TOGGL_INTERNAL_EXPORT TimeEntryModel : public BaseModel, public TimedEvent {
     TimeEntryModel(UserData *parent)
@@ -36,6 +38,18 @@ public:
 
     virtual ~TimeEntryModel() {}
 
+    // Override BaseModel
+
+    std::string ModelName() const override;
+    std::string ModelURL() const override;
+    std::string String() const override;
+    virtual bool ResolveError(const error &err) override;
+    error LoadFromJSON(const Json::Value &value) override;
+    Json::Value SaveToJSON() const override;
+
+    /******************************************************************
+     * SETTERS AND GETTERS
+     */
     const Poco::Int64 &LastStartAt() const {
         std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return last_start_at_;
@@ -94,12 +108,6 @@ public:
     std::string StartString() const;
     void SetStartString(const std::string &value);
 
-    const Poco::Int64 &Start() const override {
-        std::scoped_lock<std::recursive_mutex> lock(mutex_);
-        return start_;
-    }
-    void SetStart(const Poco::Int64 value);
-
     std::string StopString() const;
     void SetStopString(const std::string &value);
 
@@ -115,42 +123,31 @@ public:
     }
     void SetCreatedWith(const std::string &value);
 
-    void DiscardAt(const Poco::Int64);
-
-    bool IsToday() const;
-
     const uuid_t &ProjectGUID() const {
         std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return project_guid_;
     }
     void SetProjectGUID(const uuid_t &);
 
-    // User-triggered changes to timer:
-    void SetDurationUserInput(const std::string &);
-    void SetStopUserInput(const std::string &);
-    void SetStartUserInput(const std::string &, const bool);
+    // Implement TimedEvent
+    const Poco::Int64 &Start() const override {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
+        return start_;
+    }
+    void SetStart(const Poco::Int64 value);
+    virtual const Poco::Int64 &Duration() const {
+        std::scoped_lock<std::recursive_mutex> lock(mutex_);
+        return DurationInSeconds();
+    }
+
+    /******************************************************************
+     * SIMPLE DERIVED DATA
+     */
+    bool IsToday() const;
 
     bool IsTracking() const {
         std::scoped_lock<std::recursive_mutex> lock(mutex_);
         return duration_in_seconds_ < 0;
-    }
-
-    void StopTracking();
-
-    // Override BaseModel
-
-    std::string ModelName() const override;
-    std::string ModelURL() const override;
-    std::string String() const override;
-    virtual bool ResolveError(const error &err) override;
-    error LoadFromJSON(const Json::Value &value) override;
-    Json::Value SaveToJSON() const override;
-
-    // Implement TimedEvent
-
-    virtual const Poco::Int64 &Duration() const {
-        std::scoped_lock<std::recursive_mutex> lock(mutex_);
-        return DurationInSeconds();
     }
 
     Poco::Int64 RealDurationInSeconds() const;
@@ -158,6 +155,31 @@ public:
     bool isNotFound(const error &err) const;
 
     const std::string GroupHash() const;
+
+    /******************************************************************
+     * DEPENDENCY TREE DERIVED DATA
+     */
+    locked<WorkspaceModel> Workspace();
+    locked<const WorkspaceModel> Workspace() const;
+    locked<ProjectModel> Project();
+    locked<const ProjectModel> Project() const;
+    locked<TaskModel> Task();
+    locked<const TaskModel> Task() const;
+    locked<UserModel> User();
+    locked<const UserModel> User() const;
+
+    /******************************************************************
+     * COMPLEX DATA MODIFICATION
+     * (beyond the complexity of just basic setters)
+     */
+    void DiscardAt(const Poco::Int64);
+
+    // User-triggered changes to timer:
+    void SetDurationUserInput(const std::string &);
+    void SetStopUserInput(const std::string &);
+    void SetStartUserInput(const std::string &, const bool);
+
+    void StopTracking();
 
  private:
     Poco::UInt64 wid_;

@@ -8,11 +8,13 @@
 
 #include "./base_model.h"
 #include "./types.h"
+#include "misc/memory.h"
 
 #include "Poco/Types.h"
 
 namespace toggl {
 template<typename T> class ProtectedContainer;
+class ClientModel;
 
 class TOGGL_INTERNAL_EXPORT ProjectModel : public BaseModel {
     ProjectModel(UserData *parent)
@@ -28,7 +30,21 @@ class TOGGL_INTERNAL_EXPORT ProjectModel : public BaseModel {
     , client_name_("") {}
 public:
     friend class ProtectedContainer<ProjectModel>;
+    static std::vector<std::string> ColorCodes;
 
+    // Override BaseModel
+    std::string String() const override;
+    std::string ModelName() const override;
+    std::string ModelURL() const override;
+    error LoadFromJSON(const Json::Value &value) override;
+    Json::Value SaveToJSON() const override;
+    bool DuplicateResource(const toggl::error &err) const override;
+    bool ResourceCannotBeCreated(const toggl::error &err) const override;
+    bool ResolveError(const toggl::error &err) override;
+
+    /******************************************************************
+     * SETTERS AND GETTERS
+     */
     const Poco::UInt64 &WID() const {
         return wid_;
     }
@@ -77,19 +93,17 @@ public:
     }
     void SetClientName(const std::string &value);
 
+    /******************************************************************
+     * SIMPLE DERIVED DATA
+     */
     std::string FullName() const;
 
-    // Override BaseModel
-    std::string String() const override;
-    std::string ModelName() const override;
-    std::string ModelURL() const override;
-    error LoadFromJSON(const Json::Value &value) override;
-    Json::Value SaveToJSON() const override;
-    bool DuplicateResource(const toggl::error &err) const override;
-    bool ResourceCannotBeCreated(const toggl::error &err) const override;
-    bool ResolveError(const toggl::error &err) override;
 
-    static std::vector<std::string> ColorCodes;
+    /******************************************************************
+     * DEPENDENCY TREE DERIVED DATA
+     */
+    locked<ClientModel> Client();
+    locked<const ClientModel> Client() const;
 
  private:
     bool clientIsInAnotherWorkspace(const toggl::error &err) const;

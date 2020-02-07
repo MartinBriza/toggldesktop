@@ -11,6 +11,7 @@
 #include "Poco/Timestamp.h"
 
 #include "./types.h"
+#include "misc/memory.h"
 
 namespace toggl {
 
@@ -47,9 +48,7 @@ class TOGGL_INTERNAL_EXPORT Formatter {
     static std::string TimeOfDayFormat;
     static std::string DurationFormat;
 
-    static std::string JoinTaskName(
-        TaskModel * const,
-        ProjectModel * const);
+    static std::string JoinTaskName(locked<const TaskModel> &t, locked<const ProjectModel> &p);
 
     static std::string FormatDuration(
         const Poco::Int64 value,

@@ -3,22 +3,23 @@
 namespace toggl {
 
 void UserData::dumpAll() {
-    {
-        std::cout << "==== Tags ====" << std::endl << std::flush;
-        dump(Tags);
-    }{
-        std::cout << "==== Clients ====" << std::endl << std::flush;
-        dump(Clients);
-    }{
-        std::cout << "==== Projects ====" << std::endl << std::flush;
-        dump(Projects);
-    }{
-        std::cout << "==== Time Entries ====" << std::endl << std::flush;
-        for (auto i : TimeEntries) {
-            std::cout << i->Description() << ", ";
-        }
+    std::cout << "==== Workspaces ====" << std::endl << std::flush;
+    dump(Workspaces);
+    std::cout << "==== Tags ====" << std::endl << std::flush;
+    dump(Tags);
+    std::cout << "==== Clients ====" << std::endl << std::flush;
+    dump(Clients);
+    std::cout << "==== Projects ====" << std::endl << std::flush;
+    dump(Projects);
+    std::cout << "==== Tasks ====" << std::endl << std::flush;
+    dump(Tasks);
+    std::cout << "==== Time Entries ====" << std::endl << std::flush;
+    for (auto i : TimeEntries) {
+        std::cout << i->Description() << ", ";
     }
     std::cout << std::endl << std::flush;
+    std::cout << "==== Countries ====" << std::endl << std::flush;
+    dump(Countries);
 }
 
 Error UserData::loadAll(const std::string &json, bool with_user) {

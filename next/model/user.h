@@ -52,8 +52,7 @@ public:
     bool HasPremiumWorkspaces() const;
     bool CanAddProjects() const;
 
-    bool CanSeeBillable(
-        const WorkspaceModel *ws) const;
+    bool CanSeeBillable(locked<const WorkspaceModel> &ws) const;
 
     std::string DateDuration(TimeEntryModel *te) const;
 

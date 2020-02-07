@@ -20,6 +20,7 @@ Context::Context(const std::string &app_name, Context::Callbacks callbacks)
     db_->LoadCurrentUser(user);
     logger.log("HERE WE GO! User is: ", user->Email());
     logger.log("We have loaded ", data.TimeEntries.size(), " time entries.");
+    data.dumpAll();
 
     eventQueue_.schedule([this](){ callbacks_.OnTimeEntryList(); });
     eventQueue_.schedule([this](){ callbacks_.OnTimerState(); });

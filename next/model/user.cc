@@ -14,6 +14,7 @@
 #include "./task.h"
 #include "./time_entry.h"
 #include "./timeline_event.h"
+#include "userdata.h"
 
 #include "Poco/Base64Decoder.h"
 #include "Poco/Base64Encoder.h"
@@ -380,6 +381,34 @@ error UserModel::EnableOfflineLogin(
         return Error::STD_STRING_EXCEPTION;
     }
     return noError;
+}
+
+bool UserModel::HasPremiumWorkspaces() const {
+    for (auto i : Parent()->Workspaces) {
+        if (i->Premium()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool UserModel::CanAddProjects() const {
+    for (auto i : Parent()->Workspaces) {
+        if (i->OnlyAdminsMayCreateProjects()) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool UserModel::CanSeeBillable(locked<const WorkspaceModel> &ws) const {
+    if (!HasPremiumWorkspaces()) {
+        return false;
+    }
+    if (ws && !ws->Premium()) {
+        return false;
+    }
+    return true;
 }
 
 std::string UserModel::ModelName() const {

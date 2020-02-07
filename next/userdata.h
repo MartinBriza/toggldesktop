@@ -22,6 +22,7 @@
 #include "model/timeline_event.h"
 #include "model/autotracker.h"
 #include "model/settings.h"
+#include "model/task.h"
 
 namespace toggl {
 

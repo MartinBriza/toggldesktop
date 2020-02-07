@@ -5,6 +5,7 @@
 
 #include <mutex>
 #include <vector>
+#include <iostream>
 
 namespace toggl {
 class UserData;
@@ -292,17 +293,20 @@ public:
     }
 
     locked<T> operator[](size_t position) {
+        std::unique_lock<std::recursive_mutex> lock(mutex_);
         if (container_.size() <= position)
             return { mutex_, container_[position] };
         return {};
     }
     locked<const T> operator[](size_t position) const {
+        std::unique_lock<std::recursive_mutex> lock(mutex_);
         if (container_.size() <= position)
             return { mutex_, container_[position] };
         return {};
     }
 
     locked<T> operator[](const uuid_t &uuid) {
+        std::unique_lock<std::recursive_mutex> lock(mutex_);
         try {
             return { mutex_, uuidMap_.at(uuid) };
         }
@@ -311,12 +315,29 @@ public:
         }
     }
     locked<const T> operator[](const uuid_t &uuid) const {
+        std::unique_lock<std::recursive_mutex> lock(mutex_);
         try {
             return { mutex_, uuidMap_.at(uuid) };
         }
         catch (std::out_of_range &) {
             return {};
         }
+    }
+    locked<T> byId(uint64_t id) {
+        std::unique_lock<std::recursive_mutex> lock(mutex_);
+        for (auto i : container_) {
+            if (i->ID() == id)
+                return { mutex_, i };
+        }
+        return {};
+    }
+    locked<const T> byId(uint64_t id) const {
+        std::unique_lock<std::recursive_mutex> lock(mutex_);
+        for (auto i : container_) {
+            if (i->ID() == id)
+                return { mutex_, i };
+        }
+        return {};
     }
 
     bool operator==(const ProtectedContainer &o) const { return this == &o; }

@@ -9,7 +9,9 @@
 #include "Poco/NumberParser.h"
 #include "Poco/UTF8String.h"
 
+#include "model/client.h"
 #include "./formatter.h"
+#include "userdata.h"
 
 namespace toggl {
 
@@ -49,6 +51,18 @@ std::string ProjectModel::FullName() const {
     ss << client_name_
        << name_;
     return ss.str();
+}
+
+locked<ClientModel> ProjectModel::Client() {
+    if (CID() > 0)
+        return Parent()->Clients.byId(CID());
+    return {};
+}
+
+locked<const ClientModel> ProjectModel::Client() const {
+    if (CID() > 0)
+        return Parent()->Clients.byId(CID());
+    return {};
 }
 
 void ProjectModel::SetClientGUID(const uuid_t &value) {

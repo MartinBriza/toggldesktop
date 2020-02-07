@@ -10,6 +10,7 @@
 #include "project.h"
 #include "time_entry.h"
 #include "timeline_event.h"
+#include "task.h"
 #include "workspace.h"
 
 #include <Poco/UnicodeConverter.h>
@@ -258,6 +259,25 @@ TogglCountryView *country_view_item_init(
 }
 
 TogglTimeEntryView *time_entry_view_item_init(locked<const TimeEntryModel> &te) {
+    auto ws = te->Workspace();
+    auto project = te->Project();
+    auto task = te->Task();
+    locked<const ClientModel> client;
+    if (project)
+        client = project->Client();
+    auto user = te->User();
+
+
+    int quarter = 900;
+    int tmp_rounded;
+
+    tmp_rounded = ((int)(te->Start() / quarter) * quarter);
+    // gets the percentage that is used to set margin from top
+    auto RoundedStart = (te->Start() - tmp_rounded) / 9;
+
+    tmp_rounded = (((int)(te->Stop() / quarter)) * quarter) + quarter;
+    // gets the percentage that is used to set margin from bottom
+    auto RoundedEnd = (tmp_rounded - te->Stop()) / 9;
 
     TogglTimeEntryView *view_item = new TogglTimeEntryView();
     poco_check_ptr(view_item);
@@ -269,52 +289,64 @@ TogglTimeEntryView *time_entry_view_item_init(locked<const TimeEntryModel> &te) 
     view_item->WID = static_cast<unsigned int>(te->WID());
     view_item->TID = static_cast<unsigned int>(te->TID());
     view_item->PID = static_cast<unsigned int>(te->PID());
-    view_item->Duration = copy_string(std::to_string(te->Duration()));
-    /*
-    view_item->Started = static_cast<unsigned int>(te->Started);
-    view_item->Ended = static_cast<unsigned int>(te->Ended);
-    view_item->WorkspaceName = copy_string(te->WorkspaceName);
-    view_item->ProjectAndTaskLabel = copy_string(te->ProjectAndTaskLabel);
-    view_item->TaskLabel = copy_string(te->TaskLabel);
-    view_item->ProjectLabel = copy_string(te->ProjectLabel);
-    view_item->ClientLabel = copy_string(te->ClientLabel);
-    view_item->Color = copy_string(te->Color);
-    view_item->StartTimeString = copy_string(te->StartTimeString);
-    view_item->EndTimeString = copy_string(te->EndTimeString);
-    view_item->DateDuration = copy_string(te->DateDuration);
-    view_item->Billable = te->Billable();
+    view_item->Duration = copy_string(toggl::Formatter::FormatDuration(te->DurationInSeconds(), Formatter::DurationFormat));
+
+    view_item->Started = static_cast<unsigned int>(te->Start());
+    view_item->Ended = static_cast<unsigned int>(te->Stop());
+    view_item->StartTimeString = copy_string(toggl::Formatter::FormatTimeForTimeEntryEditor(te->Start()));
+    view_item->EndTimeString = copy_string(toggl::Formatter::FormatTimeForTimeEntryEditor(te->Stop()));
+    view_item->DateDuration = copy_string(Formatter::FormatDurationForDateHeader(te->DurationInSeconds()));
+    if (ws)
+        view_item->WorkspaceName = copy_string(ws->Name());
+    if (task && project)
+        view_item->ProjectAndTaskLabel = copy_string(Formatter::JoinTaskName(task, project));
+    if (task)
+        view_item->TaskLabel = copy_string(task->Name());
+    if (project) {
+        view_item->ProjectLabel = copy_string(project->Name());
+        view_item->Color = copy_string(project->Color());
+    }
+    if (client)
+        view_item->ClientLabel = copy_string(client->Name());
     if (te->Tags().empty()) {
         view_item->Tags = nullptr;
     } else {
         view_item->Tags = copy_string(te->Tags());
     }
+    view_item->Billable = te->Billable();
     view_item->UpdatedAt = static_cast<unsigned int>(te->UpdatedAt());
-    view_item->DateHeader = copy_string(te->DateHeader);
+    view_item->DateHeader = copy_string(toggl::Formatter::FormatDateHeader(te->Start()));
     view_item->DurOnly = te->DurOnly();
     view_item->IsHeader = false;
 
-    view_item->CanAddProjects = te->CanAddProjects;
-    view_item->CanSeeBillable = te->CanSeeBillable;
-    view_item->DefaultWID = te->DefaultWID;
+    if (ws)
+        view_item->CanAddProjects = ws->Admin() || !ws->OnlyAdminsMayCreateProjects();
+    else
+        view_item->CanAddProjects = user->CanAddProjects();
+    if (user && ws)
+        view_item->CanSeeBillable = user->CanSeeBillable(ws);
+    view_item->DefaultWID = te->Parent()->User->DefaultWID();
 
     view_item->Unsynced = te->Unsynced();
-    view_item->Locked = te->Locked;
+    //view_item->Locked = te->Locked;
 
+    /*
     if (te->Error != noError) {
         view_item->Error = copy_string(te->Error);
     } else {
         view_item->Error = nullptr;
     }
-
+    */
+/*
     view_item->Group = te->Group;
     view_item->GroupOpen = te->GroupOpen;
     view_item->GroupName = copy_string(te->GroupName);
     view_item->GroupDuration = copy_string(te->GroupDuration);
     view_item->GroupItemCount = te->GroupItemCount;
+*/
+    view_item->RoundedStart = RoundedStart;
+    view_item->RoundedEnd = RoundedEnd;
 
-    view_item->RoundedStart = te->RoundedStart;
-    view_item->RoundedEnd = te->RoundedEnd;
-    */
 
     view_item->Next = nullptr;
 

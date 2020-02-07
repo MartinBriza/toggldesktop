@@ -18,6 +18,7 @@
 
 #include "formatter.h"
 #include "string_tools.h"
+#include "userdata.h"
 
 #include "Poco/DateTime.h"
 #include "Poco/LocalDateTime.h"
@@ -76,6 +77,50 @@ bool TimeEntryModel::ResolveError(const error &err) {
 
 bool TimeEntryModel::isNotFound(const error &err) const {
     return err == error::TIME_ENTRY_NOT_FOUMD;
+}
+
+locked<WorkspaceModel> TimeEntryModel::Workspace() {
+    if (WID() > 0)
+        return Parent()->Workspaces.byId(WID());
+    return {};
+}
+
+locked<const WorkspaceModel> TimeEntryModel::Workspace() const {
+    if (WID() > 0)
+        return Parent()->Workspaces.byId(WID());
+    return {};
+}
+
+locked<ProjectModel> TimeEntryModel::Project() {
+    if (PID() > 0)
+        return Parent()->Projects.byId(WID());
+    return {};
+}
+
+locked<const ProjectModel> TimeEntryModel::Project() const {
+    if (PID() > 0)
+        return Parent()->Projects.byId(WID());
+    return {};
+}
+
+locked<TaskModel> TimeEntryModel::Task() {
+    if (TID() > 0)
+        return Parent()->Tasks.byId(WID());
+    return {};
+}
+
+locked<const TaskModel> TimeEntryModel::Task() const {
+    if (TID() > 0)
+        return Parent()->Tasks.byId(WID());
+    return {};
+}
+
+locked<UserModel> TimeEntryModel::User() {
+    return *Parent()->User;
+}
+
+locked<const UserModel> TimeEntryModel::User() const {
+    return *Parent()->User;
 }
 
 bool TimeEntryModel::isMissingCreatedWith(const error &err) const {
@@ -391,20 +436,6 @@ std::string TimeEntryModel::StopString() const {
 std::string TimeEntryModel::StartString() const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     return Formatter::Format8601(start_);
-}
-
-const std::string TimeEntryModel::GroupHash() const {
-    std::scoped_lock<std::recursive_mutex> lock(mutex_);
-    std::stringstream ss;
-    ss << toggl::Formatter::FormatDateHeader(Start())
-       << Description()
-       << WID()
-       << PID()
-       << TID()
-       << ProjectGUID()
-       << Billable()
-       << TagsHash();
-    return ss.str();
 }
 
 bool TimeEntryModel::IsToday() const {
