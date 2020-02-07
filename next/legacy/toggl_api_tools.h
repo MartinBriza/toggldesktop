@@ -13,7 +13,7 @@
 #include "misc/logger.h"
 #include "misc/memory.h"
 
-#include "legacy_api.h"
+#include "toggl_api.h"
 
 namespace toggl {
 class Client;

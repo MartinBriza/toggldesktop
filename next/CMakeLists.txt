@@ -16,7 +16,7 @@ include_directories(
 
 )
 set(NEXTLIBRARY_INCLUDE_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/legacy
     PARENT_SCOPE
 )
 
@@ -54,8 +54,8 @@ set(NEXT_SOURCE_FILES
     eventqueue.cpp
     userdata.cpp
 
-    legacy_api.cc
-    legacy_api_tools.cc
+    legacy/toggl_api.cc
+    legacy/toggl_api_tools.cc
 )
 
 set(NEXT_APP_SOURCE_FILES

@@ -1,6 +1,6 @@
 // Copyright 2014 Toggl Desktop developers.
 
-#include "legacy_api_tools.h"
+#include "toggl_api_tools.h"
 
 #include <cstdlib>
 

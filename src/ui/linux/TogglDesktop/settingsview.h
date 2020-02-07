@@ -6,7 +6,7 @@
 #include <QObject>
 #include <QTime>
 
-#include "legacy_api.h"
+#include "toggl_api.h"
 
 class SettingsView : public QObject {
     Q_OBJECT

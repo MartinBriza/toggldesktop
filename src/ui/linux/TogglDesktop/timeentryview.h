@@ -6,7 +6,7 @@
 #include <QObject>
 #include <QVector>
 
-#include "legacy_api.h"
+#include "toggl_api.h"
 
 class TimeEntryView : public QObject {
     Q_OBJECT

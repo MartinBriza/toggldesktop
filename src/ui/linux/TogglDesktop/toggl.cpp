@@ -11,7 +11,7 @@
 #include <QStringList>
 #include <QDate>
 
-#include "../../next/legacy_api.h"
+#include "toggl_api.h"
 
 #include <iostream>   // NOLINT
 

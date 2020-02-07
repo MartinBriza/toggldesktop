@@ -1,11 +1,11 @@
 
-#include "legacy_api.h"
+#include "toggl_api.h"
 
 #include "context.h"
 
 #include "model/country.h"
 #include "misc/error.h"
-#include "legacy_api_tools.h"
+#include "toggl_api_tools.h"
 
 using namespace toggl;
 
