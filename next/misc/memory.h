@@ -54,6 +54,7 @@ public:
     }
     void clear() {
         std::unique_lock<std::recursive_mutex> lock(mutex_);
+        delete value_;
         value_ = nullptr;
     }
     template <typename ...Args>
@@ -260,6 +261,7 @@ public:
             return false;
         container_.erase(std::find(container_.begin(), container_.end(), ptr));
         uuidMap_.erase(guid);
+        delete ptr;
         return true;
     }
     /**
