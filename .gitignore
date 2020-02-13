@@ -186,3 +186,6 @@ third_party/poco/Foundation/src/pocomsg.rc
 
 # Resharper user settings
 *.DotSettings.user
+
+# QtCreator user files
+CMakeLists.txt*user
