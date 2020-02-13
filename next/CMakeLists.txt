@@ -62,8 +62,8 @@ set(NEXT_APP_SOURCE_FILES
     main.cc
 )
 
-add_library(NextLibrary ${NEXT_SOURCE_FILES})
-target_link_libraries(NextLibrary PRIVATE
+add_library(NextLibrary SHARED ${NEXT_SOURCE_FILES})
+target_link_libraries(NextLibrary
     ${JSONCPP_LIBRARIES}
     ${LUA_LIBRARIES}
     PocoFoundation PocoCrypto PocoDataSQLite PocoNet PocoNetSSL PocoData
