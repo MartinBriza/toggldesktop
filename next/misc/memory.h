@@ -222,6 +222,9 @@ public:
     {
 
     }
+    ~ProtectedContainer() {
+        clear();
+    }
 
     iterator begin() { return iterator(this, 0); }
     const_iterator begin() const { return const_iterator(this, 0); }
