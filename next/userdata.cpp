@@ -56,4 +56,48 @@ Error UserData::loadAll(const Json::Value &root, bool with_user) {
     return Error::kNoError;
 }
 
+void UserData::DeleteRelatedModelsWithWorkspace(id_t wid) {
+    auto deleteByWid = [](auto &list, auto wid) {
+        for (auto model : list) {
+            if (model->WID() == wid) {
+                model->MarkAsDeletedOnServer();
+            }
+        }
+    };
+    deleteByWid(Clients, wid);
+    deleteByWid(Projects, wid);
+    deleteByWid(Tasks, wid);
+    deleteByWid(TimeEntries, wid);
+    deleteByWid(Tags, wid);
+}
+
+void UserData::RemoveClientFromRelatedModels(id_t cid) {
+    for (auto model : Projects) {
+        if (model->CID() == cid) {
+            model->SetCID(0);
+        }
+    }
+}
+
+void UserData::RemoveProjectFromRelatedModels(id_t pid) {
+    auto deleteByPid = [](auto &list, auto pid) {
+        for (auto model : list) {
+            if (model->PID() == pid) {
+                model->SetPID(0);
+            }
+        }
+    };
+    deleteByPid(Tasks, pid);
+    deleteByPid(TimeEntries, pid);
+}
+
+void UserData::RemoveTaskFromRelatedModels(id_t tid) {
+    for (auto model : TimeEntries) {
+        if (model->TID() == tid) {
+            model->SetTID(0);
+        }
+    }
+}
+
+
 } // namespace toggl
