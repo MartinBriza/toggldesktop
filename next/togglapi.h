@@ -11,12 +11,12 @@ public:
 
     void setCredentials(const std::string &username, const std::string &password);
 
-    std::pair<Error, std::string> v8_me(bool with_related_data, int64_t since = 0);
+    Result<std::string> v8_me(bool with_related_data, int64_t since = 0);
     // POST timeline_upload + /api/v8/timeline_settings + payload(json)
     // POST api + /api/v8/feedback/web + form()
     // POST api + /api/v8/desktop_login_tokens + payload(empty json)
 
-    std::pair<Error, std::string> v9_status();
+    Result<std::string> v9_status();
 
     // GET api + /api/v8/desktop_login + login_token=
 
@@ -29,7 +29,7 @@ public:
     //  ^- google signup sends app name but regular doesn't for some reason
     // POST api + /api/v9/me/accept_tos
 
-    std::pair<Error, std::string> v9_countries();
+    Result<std::string> v9_countries();
 
 private:
     HttpClient client_;

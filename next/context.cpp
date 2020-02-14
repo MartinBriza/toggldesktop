@@ -29,8 +29,8 @@ Context::Context(const std::string &app_name, Context::Callbacks callbacks)
 void Context::login(const std::string &username, const std::string &password) {
     api.setCredentials(username, password);
     auto result = api.v8_me(true, 0);
-    if (result.first == Error::NO_ERROR) {
-        data.loadAll(result.second, true);
+    if (result) {
+        data.loadAll(*result, true);
         data.dumpAll();
 
         if (data.User) {
@@ -38,7 +38,7 @@ void Context::login(const std::string &username, const std::string &password) {
         }
         else {
             data.clear();
-            callbacks_.OnError("Login failed: " + result.first.String(), true);
+            callbacks_.OnError("Login failed: " + result.errorString(), true);
             return;
         }
 
@@ -48,8 +48,8 @@ void Context::login(const std::string &username, const std::string &password) {
         eventQueue_.schedule(std::chrono::seconds(5), std::bind(&Context::sync, this));
     }
     else {
-        logger.log(result.first.String());
-        callbacks_.OnError("Login failed: " + result.first.String(), true);
+        logger.log(result.errorString());
+        callbacks_.OnError("Login failed: " + result.errorString(), true);
     }
 
     logger.warning("SIZEOF:", sizeof(TimeEntryModel));
@@ -58,7 +58,7 @@ void Context::login(const std::string &username, const std::string &password) {
 void Context::getCountries() {
     auto result = api.v9_countries();
     //std::cout << result.first.String() << result.second << std::endl << std::flush;
-    data.loadCountries(result.second);
+    data.loadCountries(*result);
     callbacks_.OnCountries();
 }
 
@@ -66,8 +66,8 @@ void Context::sync() {
     logger.log("Syncing...");
 
     auto result = api.v8_me(true, 0);
-    if (result.first == Error::NO_ERROR) {
-        data.loadAll(result.second);
+    if (result) {
+        data.loadAll(*result);
         data.dumpAll();
 
         callbacks_.OnTimeEntryList();

@@ -307,6 +307,34 @@ private:
     std::string details_;
 };
 
+template <typename T>
+class Result {
+public:
+    Result(T&& data, Error e = Error::NO_ERROR)
+        : err_(e)
+        , data_(data)
+    {}
+    Result(T& data, Error e = Error::NO_ERROR)
+        : err_(e)
+        , data_(data)
+    {}
+
+    T& operator*() { return data_; }
+    const T& operator*() const { return data_; }
+    T& operator->() { return data_; }
+    const T& operator->() const { return data_; }
+
+    operator bool() const { return err_ == Error::NO_ERROR; }
+
+    bool is(const Error& o) { return err_ == o; }
+    Error error() const { return err_; }
+    std::string errorString() const { return err_.String(); }
+
+private:
+    Error err_;
+    T data_;
+};
+
 std::ostream &operator<<(std::ostream &out, const Error &t);
 
 } // namespace toggl

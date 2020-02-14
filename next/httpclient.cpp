@@ -34,7 +34,7 @@ void HttpClient::setCredentials(const std::string &username, const std::string &
     password_ = password;
 }
 
-std::pair<Error, std::string> HttpClient::Request(const std::string &method, const std::string &host, const std::string &path, const std::string &payload) {
+Result<std::string> HttpClient::Request(const std::string &method, const std::string &host, const std::string &path, const std::string &payload) {
     //HTTPSRequest req) const {
     auto response = internalRequest(method, host, path, payload);
 
@@ -49,7 +49,7 @@ std::pair<Error, std::string> HttpClient::Request(const std::string &method, con
 
         response = internalRequest(method, newHost, path, payload);
     }
-    return { Error::fromHttpStatus(response.first), response.second };
+    return { std::move(response.second), Error::fromHttpStatus(response.first) };
 }
 
 std::pair<Poco::Net::HTTPResponse::HTTPStatus, std::string> HttpClient::internalRequest(const std::string &method, const std::string &host, const std::string &path, const std::string &payload) {
@@ -105,7 +105,7 @@ std::pair<Poco::Net::HTTPResponse::HTTPStatus, std::string> HttpClient::internal
     return receiveResponse(response, session);
 }
 
-std::pair<Error, std::string> HttpClient::Get(const std::string &host, const std::string &path, const std::string &payload) {
+Result<std::string> HttpClient::Get(const std::string &host, const std::string &path, const std::string &payload) {
     return Request(Poco::Net::HTTPRequest::HTTP_GET, host, path, payload);
 }
 
