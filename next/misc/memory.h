@@ -104,15 +104,16 @@ class ProtectedContainer {
 public:
     class iterator {
     public:
+        friend class ProtectedContainer;
         typedef std::forward_iterator_tag iterator_category;
 
-        iterator(ProtectedContainer &model, size_t position = SIZE_MAX)
-            : lock(model.mutex_)
+        iterator(ProtectedContainer *model, size_t position = SIZE_MAX)
+            : lock(model->mutex_)
             , model(model)
             , position(position)
         { }
         iterator(const iterator &o)
-            : lock(o.model.mutex_)
+            : lock(o.model->mutex_)
             , model(o.model)
             , position(o.position)
         { }
@@ -133,39 +134,44 @@ public:
             position++;
             return *this;
         }
-        locked<T> operator*() const {
-            return { model.mutex_, model.container_[position]};
+        locked<T> operator*() {
+            if (realPosition() == SIZE_MAX)
+                return {};
+            return { model->mutex_, model->container_[position] };
         }
         T* operator->() const {
-            return model.container_[position];
+            if (realPosition() == SIZE_MAX)
+                return {};
+            return model->container_[position];
         }
 
     private:
         size_t realPosition() const {
-            if (model.size() <= position)
+            if (model->size() <= position)
                 return SIZE_MAX;
             return position;
         }
         std::unique_lock<std::recursive_mutex> lock;
-        ProtectedContainer &model;
+        ProtectedContainer *model;
         size_t position;
     };
     class const_iterator {
     public:
+        friend class ProtectedContainer;
         typedef std::forward_iterator_tag iterator_category;
 
-        const_iterator(const ProtectedContainer &model, size_t position = SIZE_MAX)
-            : lock(model.mutex_)
+        const_iterator(const ProtectedContainer *model, size_t position = SIZE_MAX)
+            : lock(model->mutex_)
             , model(model)
             , position(position)
         { }
         const_iterator(const const_iterator &o)
-            : lock(o.model.mutex_)
+            : lock(o.model->mutex_)
             , model(o.model)
             , position(o.position)
         { }
         const_iterator(const iterator &o)
-            : lock(o.model.mutex_)
+            : lock(o.model->mutex_)
             , model(o.model)
             , position(o.position)
         { }
@@ -187,20 +193,24 @@ public:
             return *this;
         }
         locked<const T> operator*() const {
-            return { model.mutex_, model.container_[position]};
+            if (realPosition() == SIZE_MAX)
+                return {};
+            return { model->mutex_, model->container_[position]};
         }
         T* operator->() const {
-            return model.container_[position];
+            if (realPosition() == SIZE_MAX)
+                return {};
+            return model->container_[position];
         }
 
     private:
         size_t realPosition() const {
-            if (model.size() <= position)
+            if (model->size() <= position)
                 return SIZE_MAX;
             return position;
         }
         std::unique_lock<std::recursive_mutex> lock;
-        const ProtectedContainer &model;
+        const ProtectedContainer *model;
         size_t position;
     };
 
@@ -213,12 +223,36 @@ public:
 
     }
 
-    iterator begin() { return iterator(*this, 0); }
-    const_iterator begin() const { return const_iterator(*this, 0); }
-    const_iterator cbegin() const { return const_iterator(*this, 0); }
-    iterator end() { return iterator(*this); }
-    const_iterator end() const { return const_iterator(*this); }
-    const_iterator cend() const { return const_iterator(*this); }
+    iterator begin() { return iterator(this, 0); }
+    const_iterator begin() const { return const_iterator(this, 0); }
+    const_iterator cbegin() const { return const_iterator(this, 0); }
+    iterator end() { return iterator(this); }
+    const_iterator end() const { return const_iterator(this); }
+    const_iterator cend() const { return const_iterator(this); }
+
+    iterator erase(iterator position) {
+        if (position == end()) {
+            // TODO warn?
+            return end();
+        }
+        std::unique_lock<std::recursive_mutex> lock(mutex_);
+        T* ptr { nullptr };
+        try {
+            ptr = container_[position.position];
+        }
+        catch (std::out_of_range &) {
+            // TODO warn?
+            return end();
+        }
+        if (!ptr) {
+            // again, warn?
+            return end();
+        }
+        container_.erase(container_.begin() + position.position);
+        uuidMap_.erase(ptr->GUID());
+        delete ptr;
+        return position;
+    }
 
     /**
      * @brief clear - Clear the @ref container_
@@ -294,13 +328,13 @@ public:
 
     locked<T> operator[](size_t position) {
         std::unique_lock<std::recursive_mutex> lock(mutex_);
-        if (container_.size() <= position)
+        if (container_.size() > position)
             return { mutex_, container_[position] };
         return {};
     }
     locked<const T> operator[](size_t position) const {
         std::unique_lock<std::recursive_mutex> lock(mutex_);
-        if (container_.size() <= position)
+        if (container_.size() > position)
             return { mutex_, container_[position] };
         return {};
     }
