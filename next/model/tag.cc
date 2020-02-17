@@ -40,6 +40,7 @@ error TagModel::LoadFromJSON(const Json::Value &data) {
     SetID(data["id"].asUInt64());
     SetName(data["name"].asString());
     SetWID(data["wid"].asUInt64());
+    return noError;
 }
 
 std::string TagModel::ModelName() const {

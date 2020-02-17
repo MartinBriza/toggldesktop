@@ -17,7 +17,10 @@
 #include "Poco/Types.h"
 
 namespace Poco {
-class Logger;
+    class Logger;
+    namespace Data {
+        class Session;
+    }
 }
 
 namespace toggl {
@@ -109,7 +112,7 @@ public:
     virtual Json::Value SaveToJSON() const { return {}; }
 
     //virtual void LoadFromDatabase() = 0;
-    //virtual void SaveToDatabase() = 0;
+    //virtual void SaveToDatabase(Poco::Data::Session *session) = 0;
 
     virtual bool DuplicateResource(const toggl::error &err) const;
     virtual bool ResourceCannotBeCreated(const toggl::error &err) const;
@@ -137,7 +140,7 @@ public:
 
     toggl::UserData *userData_;
 
-    id_t local_id_;
+    Poco::Int64 local_id_;
     id_t id_;
     uuid_t guid_;
     Poco::Int64 ui_modified_at_;

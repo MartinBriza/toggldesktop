@@ -30,9 +30,9 @@ public:
     inline static const std::string CONTENTTYPE_FORM_DATA { "multipart/form-data" };
     inline static const std::string CONTENTTYPE_JSON { "application/json" } ;
 
-    std::pair<Error, std::string> Get(const std::string &host, const std::string &path, const std::string &payload = {});
+    Result<std::string> Get(const std::string &host, const std::string &path, const std::string &payload = {});
 
-    std::pair<Error, std::string> Request(const std::string &method, const std::string &host, const std::string &path, const std::string &payload = {});
+    Result<std::string> Request(const std::string &method, const std::string &host, const std::string &path, const std::string &payload = {});
 private:
     std::pair<HTTPResponse::HTTPStatus, std::string> internalRequest(const std::string &method, const std::string &host, const std::string &path, const std::string &payload);
     std::pair<HTTPResponse::HTTPStatus, std::string> internalRequest(const std::string &method, const std::string &host, const std::string &path, Poco::Net::HTMLForm *form);

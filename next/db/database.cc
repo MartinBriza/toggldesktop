@@ -1690,22 +1690,17 @@ error Database::loadTimeEntriesFromSQLStatement(Poco::Data::Statement *select, P
 }
 
 template <typename T>
-error Database::saveRelatedModels(
-    const Poco::UInt64 UID,
+error Database::saveRelatedModels(const Poco::UInt64 UID,
     const std::string &table_name,
-    std::vector<T *> *list,
+    ProtectedContainer<T> &list,
     std::vector<ModelChange> *changes) {
 
     if (!UID) {
         return error::kMissingArgument;
     }
-    poco_check_ptr(list);
     poco_check_ptr(changes);
 
-    typedef typename std::vector<T *>::iterator iterator;
-
-    for (size_t i = 0; i < list->size(); i++) {
-        T *model = list->at(i);
+    for (auto model : list) {
         if (model->IsMarkedAsDeletedOnServer()) {
             error err = DeleteFromTable(table_name, model->LocalID());
             if (err != noError) {
@@ -1726,11 +1721,11 @@ error Database::saveRelatedModels(
     }
 
     // Purge deleted models from memory
-    iterator it = list->begin();
-    while (it != list->end()) {
-        T *model = *it;
+    auto it = list.begin();
+    while (it != list.end()) {
+        auto model = *it;
         if (model->IsMarkedAsDeletedOnServer()) {
-            it = list->erase(it);
+            it = list.erase(it);
         } else {
             ++it;
         }
@@ -1739,11 +1734,8 @@ error Database::saveRelatedModels(
     return noError;
 }
 
-typedef toggl::error (Database::*saveModel)(
-    BaseModel *model, std::vector<ModelChange> *changes);
-
 error Database::saveModel(
-    TimeEntryModel *model,
+    locked<TimeEntryModel> &model,
     std::vector<ModelChange> *changes) {
 
     try {
@@ -1953,7 +1945,7 @@ error Database::saveModel(
 }
 
 error Database::saveModel(
-    TimelineEventModel *model,
+    locked<TimelineEventModel> &model,
     std::vector<ModelChange> *changes) {
 
     try {
@@ -2106,7 +2098,7 @@ error Database::saveModel(
 }
 
 error Database::saveModel(
-    AutotrackerRuleModel *model,
+    locked<AutotrackerRuleModel> &model,
     std::vector<ModelChange> *changes) {
 
     try {
@@ -2191,7 +2183,7 @@ error Database::saveModel(
 }
 
 error Database::saveModel(
-    WorkspaceModel *model,
+    locked<WorkspaceModel> &model,
     std::vector<ModelChange> *changes) {
 
 
@@ -2283,7 +2275,7 @@ error Database::saveModel(
 }
 
 error Database::saveModel(
-    ClientModel *model,
+    locked<ClientModel> &model,
     std::vector<ModelChange> *changes) {
 
     try {
@@ -2396,7 +2388,7 @@ error Database::saveModel(
 }
 
 error Database::saveModel(
-    ProjectModel *model,
+    locked<ProjectModel> &model,
     std::vector<ModelChange> *changes) {
 
     try {
@@ -2635,7 +2627,7 @@ error Database::saveModel(
 }
 
 error Database::saveModel(
-    TaskModel *model,
+    locked<TaskModel> &model,
     std::vector<ModelChange> *changes) {
 
     try {
@@ -2709,7 +2701,7 @@ error Database::saveModel(
 }
 
 error Database::saveModel(
-    TagModel *model,
+    locked<TagModel> &model,
     std::vector<ModelChange> *changes    ) {
 
     try {
@@ -2810,21 +2802,19 @@ error Database::saveModel(
     return noError;
 }
 
-/*
+
 error Database::SaveUser(
-    UserModel *user,
+    locked<UserModel> &user,
     const bool with_related_data,
     std::vector<ModelChange> *changes) {
-
-    Poco::Mutex::ScopedLock lock(session_m_);
-
     // Do nothing, if user has already logged out
-    if (!user) {
+    if (user->ID() <= 0) {
         logger.warning("Cannot save user, user is logged out");
         return noError;
     }
 
-    poco_check_ptr(session_);
+    UserData *relatedData = user->Parent();
+
     poco_check_ptr(changes);
 
     Poco::Stopwatch stopwatch;
@@ -2844,6 +2834,7 @@ error Database::SaveUser(
     }
 
     session_.begin();
+    logger.warning("User is ", user->Email());
 
     // Check if we really need to save model,
     // *but* do not return if we don't need to.
@@ -2957,7 +2948,7 @@ error Database::SaveUser(
         std::vector<ModelChange> workspace_changes;
         error err = saveRelatedModels(user->ID(),
                                       "workspaces",
-                                      &user->related.Workspaces,
+                                      relatedData->Workspaces,
                                       &workspace_changes);
         if (err != noError) {
             session_.rollback();
@@ -2969,7 +2960,7 @@ error Database::SaveUser(
                 ++it) {
             ModelChange change = *it;
             if (change.IsDeletion()) {
-                user->DeleteRelatedModelsWithWorkspace(change.ModelID());
+                relatedData->DeleteRelatedModelsWithWorkspace(change.ModelID());
             }
             changes->push_back(change);
         }
@@ -2978,7 +2969,7 @@ error Database::SaveUser(
         std::vector<ModelChange> client_changes;
         err = saveRelatedModels(user->ID(),
                                 "clients",
-                                &user->related.Clients,
+                                relatedData->Clients,
                                 &client_changes);
         if (err != noError) {
             session_.rollback();
@@ -2990,7 +2981,7 @@ error Database::SaveUser(
                 ++it) {
             ModelChange change = *it;
             if (change.IsDeletion()) {
-                user->RemoveClientFromRelatedModels(change.ModelID());
+                relatedData->RemoveClientFromRelatedModels(change.ModelID());
             }
             changes->push_back(change);
         }
@@ -2999,7 +2990,7 @@ error Database::SaveUser(
         std::vector<ModelChange> project_changes;
         err = saveRelatedModels(user->ID(),
                                 "projects",
-                                &user->related.Projects,
+                                relatedData->Projects,
                                 &project_changes);
         if (err != noError) {
             session_.rollback();
@@ -3011,7 +3002,7 @@ error Database::SaveUser(
                 ++it) {
             ModelChange change = *it;
             if (change.IsDeletion()) {
-                user->RemoveProjectFromRelatedModels(change.ModelID());
+                relatedData->RemoveProjectFromRelatedModels(change.ModelID());
             }
             changes->push_back(change);
         }
@@ -3020,7 +3011,7 @@ error Database::SaveUser(
         std::vector<ModelChange> task_changes;
         err = saveRelatedModels(user->ID(),
                                 "tasks",
-                                &user->related.Tasks,
+                                relatedData->Tasks,
                                 &task_changes);
         if (err != noError) {
             session_.rollback();
@@ -3032,7 +3023,7 @@ error Database::SaveUser(
                 ++it) {
             ModelChange change = *it;
             if (change.IsDeletion()) {
-                user->RemoveTaskFromRelatedModels(change.ModelID());
+                relatedData->RemoveTaskFromRelatedModels(change.ModelID());
             }
             changes->push_back(change);
         }
@@ -3040,7 +3031,7 @@ error Database::SaveUser(
         // Tags
         err = saveRelatedModels(user->ID(),
                                 "tags",
-                                &user->related.Tags,
+                                relatedData->Tags,
                                 changes);
         if (err != noError) {
             session_.rollback();
@@ -3050,7 +3041,7 @@ error Database::SaveUser(
         // Time entries
         err = saveRelatedModels(user->ID(),
                                 "time_entries",
-                                &user->related.TimeEntries,
+                                relatedData->TimeEntries,
                                 changes);
         if (err != noError) {
             session_.rollback();
@@ -3060,27 +3051,7 @@ error Database::SaveUser(
         // Autotracker rules
         err = saveRelatedModels(user->ID(),
                                 "autotracker_settings",
-                                &user->related.AutotrackerRules,
-                                changes);
-        if (err != noError) {
-            session_.rollback();
-            return err;
-        }
-
-        // OBM actions
-        err = saveRelatedModels(user->ID(),
-                                "obm_actions",
-                                &user->related.ObmActions,
-                                changes);
-        if (err != noError) {
-            session_.rollback();
-            return err;
-        }
-
-        // OBM experiments
-        err = saveRelatedModels(user->ID(),
-                                "obm_experiments",
-                                &user->related.ObmExperiments,
+                                relatedData->AutotrackerRules,
                                 changes);
         if (err != noError) {
             session_.rollback();
@@ -3090,7 +3061,7 @@ error Database::SaveUser(
         // Timeline events
         err = saveRelatedModels(user->ID(),
                                 "timeline_events",
-                                &user->related.TimelineEvents,
+                                relatedData->TimelineEvents,
                                 changes);
         if (err != noError) {
             session_.rollback();
@@ -3106,7 +3077,6 @@ error Database::SaveUser(
 
     return noError;
 }
-*/
 
 error Database::ensureMigrationTable() {
     std::string table_name;

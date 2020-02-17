@@ -15,12 +15,14 @@ Context::Context(const std::string &app_name, Context::Callbacks callbacks)
 {
     Poco::Data::SQLite::Connector::registerConnector();
     db_ = new Database("/home/mbriza/toggldesktop.db");
+    /*
     auto user = *data.User;
     logger.log("Before loading, the user email is ", user->Email());
     db_->LoadCurrentUser(user);
     logger.log("HERE WE GO! User is: ", user->Email());
     logger.log("We have loaded ", data.TimeEntries.size(), " time entries.");
     data.dumpAll();
+    */
 
     eventQueue_.schedule([this](){ callbacks_.OnTimeEntryList(); });
     eventQueue_.schedule([this](){ callbacks_.OnTimerState(); });
@@ -29,18 +31,23 @@ Context::Context(const std::string &app_name, Context::Callbacks callbacks)
 void Context::login(const std::string &username, const std::string &password) {
     api.setCredentials(username, password);
     auto result = api.v8_me(true, 0);
-    if (result.first == Error::NO_ERROR) {
-        data.loadAll(result.second, true);
+    if (result) {
+        data.loadAll(*result, true);
         data.dumpAll();
 
-        if (data.User) {
-            api.setCredentials(data.User->APIToken(), "api_token");
-        }
-        else {
+        if (data.User->ID() <= 0) {
             data.clear();
-            callbacks_.OnError("Login failed: " + result.first.String(), true);
+            callbacks_.OnError("Login failed: " + result.errorString(), true);
             return;
         }
+
+        auto user = *data.User;
+        logger.warning("User is ", user->Email());
+        //db_->LoadUserByID(user->ID(), user);
+        api.setCredentials(user->APIToken(), "api_token");
+
+        std::vector<ModelChange> changes;
+        db_->SaveUser(user, true, &changes);
 
         callbacks_.OnTimeEntryList();
         callbacks_.OnTimerState();
@@ -48,15 +55,15 @@ void Context::login(const std::string &username, const std::string &password) {
         eventQueue_.schedule(std::chrono::seconds(5), std::bind(&Context::sync, this));
     }
     else {
-        logger.log(result.first.String());
-        callbacks_.OnError("Login failed: " + result.first.String(), true);
+        logger.log(result.errorString());
+        callbacks_.OnError("Login failed: " + result.errorString(), true);
     }
 }
 
 void Context::getCountries() {
     auto result = api.v9_countries();
     //std::cout << result.first.String() << result.second << std::endl << std::flush;
-    data.loadCountries(result.second);
+    data.loadCountries(*result);
     callbacks_.OnCountries();
 }
 
@@ -64,8 +71,8 @@ void Context::sync() {
     logger.log("Syncing...");
 
     auto result = api.v8_me(true, 0);
-    if (result.first == Error::NO_ERROR) {
-        data.loadAll(result.second);
+    if (result) {
+        data.loadAll(*result);
         data.dumpAll();
 
         callbacks_.OnTimeEntryList();

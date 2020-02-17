@@ -93,6 +93,12 @@ public:
         return load<CountryModel>(Countries, root);
     }
 
+    // Stuff from legacy library
+    void DeleteRelatedModelsWithWorkspace(id_t wid);
+    void RemoveClientFromRelatedModels(id_t cid);
+    void RemoveProjectFromRelatedModels(id_t pid);
+    void RemoveTaskFromRelatedModels(id_t tid);
+
 private:
     Context *context_;
 

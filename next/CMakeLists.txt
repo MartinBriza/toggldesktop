@@ -17,6 +17,7 @@ include_directories(
 )
 set(NEXTLIBRARY_INCLUDE_DIR
     ${CMAKE_CURRENT_SOURCE_DIR}/legacy
+    ${CMAKE_CURRENT_SOURCE_DIR}
     PARENT_SCOPE
 )
 

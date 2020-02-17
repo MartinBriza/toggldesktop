@@ -61,8 +61,8 @@ int main(void) {
 
     auto result = api.v8_me(true);
 
-    std::cout << result.second << std::endl;
-    std::cout << result.first.String() << std::endl;
+    std::cout << *result << std::endl;
+    std::cout << result.errorString() << std::endl;
 
     return EXIT_SUCCESS;
 }
