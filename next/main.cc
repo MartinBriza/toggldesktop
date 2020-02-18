@@ -47,7 +47,7 @@ int main(void) {
         std::cerr << e.message() << std::endl << e.displayText() << std::endl;
     }
 
-    ctx->Start();
+    ctx->UiStart();
 
     std::this_thread::sleep_for(std::chrono::seconds(1));
     ctx->Login(TEST_USERNAME, TEST_PASSWORD);

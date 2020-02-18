@@ -11,6 +11,12 @@ using namespace toggl;
 
 // Initialize/destroy an instance of the app
 
+struct LegacyContext {
+    TogglDisplayTimeEntryEditor OnTimeEntryEditor { nullptr };
+};
+
+static std::map<Context*, LegacyContext> contextMap;
+
 void *toggl_context_init(
     const char_t *app_name,
     const char_t *app_version) {
@@ -222,7 +228,12 @@ void toggl_on_tags(
 
 void toggl_on_time_entry_editor(
     void *context,
-    TogglDisplayTimeEntryEditor cb) { }
+    TogglDisplayTimeEntryEditor cb) {
+    auto ctx = reinterpret_cast<Context*>(context);
+    if (contextMap.contains(ctx))
+        contextMap.insert({ctx, LegacyContext()});
+    contextMap[ctx].OnTimeEntryEditor = cb;
+}
 
 void toggl_on_settings(
     void *context,
@@ -304,7 +315,7 @@ void toggl_on_obm_experiment(
 
 bool_t toggl_ui_start(
     void *context) {
-    reinterpret_cast<Context*>(context)->Start();
+    reinterpret_cast<Context*>(context)->UiStart();
     return true;
 }
 
@@ -424,7 +435,25 @@ void toggl_edit(
     void *context,
     const char_t *guid,
     const bool_t edit_running_time_entry,
-    const char_t *focused_field_name) { }
+    const char_t *focused_field_name) {
+    auto ctx = reinterpret_cast<Context*>(context);
+    if (contextMap.contains(ctx) && contextMap[ctx].OnTimeEntryEditor) {
+        TogglTimeEntryView *view { nullptr };
+        if (edit_running_time_entry) {
+            auto te = const_cast<const UserData*>(ctx->GetData())->RunningTimeEntry();
+            if (!te)
+                return;
+            view = time_entry_view_item_init(te);
+        }
+        else {
+            locked<const TimeEntryModel> te = ctx->GetData()->TimeEntries.byGUIDconst(uuid_t(guid));
+            if (!te)
+                return;
+            view = time_entry_view_item_init(te);
+        }
+        contextMap[ctx].OnTimeEntryEditor(true, view, focused_field_name);
+    }
+}
 
 void toggl_edit_preferences(
     void *context) { }
@@ -523,7 +552,8 @@ bool_t toggl_set_time_entry_description(
 bool_t toggl_stop(
     void *context,
     const bool_t prevent_on_app) {
-    return false;
+    auto ctx = reinterpret_cast<Context*>(context);
+    ctx->Stop();
 }
 
 bool_t toggl_discard_time_at(
@@ -812,7 +842,21 @@ char_t *toggl_start(
     const bool_t prevent_on_app,
     const uint64_t started,
     const uint64_t ended) {
-    return nullptr;
+    Context *ctx = reinterpret_cast<Context*>(context);
+
+    uuid_t taskUuid;
+    uuid_t projectUuid;
+    if (task_id) {
+        taskUuid = ctx->GetData()->Tasks.byId(task_id)->GUID();
+    }
+    if (project_id) {
+        projectUuid = ctx->GetData()->Tasks.byId(project_id)->GUID();
+    }
+    else if (project_guid) {
+        projectUuid = uuid_t(project_guid);
+    }
+
+    return copy_string(ctx->Start(description, duration, taskUuid, projectUuid, tags, started, ended));
 }
 
 // returns GUID of the new project. you must free() the result

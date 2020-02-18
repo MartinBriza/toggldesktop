@@ -74,7 +74,9 @@ public:
         return &data;
     }
 
-    void Start();
+    void UiStart();
+    uuid_t Start(const std::string &description, const std::string &duration, uuid_t task, uuid_t project, const std::string &tags, const time_t &started, const time_t &ended);
+    void Stop();
 
     void Login(const std::string &username, const std::string &password) {
         eventQueue_.schedule(std::bind(&Context::login, this, username, password));
@@ -87,9 +89,10 @@ public:
 
 private:
     void init();
-    void start();
+    void uiStart();
     void login(const std::string &username, const std::string &password);
     void getCountries();
+
 
     void sync();
 

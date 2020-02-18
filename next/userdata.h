@@ -49,11 +49,18 @@ public:
 
     // TODO move this somewhere else?
     locked<TimeEntryModel> RunningTimeEntry() {
-        for (auto i : TimeEntries) {
-            if (i->IsTracking())
-                return i;
+        for (auto it = TimeEntries.begin(); it != TimeEntries.end(); ++it) {
+            if (it->IsTracking())
+                return *it;
         }
         return locked<TimeEntryModel>();
+    }
+    locked<const TimeEntryModel> RunningTimeEntry() const {
+        for (auto it = TimeEntries.cbegin(); it != TimeEntries.cend(); ++it) {
+            if (it->IsTracking())
+                return *it;
+        }
+        return locked<const TimeEntryModel>();
     }
 
     void clear() {

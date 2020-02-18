@@ -18,6 +18,9 @@ public:
     ~TestModel() {
         modelCounter--;
     }
+    std::string ModelName() {
+        return "Test";
+    }
     uuid_t GUID() {
         return uuid_;
     }

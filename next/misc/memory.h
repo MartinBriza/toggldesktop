@@ -24,7 +24,7 @@ public:
     locked()
         : std::unique_lock<std::recursive_mutex>()
         , data_(nullptr)
-    {}
+    { }
     /**
      * @brief Constructs a valid locked object
      * @param mutex - Needs to be a valid mutex, the application will block if it's already locked in a different thread
@@ -33,7 +33,14 @@ public:
     locked(mutex_type &mutex, T *data)
         : std::unique_lock<std::recursive_mutex>(mutex)
         , data_(data)
-    {}
+    { }
+    locked<T> &operator=(locked<T> &&o) {
+        std::unique_lock<std::recursive_mutex>::operator=(std::move(o));
+        data_ = o.data_;
+        o.data_ = nullptr;
+        return *this;
+    }
+    ~locked() {}
     T *operator->() { return data_; }
     /**
      * @brief operator bool - Returns true if the mutex is locked and the pointer is not null
@@ -120,8 +127,10 @@ public:
         ~iterator() {}
 
         iterator& operator=(const iterator &o) {
+            lock = std::unique_lock<std::recursive_mutex>(o.model->mutex_);
             model = o.model;
             position = o.position;
+            return *this;
         }
         bool operator==(const iterator &o) const {
             return model == o.model && realPosition() == o.realPosition();
@@ -178,8 +187,10 @@ public:
         ~const_iterator() {}
 
         const_iterator& operator=(const const_iterator &o) {
+            lock = std::unique_lock<std::recursive_mutex>(o.model->mutex_);
             model = o.model;
             position = o.position;
+            return *this;
         }
         bool operator==(const const_iterator &o) const {
             return model == o.model && realPosition() == o.realPosition();
@@ -307,7 +318,6 @@ public:
      * @return - number of items inside the container
      */
     size_t size() const {
-        std::unique_lock<std::recursive_mutex> lock(mutex_);
         return container_.size();
     }
     /**
@@ -359,6 +369,27 @@ public:
         catch (std::out_of_range &) {
             return {};
         }
+    }
+    locked<T> byGUID(const uuid_t &uuid) {
+        std::unique_lock<std::recursive_mutex> lock(mutex_);
+        try {
+            return { mutex_, uuidMap_.at(uuid) };
+        }
+        catch (std::out_of_range &) {
+            return {};
+        }
+    }
+    locked<const T> byGUID(const uuid_t &uuid) const {
+        std::unique_lock<std::recursive_mutex> lock(mutex_);
+        try {
+            return { mutex_, uuidMap_.at(uuid) };
+        }
+        catch (std::out_of_range &) {
+            return {};
+        }
+    }
+    locked<const T> byGUIDconst(const uuid_t &uuid) const {
+        return byGUID(uuid);
     }
     locked<T> byId(uint64_t id) {
         std::unique_lock<std::recursive_mutex> lock(mutex_);
