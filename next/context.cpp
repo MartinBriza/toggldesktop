@@ -14,18 +14,37 @@ Context::Context(const std::string &app_name, Context::Callbacks callbacks)
     , eventQueue_(this)
 {
     Poco::Data::SQLite::Connector::registerConnector();
+    eventQueue_.schedule(std::bind(&Context::init, this));
+}
+
+void Context::Start() {
+    eventQueue_.start();
+    callbacks_.OnShowApp(true);
+    eventQueue_.schedule(std::bind(&Context::start, this));
+}
+
+void Context::init()
+{
     db_ = new Database("/home/mbriza/toggldesktop.db");
-    /*
+}
+
+void Context::start() {
     auto user = *data.User;
     logger.log("Before loading, the user email is ", user->Email());
     db_->LoadCurrentUser(user);
-    logger.log("HERE WE GO! User is: ", user->Email());
-    logger.log("We have loaded ", data.TimeEntries.size(), " time entries.");
-    data.dumpAll();
-    */
+    if (user->ID() > 0) {
+        logger.log("HERE WE GO! User is: ", user->Email());
+        logger.log("We have loaded ", data.TimeEntries.size(), " time entries.");
+        data.dumpAll();
 
-    eventQueue_.schedule([this](){ callbacks_.OnTimeEntryList(); });
-    eventQueue_.schedule([this](){ callbacks_.OnTimerState(); });
+        callbacks_.OnTimeEntryList();
+        callbacks_.OnTimerState();
+    }
+    else {
+        logger.log("There was no user session in the database");
+        callbacks_.OnLogin(true, 0);
+        callbacks_.OnTimerState();
+    }
 }
 
 void Context::login(const std::string &username, const std::string &password) {
@@ -45,6 +64,11 @@ void Context::login(const std::string &username, const std::string &password) {
         logger.warning("User is ", user->Email());
         //db_->LoadUserByID(user->ID(), user);
         api.setCredentials(user->APIToken(), "api_token");
+
+        db_->SetCurrentAPIToken(data.User->APIToken(), data.User->ID());
+        Error err = user->EnableOfflineLogin(password);
+        if (!err.IsNoError())
+            GetCallbacks()->OnError(err.String(), true);
 
         std::vector<ModelChange> changes;
         db_->SaveUser(user, true, &changes);

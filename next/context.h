@@ -74,15 +74,7 @@ public:
         return &data;
     }
 
-    void Start() {
-        eventQueue_.start();
-        callbacks_.OnShowApp(true);
-        // TODO
-        if (data.User->ID() <= 0) {
-            eventQueue_.schedule([this](){ callbacks_.OnLogin(true, 0); });
-            eventQueue_.schedule([this](){ callbacks_.OnTimerState(); });
-        }
-    }
+    void Start();
 
     void Login(const std::string &username, const std::string &password) {
         eventQueue_.schedule(std::bind(&Context::login, this, username, password));
@@ -94,6 +86,8 @@ public:
 
 
 private:
+    void init();
+    void start();
     void login(const std::string &username, const std::string &password);
     void getCountries();
 
