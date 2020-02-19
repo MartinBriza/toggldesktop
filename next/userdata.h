@@ -63,6 +63,8 @@ public:
         return locked<const TimeEntryModel>();
     }
 
+    locked<BaseModel> ByGuid(const uuid_t &uuid);
+
     void clear() {
         // TODO clearing User is probably a mistake
         User.clear();

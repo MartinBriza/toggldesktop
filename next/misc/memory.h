@@ -9,6 +9,7 @@
 
 namespace toggl {
 class UserData;
+class BaseModel;
 
 /**
  * @class locked
@@ -244,11 +245,10 @@ public:
     const_iterator end() const { return const_iterator(this); }
     const_iterator cend() const { return const_iterator(this); }
 
-    std::unique_lock<std::recursive_mutex> lock() {
-        return { mutex_ };
-    }
-    std::unique_lock<std::recursive_mutex> lock(std::defer_lock_t t) {
-        return { mutex_, t };
+    std::unique_lock<std::recursive_mutex> lock(bool immediately = true) {
+        if (immediately)
+            return std::unique_lock(mutex_);
+        return { mutex_, std::defer_lock };
     }
 
     iterator erase(iterator position) {
@@ -326,6 +326,11 @@ public:
      */
     size_t size() const {
         return container_.size();
+    }
+
+    bool contains(const uuid_t &uuid) const {
+        std::unique_lock<std::recursive_mutex> lock(mutex_);
+        return uuidMap_.find(uuid) != uuidMap_.end();
     }
     /**
      * @brief make_locked - Makes pointer to any type locked by the internal mutex
@@ -413,6 +418,15 @@ public:
                 return { mutex_, i };
         }
         return {};
+    }
+    locked<BaseModel> baseByGUID(const uuid_t &uuid) {
+        std::unique_lock<std::recursive_mutex> lock(mutex_);
+        try {
+            return { mutex_, uuidMap_.at(uuid) };
+        }
+        catch (std::out_of_range &) {
+            return {};
+        }
     }
 
     bool operator==(const ProtectedContainer &o) const { return this == &o; }

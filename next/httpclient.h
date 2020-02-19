@@ -3,6 +3,7 @@
 
 #include "const.h"
 #include "misc/error.h"
+#include "misc/types.h"
 
 #include <string>
 #include <memory>
@@ -27,7 +28,7 @@ class HTTPRequest {
     HTTPRequest() {}
 
     bool IsEmpty() {
-        return !model
+        return model.empty()
                 && method.empty()
                 && host.empty()
                 && relative_url.empty()
@@ -38,7 +39,7 @@ class HTTPRequest {
                 && timeout_seconds == kHTTPClientTimeoutSeconds;
     }
 
-    BaseModel *model { nullptr };
+    uuid_t model {};
     std::string method {};
     std::string host {};
     std::string relative_url {};

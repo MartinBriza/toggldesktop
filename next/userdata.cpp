@@ -2,6 +2,56 @@
 
 namespace toggl {
 
+locked<BaseModel> UserData::ByGuid(const uuid_t &uuid) {
+    // TODO ugh...
+    {
+        auto lock = Tags.lock();
+        if (Tags.contains(uuid))
+            return Tags.baseByGUID(uuid);
+    }
+    {
+        auto lock = Clients.lock();
+        if (Clients.contains(uuid))
+            return Clients.baseByGUID(uuid);
+    }
+    {
+        auto lock = Projects.lock();
+        if (Projects.contains(uuid))
+            return Projects.baseByGUID(uuid);
+    }
+    {
+        auto lock = TimeEntries.lock();
+        if (TimeEntries.contains(uuid))
+            return TimeEntries.baseByGUID(uuid);
+    }
+    {
+        auto lock = Countries.lock();
+        if (Countries.contains(uuid))
+            return Countries.baseByGUID(uuid);
+    }
+    {
+        auto lock = Workspaces.lock();
+        if (Workspaces.contains(uuid))
+            return Workspaces.baseByGUID(uuid);
+    }
+    {
+        auto lock = Tasks.lock();
+        if (Tasks.contains(uuid))
+            return Tasks.baseByGUID(uuid);
+    }
+    {
+        auto lock = AutotrackerRules.lock();
+        if (AutotrackerRules.contains(uuid))
+            return AutotrackerRules.baseByGUID(uuid);
+    }
+    {
+        auto lock = TimelineEvents.lock();
+        if (TimelineEvents.contains(uuid))
+            return TimelineEvents.baseByGUID(uuid);
+    }
+    return {};
+}
+
 void UserData::dumpAll() {
     std::cout << "==== Workspaces ====" << std::endl << std::flush;
     dump(Workspaces);
@@ -58,15 +108,15 @@ Error UserData::loadAll(const Json::Value &root, bool with_user) {
 
 std::list<HTTPRequest> UserData::CollectChanges() {
     // first lock everything... this could probably be a tad shorter but it works
-    auto tagsLock = Tags.lock(std::defer_lock);
-    auto clientsLock = Clients.lock(std::defer_lock);
-    auto projectsLock = Projects.lock(std::defer_lock);
-    auto timeEntriesLock = TimeEntries.lock(std::defer_lock);
-    auto countriesLock = Countries.lock(std::defer_lock);
-    auto workspacesLock = Workspaces.lock(std::defer_lock);
-    auto tasksLock = Tasks.lock(std::defer_lock);
-    auto autotrackerRulesLock = AutotrackerRules.lock(std::defer_lock);
-    auto timelineEventsLock = TimelineEvents.lock(std::defer_lock);
+    auto tagsLock = Tags.lock(false);
+    auto clientsLock = Clients.lock(false);
+    auto projectsLock = Projects.lock(false);
+    auto timeEntriesLock = TimeEntries.lock(false);
+    auto countriesLock = Countries.lock(false);
+    auto workspacesLock = Workspaces.lock(false);
+    auto tasksLock = Tasks.lock(false);
+    auto autotrackerRulesLock = AutotrackerRules.lock(false);
+    auto timelineEventsLock = TimelineEvents.lock(false);
     std::lock(tagsLock, clientsLock, projectsLock, timeEntriesLock, countriesLock, workspacesLock, tasksLock, autotrackerRulesLock, timelineEventsLock);
 
     // define a lambda to collect the data from all containers without caring for their type

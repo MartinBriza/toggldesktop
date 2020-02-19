@@ -118,7 +118,7 @@ HTTPRequest BaseModel::MakeRequest() {
         req.payload = writer.write(json);
     }
     req.relative_url = ModelURL();
-    req.model = this;
+    req.model = GUID();
     return req;
 }
 

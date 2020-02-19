@@ -209,6 +209,7 @@ void Context::sync() {
 
     auto requests = GetData()->CollectChanges();
     Json::Reader reader;
+    std::map<std::string, std::string> responses;
     for (auto i : requests) {
         if (!i.IsEmpty()) {
             auto response = api.Client()->Request(i.method, "https://toggl.space", i.relative_url, i.payload);
@@ -219,28 +220,57 @@ void Context::sync() {
             logger.log("=================================");
             if (response.error().IsNoError()) {
                 if (i.method == Poco::Net::HTTPRequest::HTTP_DELETE) {
-                    i.model->MarkAsDeletedOnServer();
+                    auto model = GetData()->ByGuid(i.model);
+                    model->MarkAsDeletedOnServer();
                 }
                 else {
-                    Json::Value root;
-                    reader.parse(*response, root);
-                    auto id = root["id"].asUInt64();
-                    if (!id) {
-                        // TODO
-                        continue;
-                    }
-                    if (i.model->ID() <= 0) {
-                        i.model->SetID(id);
-                        continue;
-                    }
-                    else if (i.model->ID() != id) {
-                        // TODO
-                    }
-                    i.model->LoadFromJSON(root);
+                    responses.insert({i.model, *response});
                 }
             }
         }
     }
+
+    {
+        // first lock everything... this could probably be a tad shorter but it works
+        auto tagsLock = GetData()->Tags.lock(false);
+        auto clientsLock = GetData()->Clients.lock(false);
+        auto projectsLock = GetData()->Projects.lock(false);
+        auto timeEntriesLock = GetData()->TimeEntries.lock(false);
+        auto countriesLock = GetData()->Countries.lock(false);
+        auto workspacesLock = GetData()->Workspaces.lock(false);
+        auto tasksLock = GetData()->Tasks.lock(false);
+        auto autotrackerRulesLock = GetData()->AutotrackerRules.lock(false);
+        auto timelineEventsLock = GetData()->TimelineEvents.lock(false);
+        std::lock(tagsLock, clientsLock, projectsLock, timeEntriesLock, countriesLock, workspacesLock, tasksLock, autotrackerRulesLock, timelineEventsLock);
+
+        // then handle the responses
+        for (auto i : responses) {
+            auto model = GetData()->ByGuid(i.first);
+            if (!model) {
+                logger.log("Could not find model ", i.first);
+                continue;
+            }
+            Json::Value root;
+            reader.parse(i.second, root);
+            auto id = root["id"].asUInt64();
+            if (!id) {
+                // TODO
+                continue;
+            }
+            if (model->ID() <= 0) {
+                model->SetID(id);
+                continue;
+            }
+            else if (model->ID() != id) {
+                // TODO
+            }
+            model->LoadFromJSON(root);
+        }
+    }
+
+    auto user = *GetData()->User;
+    std::vector<ModelChange> changes;
+    db_->SaveUser(user, true, &changes);
 
     eventQueue_.schedule(std::chrono::seconds(5), std::bind(&Context::sync, this));
 }
