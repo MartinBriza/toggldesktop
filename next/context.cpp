@@ -103,7 +103,13 @@ uuid_t Context::Start(const std::string &description, const std::string &duratio
     eventQueue_.schedule([this]() { callbacks_.OnTimerState(); });
 
     logger.log("Managed to create a new time entry: ", te->GUID());
-    return te->GUID();
+    std::vector<ModelChange> changes;
+    Error err = db_->SaveUser(user, true, &changes);
+    if (err.IsNoError())
+        return te->GUID();
+    else {
+        return {};
+    }
 }
 
 void Context::Stop() {
@@ -114,6 +120,9 @@ void Context::Stop() {
     }
     callbacks_.OnTimerState();
     callbacks_.OnTimeEntryList();
+    auto user = *GetData()->User;
+    std::vector<ModelChange> changes;
+    db_->SaveUser(user, true, &changes);
 }
 
 void Context::init()
@@ -189,6 +198,7 @@ void Context::sync() {
 
     auto result = api.v8_me(true, 0);
     if (result) {
+        return;
         data.loadAll(*result);
         data.dumpAll();
 

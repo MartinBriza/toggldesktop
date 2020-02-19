@@ -35,6 +35,7 @@
 
 namespace toggl {
 
+using Poco::Data::Keywords::use;
 using Poco::Data::Keywords::useRef;
 using Poco::Data::Keywords::limit;
 using Poco::Data::Keywords::into;
@@ -1786,7 +1787,7 @@ error Database::saveModel(
                           useRef(model->DeletedAt()),
                           useRef(model->UpdatedAt()),
                           useRef(model->ProjectGUID()),
-                          model->ValidationError().String(),
+                          useRef(model->ValidationError().StringRef()),
                           useRef(model->LocalID()),
                           now;
             } else {
@@ -1821,7 +1822,7 @@ error Database::saveModel(
                           useRef(model->DeletedAt()),
                           useRef(model->UpdatedAt()),
                           useRef(model->ProjectGUID()),
-                          model->ValidationError().String(),
+                          useRef(model->ValidationError().StringRef()),
                           useRef(model->LocalID()),
                           now;
             }
@@ -1876,7 +1877,7 @@ error Database::saveModel(
                           useRef(model->DeletedAt()),
                           useRef(model->UpdatedAt()),
                           useRef(model->ProjectGUID()),
-                          model->ValidationError().String(),
+                          useRef(model->ValidationError().StringRef()),
                           now;
             } else {
                 session_ <<
@@ -1910,7 +1911,7 @@ error Database::saveModel(
                           useRef(model->DeletedAt()),
                           useRef(model->UpdatedAt()),
                           useRef(model->ProjectGUID()),
-                          model->ValidationError().String(),
+                          useRef(model->ValidationError().StringRef()),
                           now;
             }
             error err = last_error("saveTimeEntry");

@@ -296,6 +296,7 @@ public:
 
     std::string MakeErrorActionable() const;
     std::string String() const;
+    const std::string &StringRef() const;
 
     static Error fromString(const std::string &message);
 

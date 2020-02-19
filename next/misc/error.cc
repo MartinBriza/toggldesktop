@@ -13,6 +13,17 @@ std::string Error::String() const {
     }
 }
 
+const std::string &Error::StringRef() const {
+    thread_local static std::string lastError;
+    try {
+        return values.at(code_);
+    }
+    catch (std::out_of_range &) {
+        lastError = "Unknown error (" + std::to_string(code_) + ")";
+        return lastError;
+    }
+}
+
 Error Error::fromString(const std::string &message) {
     return kNoError;
 }
