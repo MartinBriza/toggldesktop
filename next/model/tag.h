@@ -6,6 +6,7 @@
 #include <string>
 
 #include "Poco/Types.h"
+#include "Poco/Data/RecordSet.h"
 
 #include "./base_model.h"
 
@@ -15,8 +16,11 @@ template<typename T> class ProtectedContainer;
 class TOGGL_INTERNAL_EXPORT TagModel : public BaseModel {
     TagModel(UserData *parent) : BaseModel(parent) {}
     TagModel(UserData *parent, const Json::Value &root);
+    TagModel(UserData *parent, Poco::Data::RecordSet &rs);
 public:
     friend class ProtectedContainer<TagModel>;
+
+    static Error LoadFromDatabase(ProtectedContainer<TagModel> &list, Poco::Data::Session &session, id_t UID);
 
     const Poco::UInt64 &WID() const {
         return wid_;

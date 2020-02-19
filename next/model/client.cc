@@ -9,6 +9,12 @@
 
 namespace toggl {
 
+using Poco::Data::Keywords::use;
+using Poco::Data::Keywords::useRef;
+using Poco::Data::Keywords::limit;
+using Poco::Data::Keywords::into;
+using Poco::Data::Keywords::now;
+
 ClientModel::ClientModel(UserData *parent, const Json::Value &root)
     : BaseModel(parent)
 {

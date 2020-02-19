@@ -5,13 +5,66 @@
 #include <sstream>
 
 #include "./const.h"
+#include "misc/memory.h"
 
 namespace toggl {
+
+using Poco::Data::Keywords::use;
+using Poco::Data::Keywords::useRef;
+using Poco::Data::Keywords::limit;
+using Poco::Data::Keywords::into;
+using Poco::Data::Keywords::now;
 
 TagModel::TagModel(UserData *parent, const Json::Value &root)
     : BaseModel(parent)
 {
     LoadFromJSON(root);
+}
+
+TagModel::TagModel(UserData *parent, Poco::Data::RecordSet &rs)
+    : BaseModel(parent)
+{
+    SetLocalID(rs[0].convert<Poco::Int64>());
+    if (rs[1].isEmpty()) {
+        SetID(0);
+    } else {
+        SetID(rs[1].convert<Poco::UInt64>());
+    }
+    SetUID(rs[2].convert<Poco::UInt64>());
+    SetName(rs[3].convert<std::string>());
+    SetWID(rs[4].convert<Poco::UInt64>());
+    if (rs[5].isEmpty()) {
+        SetGUID({});
+    } else {
+        SetGUID(rs[5].convert<uuid_t>());
+    }
+    ClearDirty();
+}
+
+Error TagModel::LoadFromDatabase(ProtectedContainer<TagModel> &list, Poco::Data::Session &session, id_t UID) {
+    Poco::Data::Statement select(session);
+    select <<
+           "SELECT local_id, id, uid, name, wid, guid "
+           "FROM tags "
+           "WHERE uid = :uid "
+           "ORDER BY name",
+           useRef(UID);
+    /* TODO
+    error err = last_error("loadTags");
+    if (err != noError) {
+        return err;
+    }
+    */
+    Poco::Data::RecordSet rs(select);
+    while (!select.done()) {
+        select.execute();
+        bool more = rs.moveFirst();
+        while (more) {
+            locked<TagModel> model = list.create(rs);
+            more = rs.moveNext();
+        }
+    }
+    return noError;
 }
 
 std::string TagModel::String() const {

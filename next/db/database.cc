@@ -1154,41 +1154,7 @@ error Database::loadWorkspaces(const Poco::UInt64 &UID, ProtectedContainer<Works
 
     try {
         list.clear();
-
-        Poco::Data::Statement select(session_);
-        select <<
-               "SELECT local_id, id, uid, name, premium, "
-               "only_admins_may_create_projects, admin, "
-               "projects_billable_by_default, "
-               "is_business, locked_time "
-               "FROM workspaces "
-               "WHERE uid = :uid "
-               "ORDER BY name",
-               useRef(UID);
-        error err = last_error("loadWorkspaces");
-        if (err != noError) {
-            return err;
-        }
-        Poco::Data::RecordSet rs(select);
-        while (!select.done()) {
-            select.execute();
-            bool more = rs.moveFirst();
-            while (more) {
-                locked<WorkspaceModel> model = list.create();
-                model->SetLocalID(rs[0].convert<Poco::Int64>());
-                model->SetID(rs[1].convert<Poco::UInt64>());
-                model->SetUID(rs[2].convert<Poco::UInt64>());
-                model->SetName(rs[3].convert<std::string>());
-                model->SetPremium(rs[4].convert<bool>());
-                model->SetOnlyAdminsMayCreateProjects(rs[5].convert<bool>());
-                model->SetAdmin(rs[6].convert<bool>());
-                model->SetProjectsBillableByDefault(rs[7].convert<bool>());
-                model->SetBusiness(rs[8].convert<bool>());
-                model->SetLockedTime(rs[9].convert<time_t>());
-                model->ClearDirty();
-                more = rs.moveNext();
-            }
-        }
+        return WorkspaceModel::LoadFromDatabase(list, session_, UID);
     } catch(const Poco::Exception& exc) {
         return error::REMOVE_LATER_EXCEPTION_HANDLER;
     } catch(const std::exception& ex) {
@@ -1207,6 +1173,7 @@ error Database::loadClients(const Poco::UInt64 &UID, ProtectedContainer<ClientMo
 
     try {
         list.clear();
+        return ClientModel::LoadFromDatabase(list, session_, UID);
 
         Poco::Data::Statement select(session_);
         select <<
@@ -1261,6 +1228,7 @@ error Database::loadProjects(const Poco::UInt64 &UID, ProtectedContainer<Project
 
     try {
         list.clear();
+        return ProjectModel::LoadFromDatabase(list, session_, UID);
 
         Poco::Data::Statement select(session_);
         select <<
@@ -1343,6 +1311,7 @@ error Database::loadTasks(const Poco::UInt64 &UID, ProtectedContainer<TaskModel>
 
     try {
         list.clear();
+        return TaskModel::LoadFromDatabase(list, session_, UID);
 
         Poco::Data::Statement select(session_);
         select <<
@@ -1397,42 +1366,7 @@ error Database::loadTags(const Poco::UInt64 &UID, ProtectedContainer<TagModel> &
 
     try {
         list.clear();
-
-        Poco::Data::Statement select(session_);
-        select <<
-               "SELECT local_id, id, uid, name, wid, guid "
-               "FROM tags "
-               "WHERE uid = :uid "
-               "ORDER BY name",
-               useRef(UID);
-        error err = last_error("loadTags");
-        if (err != noError) {
-            return err;
-        }
-        Poco::Data::RecordSet rs(select);
-        while (!select.done()) {
-            select.execute();
-            bool more = rs.moveFirst();
-            while (more) {
-                locked<TagModel> model = list.create();
-                model->SetLocalID(rs[0].convert<Poco::Int64>());
-                if (rs[1].isEmpty()) {
-                    model->SetID(0);
-                } else {
-                    model->SetID(rs[1].convert<Poco::UInt64>());
-                }
-                model->SetUID(rs[2].convert<Poco::UInt64>());
-                model->SetName(rs[3].convert<std::string>());
-                model->SetWID(rs[4].convert<Poco::UInt64>());
-                if (rs[5].isEmpty()) {
-                    model->SetGUID({});
-                } else {
-                    model->SetGUID(rs[5].convert<uuid_t>());
-                }
-                model->ClearDirty();
-                more = rs.moveNext();
-            }
-        }
+        return TagModel::LoadFromDatabase(list, session_, UID);
     } catch(const Poco::Exception& exc) {
         return error::REMOVE_LATER_EXCEPTION_HANDLER;
     } catch(const std::exception& ex) {
@@ -1450,6 +1384,7 @@ error Database::loadAutotrackerRules(const Poco::UInt64 &UID, ProtectedContainer
 
     try {
         list.clear();
+        return AutotrackerRuleModel::LoadFromDatabase(list, session_, UID);
 
         Poco::Data::Statement select(session_);
         select <<
@@ -1496,6 +1431,7 @@ error Database::loadTimelineEvents(const Poco::UInt64 &UID, ProtectedContainer<T
 
     try {
         list.clear();
+        return TimelineEventModel::LoadFromDatabase(list, session_, UID);
 
         Poco::Data::Statement select(session_);
         select <<
@@ -1560,6 +1496,7 @@ error Database::loadTimeEntries(const Poco::UInt64 &UID, ProtectedContainer<Time
 
     try {
         list.clear();
+        return TimeEntryModel::LoadFromDatabase(list, session_, UID);
 
         Poco::Data::Statement select(session_);
         select <<

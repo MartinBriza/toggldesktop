@@ -15,6 +15,12 @@
 
 namespace toggl {
 
+using Poco::Data::Keywords::use;
+using Poco::Data::Keywords::useRef;
+using Poco::Data::Keywords::limit;
+using Poco::Data::Keywords::into;
+using Poco::Data::Keywords::now;
+
 static const char *known_colors[] = {
     "#06aaf5", "#c56bff", "#ea468d", "#fb8b14", "#c7741c",
     "#4bc800", "#04bb9b", "#e19a86", "#3750b5", "#a01aa5",
