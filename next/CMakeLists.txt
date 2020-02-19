@@ -57,6 +57,9 @@ set(NEXT_SOURCE_FILES
 
     legacy/toggl_api.cc
     legacy/toggl_api_tools.cc
+    legacy/toggl_api_settings.cc
+    legacy/toggl_api_callbacks.cc
+    legacy/toggl_api_callbacks_private.cc
 )
 
 set(NEXT_APP_SOURCE_FILES
