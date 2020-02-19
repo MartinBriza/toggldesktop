@@ -1,6 +1,7 @@
 #ifndef HTTPCLIENT_H
 #define HTTPCLIENT_H
 
+#include "const.h"
 #include "misc/error.h"
 
 #include <string>
@@ -18,6 +19,31 @@ using Poco::Net::HTTPResponse;
 using Poco::Net::HTTPClientSession;
 
 namespace toggl {
+
+class HTTPRequest {
+ public:
+    HTTPRequest() {}
+
+    bool IsEmpty() {
+        return method.empty()
+                && host.empty()
+                && relative_url.empty()
+                && payload.empty()
+                && basic_auth_password.empty()
+                && basic_auth_username.empty()
+                && !form
+                && timeout_seconds == kHTTPClientTimeoutSeconds;
+    }
+
+    std::string method {};
+    std::string host {};
+    std::string relative_url {};
+    std::string payload {};
+    std::string basic_auth_username {};
+    std::string basic_auth_password {};
+    Poco::Net::HTMLForm *form { nullptr };
+    Poco::Int64 timeout_seconds { kHTTPClientTimeoutSeconds };
+};
 
 class HttpClient {
 public:
@@ -38,7 +64,7 @@ private:
     std::pair<HTTPResponse::HTTPStatus, std::string> internalRequest(const std::string &method, const std::string &host, const std::string &path, Poco::Net::HTMLForm *form);
 
     std::shared_ptr<HTTPClientSession> createSession(const Poco::URI &uri);
-    void setupRequest(HTTPRequest &poco_req);
+    void setupRequest(Poco::Net::HTTPRequest &poco_req);
     std::pair<HTTPResponse::HTTPStatus, std::string> receiveResponse(Poco::Net::HTTPResponse &response, std::shared_ptr<Poco::Net::HTTPClientSession> session);
 
     std::string username_;
@@ -51,6 +77,7 @@ private:
 
     Poco::Int64 timeout_seconds_ { 64 };
 };
+
 
 } // namespace toggl
 

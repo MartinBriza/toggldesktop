@@ -207,6 +207,13 @@ void Context::sync() {
         callbacks_.OnTimerState();
     }
 
+    for (auto i : GetData()->TimeEntries) {
+        auto req = i->MakeRequest();
+        if (!req.IsEmpty()) {
+            logger.log(req.payload);
+        }
+    }
+
     eventQueue_.schedule(std::chrono::seconds(5), std::bind(&Context::sync, this));
 }
 

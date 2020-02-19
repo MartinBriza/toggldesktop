@@ -14,6 +14,8 @@
 #include "./types.h"
 #include "./const.h"
 
+#include "httpclient.h"
+
 #include "Poco/Types.h"
 
 namespace Poco {
@@ -117,6 +119,8 @@ public:
     virtual bool DuplicateResource(const toggl::error &err) const;
     virtual bool ResourceCannotBeCreated(const toggl::error &err) const;
     virtual bool ResolveError(const toggl::error &err);
+
+    HTTPRequest MakeRequest();
 
     error LoadFromDataString(const std::string &);
 

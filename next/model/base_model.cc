@@ -4,6 +4,7 @@
 
 #include <sstream>
 
+#include "userdata.h"
 #include "./batch_update_result.h"
 #include "./formatter.h"
 
@@ -93,6 +94,30 @@ bool BaseModel::ResourceCannotBeCreated(const error &err) const {
 
 bool BaseModel::ResolveError(const error &err) {
     return false;
+}
+
+HTTPRequest BaseModel::MakeRequest() {
+    HTTPRequest req;
+    if (!NeedsPush())
+        return req;
+    // TODO is this necessary?
+    //Parent()->User->EnsureWID(this);
+    EnsureGUID();
+    // TODO this is something that should be somewhere else (after pull?)
+    // Context::updateEntryProjects
+    if (NeedsDELETE()) {
+        req.method = Poco::Net::HTTPRequest::HTTP_DELETE;
+    }
+    else {
+        if (ID() > 0)
+            req.method = Poco::Net::HTTPRequest::HTTP_PUT;
+        else
+            req.method = Poco::Net::HTTPRequest::HTTP_POST;
+        auto json = SaveToJSON();
+        Json::StyledWriter writer;
+        req.payload = writer.write(json);
+    }
+    return req;
 }
 
 void BaseModel::SetDeletedAt(const Poco::Int64 value) {
