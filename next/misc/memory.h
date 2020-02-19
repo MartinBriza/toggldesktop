@@ -244,6 +244,13 @@ public:
     const_iterator end() const { return const_iterator(this); }
     const_iterator cend() const { return const_iterator(this); }
 
+    std::unique_lock<std::recursive_mutex> lock() {
+        return { mutex_ };
+    }
+    std::unique_lock<std::recursive_mutex> lock(std::defer_lock_t t) {
+        return { mutex_, t };
+    }
+
     iterator erase(iterator position) {
         if (position == end()) {
             // TODO warn?

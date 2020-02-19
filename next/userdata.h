@@ -100,6 +100,8 @@ public:
         return load<CountryModel>(Countries, root);
     }
 
+    std::list<HTTPRequest> CollectChanges();
+
     // Stuff from legacy library
     void DeleteRelatedModelsWithWorkspace(id_t wid);
     void RemoveClientFromRelatedModels(id_t cid);

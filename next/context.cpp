@@ -207,10 +207,10 @@ void Context::sync() {
         callbacks_.OnTimerState();
     }
 
-    for (auto i : GetData()->TimeEntries) {
-        auto req = i->MakeRequest();
-        if (!req.IsEmpty()) {
-            logger.log(req.payload);
+    auto requests = GetData()->CollectChanges();
+    for (auto i : requests) {
+        if (!i.IsEmpty()) {
+            logger.log(i.payload);
         }
     }
 

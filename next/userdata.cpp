@@ -56,6 +56,44 @@ Error UserData::loadAll(const Json::Value &root, bool with_user) {
     return Error::kNoError;
 }
 
+std::list<HTTPRequest> UserData::CollectChanges() {
+    // first lock everything... this could probably be a tad shorter but it works
+    auto tagsLock = Tags.lock(std::defer_lock);
+    auto clientsLock = Clients.lock(std::defer_lock);
+    auto projectsLock = Projects.lock(std::defer_lock);
+    auto timeEntriesLock = TimeEntries.lock(std::defer_lock);
+    auto countriesLock = Countries.lock(std::defer_lock);
+    auto workspacesLock = Workspaces.lock(std::defer_lock);
+    auto tasksLock = Tasks.lock(std::defer_lock);
+    auto autotrackerRulesLock = AutotrackerRules.lock(std::defer_lock);
+    auto timelineEventsLock = TimelineEvents.lock(std::defer_lock);
+    std::lock(tagsLock, clientsLock, projectsLock, timeEntriesLock, countriesLock, workspacesLock, tasksLock, autotrackerRulesLock, timelineEventsLock);
+
+    // define a lambda to collect the data from all containers without caring for their type
+    auto collectChanges = [](auto &container) -> std::list<HTTPRequest> {
+        std::list<HTTPRequest> innerList;
+        for (auto i : container) {
+            auto req = i->MakeRequest();
+            if (!req.IsEmpty())
+                innerList.push_back(req);
+        }
+        return innerList;
+    };
+
+    // and construct the list of all HTTP requests
+    std::list<HTTPRequest> list;
+    list.splice(list.end(), collectChanges(Tags));
+    list.splice(list.end(), collectChanges(Clients));
+    list.splice(list.end(), collectChanges(Projects));
+    list.splice(list.end(), collectChanges(TimeEntries));
+    list.splice(list.end(), collectChanges(Countries));
+    list.splice(list.end(), collectChanges(Workspaces));
+    list.splice(list.end(), collectChanges(Tasks));
+    list.splice(list.end(), collectChanges(AutotrackerRules));
+    list.splice(list.end(), collectChanges(TimelineEvents));
+    return list;
+}
+
 void UserData::DeleteRelatedModelsWithWorkspace(id_t wid) {
     auto deleteByWid = [](auto &list, auto wid) {
         for (auto model : list) {
