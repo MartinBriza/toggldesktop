@@ -28,6 +28,12 @@
 
 namespace toggl {
 
+TimeEntryModel::TimeEntryModel(UserData *parent, const Json::Value &root)
+    : BaseModel(parent)
+{
+    LoadFromJSON(root);
+}
+
 bool TimeEntryModel::ResolveError(const error &err) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (durationTooLarge(err) && Stop() && Start()) {

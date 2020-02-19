@@ -64,4 +64,4 @@ int compare_string(const char *s1, const char *s2) {
 
 } // namespace toggl
 
-#endif SRC_STRING_TOOLS_H_
+#endif // SRC_STRING_TOOLS_H_

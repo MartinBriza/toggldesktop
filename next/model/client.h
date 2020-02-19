@@ -17,10 +17,8 @@ namespace toggl {
 template<typename T> class ProtectedContainer;
 
 class TOGGL_INTERNAL_EXPORT ClientModel : public BaseModel {
-    ClientModel(UserData *parent)
-        : BaseModel(parent)
-    , wid_(0)
-    , name_("") {}
+    ClientModel(UserData *parent) : BaseModel(parent) {}
+    ClientModel(UserData *parent, const Json::Value &root);
 public:
     friend class ProtectedContainer<ClientModel>;
 
@@ -46,8 +44,8 @@ public:
     bool ResourceCannotBeCreated(const toggl::error &err) const override;
 
  private:
-    Poco::UInt64 wid_;
-    std::string name_;
+    Poco::UInt64 wid_ { 0 };
+    std::string name_ { "" };
 
     static bool nameHasAlreadyBeenTaken(const error &err);
 };

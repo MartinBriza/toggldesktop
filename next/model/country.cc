@@ -4,6 +4,12 @@
 
 namespace toggl {
 
+CountryModel::CountryModel(UserData *parent, const Json::Value &root)
+    : BaseModel(parent)
+{
+    LoadFromJSON(root);
+}
+
 std::string CountryModel::String() const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     std::stringstream ss;

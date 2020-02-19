@@ -9,6 +9,12 @@
 
 namespace toggl {
 
+ClientModel::ClientModel(UserData *parent, const Json::Value &root)
+    : BaseModel(parent)
+{
+    LoadFromJSON(root);
+}
+
 std::string ClientModel::ModelName() const {
     return kModelClient;
 }

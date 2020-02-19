@@ -13,10 +13,8 @@ namespace toggl {
 template<typename T> class ProtectedContainer;
 
 class TOGGL_INTERNAL_EXPORT TagModel : public BaseModel {
-    TagModel(UserData *parent)
-        : BaseModel(parent)
-    , wid_(0)
-    , name_("") {}
+    TagModel(UserData *parent) : BaseModel(parent) {}
+    TagModel(UserData *parent, const Json::Value &root);
 public:
     friend class ProtectedContainer<TagModel>;
 
@@ -37,8 +35,8 @@ public:
     error LoadFromJSON(const Json::Value &data) override;
 
  private:
-    Poco::UInt64 wid_;
-    std::string name_;
+    Poco::UInt64 wid_ { 0 };
+    std::string name_ { "" };
 };
 
 }  // namespace toggl

@@ -32,19 +32,7 @@ class BatchUpdateResult;
 
 class TOGGL_INTERNAL_EXPORT BaseModel {
 protected:
-    BaseModel(UserData *parent)
-    : userData_(parent)
-    , local_id_(0)
-    , id_(0)
-    , guid_("")
-    , ui_modified_at_(0)
-    , uid_(0)
-    , dirty_(false)
-    , deleted_at_(0)
-    , is_marked_as_deleted_on_server_(false)
-    , updated_at_(0)
-    , validation_error_(noError)
-    , unsynced_(false) {}
+    BaseModel(UserData *parent) : userData_(parent) {}
 public:
     virtual ~BaseModel() {}
 
@@ -142,28 +130,28 @@ public:
     std::string batchUpdateRelativeURL() const;
     std::string batchUpdateMethod() const;
 
-    toggl::UserData *userData_;
+    toggl::UserData *userData_ { nullptr };
 
-    Poco::Int64 local_id_;
-    id_t id_;
-    uuid_t guid_;
-    Poco::Int64 ui_modified_at_;
-    id_t uid_;
-    Poco::Int64 deleted_at_;
-    Poco::Int64 updated_at_;
-    bool dirty_;
-    bool is_marked_as_deleted_on_server_;
+    Poco::Int64 local_id_ { 0 };
+    id_t id_ { 0 };
+    uuid_t guid_ { "" };
+    Poco::Int64 ui_modified_at_ { 0 };
+    id_t uid_ { 0 };
+    Poco::Int64 deleted_at_ { 0 };
+    Poco::Int64 updated_at_ { 0 };
+    bool dirty_ { false };
+    bool is_marked_as_deleted_on_server_ { false };
 
     // Flag is set only when sync fails.
     // Its for viewing purposes only. It should not
     // be used to check if a model needs to be
     // pushed to backend. It only means that some
     // attempt to push failed somewhere.
-    bool unsynced_;
+    bool unsynced_ { false };
 
     // If model push to backend results in an error,
     // the error is attached to the model for later inspection.
-    error validation_error_;
+    error validation_error_ { noError };
 };
 
 }  // namespace toggl

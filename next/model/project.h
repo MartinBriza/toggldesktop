@@ -17,17 +17,8 @@ template<typename T> class ProtectedContainer;
 class ClientModel;
 
 class TOGGL_INTERNAL_EXPORT ProjectModel : public BaseModel {
-    ProjectModel(UserData *parent)
-        : BaseModel(parent)
-    , wid_(0)
-    , cid_(0)
-    , name_("")
-    , color_("")
-    , active_(false)
-    , private_(false)
-    , billable_(false)
-    , client_guid_("")
-    , client_name_("") {}
+    ProjectModel(UserData *parent) : BaseModel(parent) {}
+    ProjectModel(UserData *parent, const Json::Value &root);
 public:
     friend class ProtectedContainer<ProjectModel>;
     static std::vector<std::string> ColorCodes;
@@ -109,15 +100,15 @@ public:
     bool clientIsInAnotherWorkspace(const toggl::error &err) const;
     bool onlyAdminsCanChangeProjectVisibility(const toggl::error &err) const;
 
-    Poco::UInt64 wid_;
-    Poco::UInt64 cid_;
-    std::string name_;
-    std::string color_;
-    bool active_;
-    bool private_;
-    bool billable_;
-    uuid_t client_guid_;
-    std::string client_name_;
+    Poco::UInt64 wid_ { 0 };
+    Poco::UInt64 cid_ { 0 };
+    std::string name_ { "" };
+    std::string color_ { "" };
+    bool active_ { false };
+    bool private_ { false };
+    bool billable_ { false };
+    uuid_t client_guid_ { "" };
+    std::string client_name_ { "" };
 };
 
 template<typename T, size_t N> T *end(T (&ra)[N]);

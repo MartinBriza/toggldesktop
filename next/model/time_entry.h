@@ -18,21 +18,8 @@ template<typename T> class ProtectedContainer;
 class UserModel;
 
 class TOGGL_INTERNAL_EXPORT TimeEntryModel : public BaseModel, public TimedEvent {
-    TimeEntryModel(UserData *parent)
-        : BaseModel(parent)
-    , wid_(0)
-    , pid_(0)
-    , tid_(0)
-    , billable_(false)
-    , start_(0)
-    , stop_(0)
-    , duration_in_seconds_(0)
-    , description_("")
-    , duronly_(false)
-    , created_with_("")
-    , project_guid_("")
-    , unsynced_(false)
-    , last_start_at_(0) {}
+    TimeEntryModel(UserData *parent) : BaseModel(parent) {}
+    TimeEntryModel(UserData *parent, const Json::Value &root);
 public:
     friend class ProtectedContainer<TimeEntryModel>;
 
@@ -182,19 +169,19 @@ public:
     void StopTracking();
 
  private:
-    Poco::UInt64 wid_;
-    Poco::UInt64 pid_;
-    Poco::UInt64 tid_;
-    bool billable_;
-    Poco::Int64 start_;
-    Poco::Int64 stop_;
-    Poco::Int64 duration_in_seconds_;
-    std::string description_;
-    bool duronly_;
-    std::string created_with_;
-    uuid_t project_guid_;
-    bool unsynced_;
-    Poco::Int64 last_start_at_;
+    Poco::UInt64 wid_ { 0 };
+    Poco::UInt64 pid_ { 0 };
+    Poco::UInt64 tid_ { 0 };
+    bool billable_ { false };
+    Poco::Int64 start_ { 0 };
+    Poco::Int64 stop_ { 0 };
+    Poco::Int64 duration_in_seconds_ { 0 };
+    std::string description_ { "" };
+    bool duronly_ { false };
+    std::string created_with_ { "" };
+    uuid_t project_guid_ { "" };
+    bool unsynced_ { false };
+    Poco::Int64 last_start_at_ { 0 };
 
     bool setDurationStringHHMMSS(const std::string &value);
     bool setDurationStringHHMM(const std::string &value);

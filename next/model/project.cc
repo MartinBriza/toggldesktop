@@ -27,6 +27,12 @@ template<typename T, size_t N> T *end(T (&ra)[N]) {
 
 std::vector<std::string> ProjectModel::ColorCodes(known_colors, end(known_colors));
 
+ProjectModel::ProjectModel(UserData *parent, const Json::Value &root)
+    : BaseModel(parent)
+{
+    LoadFromJSON(root);
+}
+
 std::string ProjectModel::String() const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     std::stringstream ss;

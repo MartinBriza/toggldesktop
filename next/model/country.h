@@ -11,9 +11,8 @@ namespace toggl {
 template<typename T> class ProtectedContainer;
 
 class TOGGL_INTERNAL_EXPORT CountryModel : public BaseModel {
-    CountryModel(UserData *parent)
-        : BaseModel(parent)
-    , name_("") {}
+    CountryModel(UserData *parent) : BaseModel(parent) {}
+    CountryModel(UserData *parent, const Json::Value &root);
 public:
     friend class ProtectedContainer<CountryModel>;
 
@@ -34,8 +33,8 @@ public:
     error LoadFromJSON(const Json::Value &data) override;
 
  private:
-    std::string name_;
-    std::string country_code_;
+    std::string name_ { "" };
+    std::string country_code_ { "" };
 };
 
 } // namespace toggl

@@ -138,12 +138,14 @@ private:
                 item = list.byGUID(guid);
             }
             if (!item) {
-                item = list.create();
+                item = list.create(i);
+            }
+            else {
+                item->LoadFromJSON(i);
             }
             if (!i["server_deleted_at"].asString().empty())
                 item->MarkAsDeletedOnServer();
             item->SetUID(User->ID());
-            item->LoadFromJSON(i);
         }
         return Error::NO_ERROR;
     }
