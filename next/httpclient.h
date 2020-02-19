@@ -20,12 +20,15 @@ using Poco::Net::HTTPClientSession;
 
 namespace toggl {
 
+class BaseModel;
+
 class HTTPRequest {
  public:
     HTTPRequest() {}
 
     bool IsEmpty() {
-        return method.empty()
+        return !model
+                && method.empty()
                 && host.empty()
                 && relative_url.empty()
                 && payload.empty()
@@ -35,6 +38,7 @@ class HTTPRequest {
                 && timeout_seconds == kHTTPClientTimeoutSeconds;
     }
 
+    BaseModel *model { nullptr };
     std::string method {};
     std::string host {};
     std::string relative_url {};

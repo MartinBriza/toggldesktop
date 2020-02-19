@@ -9,6 +9,10 @@ TogglApi::TogglApi(const std::string &app_name, const std::string &username, con
 
 }
 
+HttpClient *TogglApi::Client() {
+    return &client_;
+}
+
 void TogglApi::setCredentials(const std::string &username, const std::string &password) {
     client_.setCredentials(username, password);
 }

@@ -9,6 +9,8 @@ class TogglApi {
 public:
     TogglApi(const std::string &app_name, const std::string &username = {}, const std::string &password = {});
 
+    HttpClient *Client();
+
     void setCredentials(const std::string &username, const std::string &password);
 
     Result<std::string> v8_me(bool with_related_data, int64_t since = 0);

@@ -208,9 +208,37 @@ void Context::sync() {
     }
 
     auto requests = GetData()->CollectChanges();
+    Json::Reader reader;
     for (auto i : requests) {
         if (!i.IsEmpty()) {
+            auto response = api.Client()->Request(i.method, "https://toggl.space", i.relative_url, i.payload);
+            logger.log("=================================");
             logger.log(i.payload);
+            logger.log("---------------------------------");
+            logger.log(*response);
+            logger.log("=================================");
+            if (response.error().IsNoError()) {
+                if (i.method == Poco::Net::HTTPRequest::HTTP_DELETE) {
+                    i.model->MarkAsDeletedOnServer();
+                }
+                else {
+                    Json::Value root;
+                    reader.parse(*response, root);
+                    auto id = root["id"].asUInt64();
+                    if (!id) {
+                        // TODO
+                        continue;
+                    }
+                    if (i.model->ID() <= 0) {
+                        i.model->SetID(id);
+                        continue;
+                    }
+                    else if (i.model->ID() != id) {
+                        // TODO
+                    }
+                    i.model->LoadFromJSON(root);
+                }
+            }
         }
     }
 

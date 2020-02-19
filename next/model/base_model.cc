@@ -117,6 +117,8 @@ HTTPRequest BaseModel::MakeRequest() {
         Json::StyledWriter writer;
         req.payload = writer.write(json);
     }
+    req.relative_url = ModelURL();
+    req.model = this;
     return req;
 }
 
