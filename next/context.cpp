@@ -138,9 +138,11 @@ void Context::uiStart() {
         logger.log("HERE WE GO! User is: ", user->Email());
         logger.log("We have loaded ", data.TimeEntries.size(), " time entries.");
         data.dumpAll();
+        api.setCredentials(user->APIToken(), "api_token");
 
         callbacks_.OnTimeEntryList();
         callbacks_.OnTimerState();
+        eventQueue_.schedule(std::chrono::seconds(5), std::bind(&Context::sync, this));
     }
     else {
         logger.log("There was no user session in the database");
@@ -198,7 +200,6 @@ void Context::sync() {
 
     auto result = api.v8_me(true, 0);
     if (result) {
-        return;
         data.loadAll(*result);
         data.dumpAll();
 
