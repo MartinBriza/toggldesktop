@@ -25,8 +25,6 @@ class TOGGL_INTERNAL_EXPORT WorkspaceModel : public BaseModel {
 public:
     friend class ProtectedContainer<WorkspaceModel>;
 
-    static Error LoadFromDatabase(ProtectedContainer<WorkspaceModel> &list, Poco::Data::Session &session, id_t UID);
-
     const std::string &Name() const {
         return name_;
     }

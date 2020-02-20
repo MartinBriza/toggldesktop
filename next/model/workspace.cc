@@ -7,12 +7,6 @@
 
 namespace toggl {
 
-using Poco::Data::Keywords::use;
-using Poco::Data::Keywords::useRef;
-using Poco::Data::Keywords::limit;
-using Poco::Data::Keywords::into;
-using Poco::Data::Keywords::now;
-
 std::string WorkspaceModel::String() const {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     std::stringstream ss;
@@ -20,46 +14,6 @@ std::string WorkspaceModel::String() const {
         << " local_id=" << LocalID()
         << " name=" << name_;
     return ss.str();
-}
-
-Error WorkspaceModel::LoadFromDatabase(ProtectedContainer<WorkspaceModel> &list, Poco::Data::Session &session, id_t UID) {
-    Poco::Data::Statement select(session);
-    select <<
-           "SELECT local_id, id, uid, name, premium, "
-           "only_admins_may_create_projects, admin, "
-           "projects_billable_by_default, "
-           "is_business, locked_time "
-           "FROM workspaces "
-           "WHERE uid = :uid "
-           "ORDER BY name",
-           useRef(UID);
-    /*
-    error err = last_error("loadWorkspaces");
-    if (err != noError) {
-        return {{}, err};
-    }
-    */
-    Poco::Data::RecordSet rs(select);
-    while (!select.done()) {
-        select.execute();
-        bool more = rs.moveFirst();
-        while (more) {
-            locked<WorkspaceModel> model = list.create();
-            model->SetLocalID(rs[0].convert<Poco::Int64>());
-            model->SetID(rs[1].convert<Poco::UInt64>());
-            model->SetUID(rs[2].convert<Poco::UInt64>());
-            model->SetName(rs[3].convert<std::string>());
-            model->SetPremium(rs[4].convert<bool>());
-            model->SetOnlyAdminsMayCreateProjects(rs[5].convert<bool>());
-            model->SetAdmin(rs[6].convert<bool>());
-            model->SetProjectsBillableByDefault(rs[7].convert<bool>());
-            model->SetBusiness(rs[8].convert<bool>());
-            model->SetLockedTime(rs[9].convert<time_t>());
-            model->ClearDirty();
-            more = rs.moveNext();
-        }
-    }
-    return noError;
 }
 
 void WorkspaceModel::SetName(const std::string &value) {
