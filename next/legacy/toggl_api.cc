@@ -189,8 +189,10 @@ void toggl_search_help_articles(
     void *context,
     const char_t *keywords) { }
 
-void toggl_view_time_entry_list(
-    void *context) { }
+void toggl_view_time_entry_list(void *context) {
+    auto ctx = reinterpret_cast<Context*>(context);
+    ctx->GetCallbacks()->OnTimeEntryList();
+}
 
 void toggl_view_timeline_data(
     void *context) { }
