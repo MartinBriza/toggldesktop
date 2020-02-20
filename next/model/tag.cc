@@ -8,7 +8,7 @@
 
 namespace toggl {
 
-TagModel::TagModel(UserData *parent, const Json::Value &root)
+TagModel::TagModel(ProtectedContainerBase *parent, const Json::Value &root)
     : BaseModel(parent)
 {
     LoadFromJSON(root);

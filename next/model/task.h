@@ -15,7 +15,7 @@ namespace toggl {
 template<typename T> class ProtectedContainer;
 
 class TOGGL_INTERNAL_EXPORT TaskModel : public BaseModel {
-    TaskModel(UserData *parent)
+    TaskModel(ProtectedContainerBase *parent)
         : BaseModel(parent)
     , name_("")
     , wid_(0)

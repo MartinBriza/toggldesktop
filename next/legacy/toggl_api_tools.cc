@@ -325,7 +325,7 @@ TogglTimeEntryView *time_entry_view_item_init(locked<const TimeEntryModel> &te) 
         view_item->CanAddProjects = user->CanAddProjects();
     if (user && ws)
         view_item->CanSeeBillable = user->CanSeeBillable(ws);
-    view_item->DefaultWID = te->Parent()->User->DefaultWID();
+    view_item->DefaultWID = te->GetUserData()->User->DefaultWID();
 
     view_item->Unsynced = te->Unsynced();
     //view_item->Locked = te->Locked;

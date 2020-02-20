@@ -4,7 +4,7 @@
 
 namespace toggl {
 
-CountryModel::CountryModel(UserData *parent, const Json::Value &root)
+CountryModel::CountryModel(ProtectedContainerBase *parent, const Json::Value &root)
     : BaseModel(parent)
 {
     LoadFromJSON(root);

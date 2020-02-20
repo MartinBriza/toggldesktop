@@ -50,12 +50,20 @@ bool BaseModel::NeedsToBeSaved() const {
     return !local_id_ || dirty_;
 }
 
-toggl::UserData *BaseModel::Parent() {
-    return userData_;
+toggl::UserData *BaseModel::GetUserData() {
+    return container_->GetUserData();
 }
 
-const toggl::UserData *BaseModel::Parent() const {
-    return userData_;
+const toggl::UserData *BaseModel::GetUserData() const {
+    return container_->GetUserData();
+}
+
+ProtectedContainerBase *BaseModel::GetContainer() {
+    return container_;
+}
+
+const ProtectedContainerBase *BaseModel::GetContainer() const {
+    return container_;
 }
 
 void BaseModel::EnsureGUID() {

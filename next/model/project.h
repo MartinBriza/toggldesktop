@@ -17,8 +17,8 @@ template<typename T> class ProtectedContainer;
 class ClientModel;
 
 class TOGGL_INTERNAL_EXPORT ProjectModel : public BaseModel {
-    ProjectModel(UserData *parent) : BaseModel(parent) {}
-    ProjectModel(UserData *parent, const Json::Value &root);
+    ProjectModel(ProtectedContainerBase *parent) : BaseModel(parent) {}
+    ProjectModel(ProtectedContainerBase *parent, const Json::Value &root);
 public:
     friend class ProtectedContainer<ProjectModel>;
     static std::vector<std::string> ColorCodes;

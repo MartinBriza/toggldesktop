@@ -7,15 +7,15 @@ namespace toggl {
 
 static int modelCounter = 0;
 
-class TestModel {
+class BaseModel {
 public:
-    TestModel(UserData *, uuid_t uuid, id_t id)
+    BaseModel(ProtectedContainerBase *, uuid_t uuid, id_t id)
         : uuid_(uuid)
         , id_(id)
     {
         modelCounter++;
     }
-    ~TestModel() {
+    ~BaseModel() {
         modelCounter--;
     }
     std::string ModelName() {
@@ -30,6 +30,8 @@ public:
     uuid_t uuid_;
     id_t id_;
 };
+// to make the mock class work with the library implementation
+typedef BaseModel TestModel;
 
 TEST(ProtectedContainer, Init) {
     ProtectedContainer<TestModel> container { nullptr };

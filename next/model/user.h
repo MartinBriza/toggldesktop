@@ -25,7 +25,7 @@ template<typename T> class ProtectedModel;
 class Context;
 
 class TOGGL_INTERNAL_EXPORT UserModel : public BaseModel {
-    UserModel(UserData *parent)
+    UserModel(ProtectedContainerBase *parent)
     : BaseModel(parent)
     , api_token_("")
     , default_wid_(0)

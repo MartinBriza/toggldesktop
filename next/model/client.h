@@ -17,8 +17,8 @@ namespace toggl {
 template<typename T> class ProtectedContainer;
 
 class TOGGL_INTERNAL_EXPORT ClientModel : public BaseModel {
-    ClientModel(UserData *parent) : BaseModel(parent) {}
-    ClientModel(UserData *parent, const Json::Value &root);
+    ClientModel(ProtectedContainerBase *parent) : BaseModel(parent) {}
+    ClientModel(ProtectedContainerBase *parent, const Json::Value &root);
 public:
     friend class ProtectedContainer<ClientModel>;
 

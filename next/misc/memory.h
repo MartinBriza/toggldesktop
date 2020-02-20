@@ -53,11 +53,37 @@ private:
     T *data_;
 };
 
+class ProtectedContainerBase {
+public:
+    ProtectedContainerBase(UserData *parent)
+        : userData_(parent)
+    {
+
+    }
+    virtual ~ProtectedContainerBase() {
+
+    }
+
+    UserData *GetUserData();
+    const UserData *GetUserData() const;
+
+    std::unique_lock<std::recursive_mutex> lock(bool immediately = true) {
+        if (immediately)
+            return std::unique_lock(mutex_);
+        return { mutex_, std::defer_lock };
+    }
+
+    virtual locked<BaseModel> baseByGUID(const uuid_t &uuid) = 0;
+protected:
+    UserData *userData_;
+    mutable std::recursive_mutex mutex_;
+};
+
 template <class T>
-class ProtectedModel {
+class ProtectedModel : public ProtectedContainerBase {
 public:
     ProtectedModel(UserData *parent)
-        : userData_(parent)
+        : ProtectedContainerBase(parent)
     {
 
     }
@@ -69,7 +95,7 @@ public:
     template <typename ...Args>
     locked<T> create(Args&&... args) {
         std::unique_lock<std::recursive_mutex> lock(mutex_);
-        value_ = new T(userData_, std::forward<Args>(args)...);
+        value_ = new T(this, std::forward<Args>(args)...);
         return { mutex_, value_ };
     }
     template<typename U> locked<U> make_locked(U *val) {
@@ -94,11 +120,13 @@ public:
         std::unique_lock<std::recursive_mutex> lock(mutex_);
         return value_;
     }
+    locked<BaseModel> baseByGUID(const uuid_t &uuid) override {
+        return {};
+    }
 private:
-    UserData *userData_;
     T *value_;
-    mutable std::recursive_mutex mutex_;
 };
+
 
 /**
  * @class ProtectedContainer
@@ -108,7 +136,7 @@ private:
  * It also provides facilities to lock other objects using the internal mutex.
  */
 template <class T>
-class ProtectedContainer {
+class ProtectedContainer : public ProtectedContainerBase {
 public:
     class iterator {
     public:
@@ -230,7 +258,7 @@ public:
     friend class const_iterator;
 
     ProtectedContainer(UserData *parent)
-        : userData_(parent)
+        : ProtectedContainerBase(parent)
     {
 
     }
@@ -244,12 +272,6 @@ public:
     iterator end() { return iterator(this); }
     const_iterator end() const { return const_iterator(this); }
     const_iterator cend() const { return const_iterator(this); }
-
-    std::unique_lock<std::recursive_mutex> lock(bool immediately = true) {
-        if (immediately)
-            return std::unique_lock(mutex_);
-        return { mutex_, std::defer_lock };
-    }
 
     iterator erase(iterator position) {
         if (position == end()) {
@@ -294,7 +316,7 @@ public:
     template <typename ...Args>
     locked<T> create(Args&&... args) {
         std::unique_lock<std::recursive_mutex> lock(mutex_);
-        T *val = new T(userData_, std::forward<Args>(args)...);
+        T *val = new T(this, std::forward<Args>(args)...);
         container_.push_back(val);
         uuidMap_[val->GUID()] = val;
         return { mutex_, val };
@@ -419,7 +441,7 @@ public:
         }
         return {};
     }
-    locked<BaseModel> baseByGUID(const uuid_t &uuid) {
+    locked<BaseModel> baseByGUID(const uuid_t &uuid) override {
         std::unique_lock<std::recursive_mutex> lock(mutex_);
         try {
             return { mutex_, uuidMap_.at(uuid) };
@@ -431,10 +453,8 @@ public:
 
     bool operator==(const ProtectedContainer &o) const { return this == &o; }
 private:
-    UserData *userData_;
     std::vector<T*> container_;
     std::map<uuid_t, T*> uuidMap_;
-    mutable std::recursive_mutex mutex_;
 };
 
 } // namespace toggl

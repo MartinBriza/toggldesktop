@@ -16,7 +16,7 @@ namespace toggl {
 template<typename T> class ProtectedModel;
 
 class TOGGL_INTERNAL_EXPORT SettingsModel : public BaseModel {
-    SettingsModel(UserData *parent)
+    SettingsModel(ProtectedContainerBase *parent)
     : BaseModel(parent)
     , use_idle_detection(false)
     , menubar_timer(false)

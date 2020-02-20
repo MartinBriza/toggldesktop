@@ -28,7 +28,7 @@
 
 namespace toggl {
 
-TimeEntryModel::TimeEntryModel(UserData *parent, const Json::Value &root)
+TimeEntryModel::TimeEntryModel(ProtectedContainerBase *parent, const Json::Value &root)
     : BaseModel(parent)
 {
     LoadFromJSON(root);
@@ -87,46 +87,46 @@ bool TimeEntryModel::isNotFound(const error &err) const {
 
 locked<WorkspaceModel> TimeEntryModel::Workspace() {
     if (WID() > 0)
-        return Parent()->Workspaces.byId(WID());
+        return GetUserData()->Workspaces.byId(WID());
     return {};
 }
 
 locked<const WorkspaceModel> TimeEntryModel::Workspace() const {
     if (WID() > 0)
-        return Parent()->Workspaces.byId(WID());
+        return GetUserData()->Workspaces.byId(WID());
     return {};
 }
 
 locked<ProjectModel> TimeEntryModel::Project() {
     if (PID() > 0)
-        return Parent()->Projects.byId(WID());
+        return GetUserData()->Projects.byId(WID());
     return {};
 }
 
 locked<const ProjectModel> TimeEntryModel::Project() const {
     if (PID() > 0)
-        return Parent()->Projects.byId(WID());
+        return GetUserData()->Projects.byId(WID());
     return {};
 }
 
 locked<TaskModel> TimeEntryModel::Task() {
     if (TID() > 0)
-        return Parent()->Tasks.byId(WID());
+        return GetUserData()->Tasks.byId(WID());
     return {};
 }
 
 locked<const TaskModel> TimeEntryModel::Task() const {
     if (TID() > 0)
-        return Parent()->Tasks.byId(WID());
+        return GetUserData()->Tasks.byId(WID());
     return {};
 }
 
 locked<UserModel> TimeEntryModel::User() {
-    return *Parent()->User;
+    return *GetUserData()->User;
 }
 
 locked<const UserModel> TimeEntryModel::User() const {
-    return *Parent()->User;
+    return *GetUserData()->User;
 }
 
 bool TimeEntryModel::isMissingCreatedWith(const error &err) const {

@@ -384,7 +384,7 @@ error UserModel::EnableOfflineLogin(
 }
 
 bool UserModel::HasPremiumWorkspaces() const {
-    for (auto i : Parent()->Workspaces) {
+    for (auto i : GetUserData()->Workspaces) {
         if (i->Premium()) {
             return true;
         }
@@ -393,7 +393,7 @@ bool UserModel::HasPremiumWorkspaces() const {
 }
 
 bool UserModel::CanAddProjects() const {
-    for (auto i : Parent()->Workspaces) {
+    for (auto i : GetUserData()->Workspaces) {
         if (i->OnlyAdminsMayCreateProjects()) {
             return false;
         }

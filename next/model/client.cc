@@ -9,7 +9,7 @@
 
 namespace toggl {
 
-ClientModel::ClientModel(UserData *parent, const Json::Value &root)
+ClientModel::ClientModel(ProtectedContainerBase *parent, const Json::Value &root)
     : BaseModel(parent)
 {
     LoadFromJSON(root);

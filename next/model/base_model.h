@@ -13,6 +13,7 @@
 
 #include "./types.h"
 #include "./const.h"
+#include "misc/memory.h"
 
 #include "httpclient.h"
 
@@ -32,12 +33,14 @@ class BatchUpdateResult;
 
 class TOGGL_INTERNAL_EXPORT BaseModel {
 protected:
-    BaseModel(UserData *parent) : userData_(parent) {}
+    BaseModel(ProtectedContainerBase *parent) : container_(parent) {}
 public:
     virtual ~BaseModel() {}
 
-    toggl::UserData *Parent();
-    const toggl::UserData *Parent() const;
+    toggl::UserData *GetUserData();
+    const toggl::UserData *GetUserData() const;
+    toggl::ProtectedContainerBase *GetContainer();
+    const toggl::ProtectedContainerBase *GetContainer() const;
 
     void EnsureGUID();
 
@@ -130,7 +133,7 @@ public:
     std::string batchUpdateRelativeURL() const;
     std::string batchUpdateMethod() const;
 
-    toggl::UserData *userData_ { nullptr };
+    ProtectedContainerBase *container_{ nullptr };
 
     Poco::Int64 local_id_ { 0 };
     id_t id_ { 0 };

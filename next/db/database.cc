@@ -1008,7 +1008,7 @@ error Database::LoadUserByEmail(const std::string &email, locked<UserModel> &mod
 }
 
 error Database::loadUsersRelatedData(locked<UserModel> &user) {
-    auto data = user->Parent();
+    auto data = user->GetUserData();
 
     error err = loadWorkspaces(user->ID(), data->Workspaces);
     if (err != noError) {
@@ -2814,7 +2814,7 @@ error Database::SaveUser(
         return noError;
     }
 
-    UserData *relatedData = user->Parent();
+    UserData *relatedData = user->GetUserData();
 
     poco_check_ptr(changes);
 

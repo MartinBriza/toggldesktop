@@ -18,8 +18,8 @@ template<typename T> class ProtectedContainer;
 class UserModel;
 
 class TOGGL_INTERNAL_EXPORT TimeEntryModel : public BaseModel, public TimedEvent {
-    TimeEntryModel(UserData *parent) : BaseModel(parent) {}
-    TimeEntryModel(UserData *parent, const Json::Value &root);
+    TimeEntryModel(ProtectedContainerBase *parent) : BaseModel(parent) {}
+    TimeEntryModel(ProtectedContainerBase *parent, const Json::Value &root);
 public:
     friend class ProtectedContainer<TimeEntryModel>;
 

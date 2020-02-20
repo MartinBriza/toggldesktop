@@ -27,7 +27,7 @@ template<typename T, size_t N> T *end(T (&ra)[N]) {
 
 std::vector<std::string> ProjectModel::ColorCodes(known_colors, end(known_colors));
 
-ProjectModel::ProjectModel(UserData *parent, const Json::Value &root)
+ProjectModel::ProjectModel(ProtectedContainerBase *parent, const Json::Value &root)
     : BaseModel(parent)
 {
     LoadFromJSON(root);
@@ -61,13 +61,13 @@ std::string ProjectModel::FullName() const {
 
 locked<ClientModel> ProjectModel::Client() {
     if (CID() > 0)
-        return Parent()->Clients.byId(CID());
+        return GetUserData()->Clients.byId(CID());
     return {};
 }
 
 locked<const ClientModel> ProjectModel::Client() const {
     if (CID() > 0)
-        return Parent()->Clients.byId(CID());
+        return GetUserData()->Clients.byId(CID());
     return {};
 }
 

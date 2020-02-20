@@ -16,7 +16,7 @@ namespace toggl {
 template<typename T> class ProtectedContainer;
 
 class TOGGL_INTERNAL_EXPORT AutotrackerRuleModel : public BaseModel {
-    AutotrackerRuleModel(UserData *parent)
+    AutotrackerRuleModel(ProtectedContainerBase *parent)
         : BaseModel(parent)
     , term_("")
     , pid_(0)
