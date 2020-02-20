@@ -198,7 +198,7 @@ void Context::getCountries() {
 void Context::sync() {
     logger.log("Syncing...");
 
-    auto result = api.v8_me(true, 0);
+    auto result = api.v8_me(true, data.LastSince());
     if (result) {
         data.loadAll(*result);
         data.dumpAll();

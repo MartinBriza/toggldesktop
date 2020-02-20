@@ -35,6 +35,8 @@ public:
         Settings.create();
     }
 
+    time_t LastSince();
+
     ProtectedModel<UserModel> User { this };
     ProtectedModel<SettingsModel> Settings { this };
     ProtectedContainer<TagModel> Tags { this };
@@ -112,6 +114,7 @@ public:
 
 private:
     Context *context_;
+    time_t lastSince_ { 0 };
 
     template <typename T>
     void dump(ProtectedContainer<T> &list) {

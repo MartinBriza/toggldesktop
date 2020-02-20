@@ -2,6 +2,10 @@
 
 namespace toggl {
 
+time_t UserData::LastSince() {
+    return lastSince_;
+}
+
 locked<BaseModel> UserData::ByGuid(const uuid_t &uuid) {
     // TODO ugh...
     {
@@ -81,6 +85,8 @@ Error UserData::loadAll(const std::string &json, bool with_user) {
 
 Error UserData::loadAll(const Json::Value &root, bool with_user) {
     Error err;
+
+    lastSince_ = root["since"].asInt64();
 
     if (with_user) {
         if (User) {
