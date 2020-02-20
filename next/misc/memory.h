@@ -74,6 +74,7 @@ public:
     }
 
     virtual locked<BaseModel> baseByGUID(const uuid_t &uuid) = 0;
+    virtual void moveGUID(BaseModel *model, const uuid_t &from, const uuid_t &to) = 0;
 protected:
     UserData *userData_;
     mutable std::recursive_mutex mutex_;
@@ -123,6 +124,7 @@ public:
     locked<BaseModel> baseByGUID(const uuid_t &uuid) override {
         return {};
     }
+    virtual void moveGUID(BaseModel *model, const uuid_t &from, const uuid_t &to) {}
 private:
     T *value_;
 };
@@ -449,6 +451,12 @@ public:
         catch (std::out_of_range &) {
             return {};
         }
+    }
+    void moveGUID(BaseModel *model, const uuid_t &from, const uuid_t &to) override {
+        std::unique_lock<std::recursive_mutex> lock(mutex_);
+        if (contains(from) && from != uuid_t())
+            uuidMap_.erase(from);
+        uuidMap_[to] = reinterpret_cast<T*>(model);
     }
 
     bool operator==(const ProtectedContainer &o) const { return this == &o; }

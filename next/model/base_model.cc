@@ -154,6 +154,7 @@ void BaseModel::SetUpdatedAt(const Poco::Int64 value) {
 void BaseModel::SetGUID(const uuid_t &value) {
     std::scoped_lock<std::recursive_mutex> lock(mutex_);
     if (guid_ != value) {
+        GetContainer()->moveGUID(this, guid_, value);
         guid_ = value;
         SetDirty();
     }
